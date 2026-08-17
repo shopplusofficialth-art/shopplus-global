@@ -131,6 +131,18 @@ SP Point คือระบบ reward ภายใน
 - Firestore
 - Cloud Functions
 
+## Design Direction (แนวทางการออกแบบ)
+
+**Direction (ทิศทาง):**
+
+- Earth Tone + Minimalist + Muji-inspired
+
+รายละเอียดเต็ม (Brand Identity & CI, Design Tokens, UI Components &
+Patterns, UX Guidelines & Rules) อยู่ที่ `02-design/DESIGN.md` — เป็น
+**single source of truth** ของ design system ห้ามกำหนดสี/font/spacing/
+component pattern ใหม่ที่ขัดหรือซ้ำซ้อนกับเอกสารนี้ ถ้ายังไม่มีหรือไม่ครบ
+ให้เรียก agent `design-system-creator` สร้าง/เติมให้ครบก่อนเริ่มงาน UI ใด ๆ
+
 ## Development Principle (หลักการพัฒนา)
 
 **Client side (ฝั่ง client):**
@@ -152,7 +164,18 @@ AI Agent ต้อง:
 3. ปฏิบัติตาม Agile workflow
 4. รักษาโครงสร้างโปรเจกต์ให้ชัดเจน
 5. หลีกเลี่ยงการสร้างความซับซ้อนที่ไม่จำเป็น
-6. ขอความชัดเจนเมื่อ requirement ไม่ชัดเจน
+6. ขอความชัดเจนเมื่อ requirement ไม่ชัดเจน โดยใช้ **Ambiguity Protocol**
+   เสมอเมื่อประเด็นนั้นกระทบ business decision หรือกำกวมจริง:
+   1. หยุดและถามผู้ใช้งานก่อนดำเนินการต่อ
+   2. เสนออย่างน้อย **3 แนวทาง** ที่เป็นไปได้
+   3. ระบุเหตุผล ข้อดี ข้อเสียของแต่ละแนวทาง
+   4. แนะนำแนวทางที่ดีที่สุด 1 แนวทางพร้อมเหตุผลที่ชัดเจน
+   5. ให้ผู้ใช้งานเป็นผู้ตัดสินใจสุดท้ายเสมอ — ห้ามสมมติแทนผู้ใช้
+7. อนุญาตให้ **"เลือกบางข้อมาส่ง" (partial scope)** ได้เสมอ — ไม่จำเป็น
+   ต้องสร้าง Feature List, User Journey, Acceptance Criteria, Test Plan,
+   Test Case, หรือ Prototype ให้ครบทุก Feature ในคราวเดียว แต่ทุกส่วนที่
+   เลือกทำต้องมี traceability ครบและสอดคล้องกับเอกสารอื่นที่มีอยู่แล้ว
+   เสมอ (ดู Section 9 และ `.claude/skills/traceability-consistency-check.md`)
 
 ---
 
@@ -169,12 +192,17 @@ AI Agent ต้อง:
 - User flow
 - Architecture
 - UI/UX
+- Design System (Brand Identity, Design Tokens — ดู `02-design/DESIGN.md`)
 
 **03-development**
-- Source code
+- Prototype (concept-level mockup, non-functional) — deliverable หลัก
+  ของระยะนี้ในปัจจุบัน
+- Source code (เมื่อโครงการเข้าสู่ขั้นตอนพัฒนาจริง)
 
 **04-testing**
-- Test cases
+- Acceptance Criteria
+- Test Plan
+- Test Cases
 - QA
 
 **05-release**
@@ -183,7 +211,36 @@ AI Agent ต้อง:
 
 ---
 
-# 9. Security and PDPA Rules (กฎด้านความปลอดภัยและ PDPA)
+# 9. AI Agent System (ระบบ Sub-Agent และ Skill)
+
+โครงการนี้ดำเนินงานผ่านระบบ AI Agent ที่มี **orchestrator กลางชื่อ
+"Shopplus"** (`.claude/agents/shopplus.md`) เป็นจุดรับคำขอเดียว
+(single entry point) จากผู้ใช้ แล้ว route งานต่อไปยัง sub-agent
+เฉพาะทางตาม phase ของ Agile workflow (Section 8) แต่ละตัวมี skill
+(`.claude/skills/`) กำกับ process และ format ของตัวเองไว้อย่างเคร่งครัด
+
+**Source of truth ของระบบ agent:** `.claude/skills/shopplus-orchestration.md`
+(Agent Directory, ลำดับ dependency ระหว่าง sub-agent, Quality Gate
+Checklist) — เอกสารนี้เป็นที่เดียวที่สรุป routing ทั้งหมด ไม่ duplicate
+รายชื่อ agent ไว้ที่นี่เพื่อป้องกัน drift
+
+**กฎสำคัญ:**
+
+- ทุกคำขอที่เกี่ยวกับ requirement, backlog, feature list, user journey,
+  acceptance criteria, test plan, test case, design system, หรือ
+  prototype ควร route ผ่าน `Shopplus` ก่อนเสมอ ไม่ใช่เขียนเอกสารเองโดย
+  ไม่สวมบทบาทเป็น sub-agent ที่เกี่ยวข้อง
+- ห้ามสร้าง agent หรือ skill ใหม่นอกเหนือ Agent Directory ที่มีอยู่โดยไม่
+  ถามผู้ใช้ก่อน (ตาม Ambiguity Protocol ใน Section 7)
+- ทุกงานต้องผ่าน **Quality Gate Checklist** ของ `Shopplus` ก่อนส่งมอบ
+  ให้ผู้ใช้เสมอ ไม่มีข้อยกเว้น
+- ทุกครั้งที่แก้ไขเอกสารใดในสาย traceability ต้องเรียก agent
+  `traceability-consistency-auditor` ต่อเสมอ เพื่อรักษาความสอดคล้องข้าม
+  เอกสารทั้งหมด
+
+---
+
+# 10. Security and PDPA Rules (กฎด้านความปลอดภัยและ PDPA)
 
 การออกแบบทั้งหมดต้องพิจารณา:
 
@@ -201,7 +258,7 @@ AI Agent ต้อง:
 
 ---
 
-# 10. Documentation Rules (กฎการจัดทำเอกสาร)
+# 11. Documentation Rules (กฎการจัดทำเอกสาร)
 
 การตัดสินใจที่สำคัญทั้งหมดต้องได้รับการจัดทำเป็นเอกสาร
 
@@ -214,9 +271,18 @@ AI Agent ต้อง:
 
 ใช้รูปแบบ Markdown
 
+**Traceability ID Scheme:**
+
+ทุกเอกสารต้องรักษา ID scheme ให้ตรงกันตลอดทั้งสาย traceability
+(`FR-xxx`, `US-xxx`, `FT-xxx`, `AC-xxx`, `TC-xxx`, `PT-xxx`) —
+รายละเอียดเต็มของแต่ละ ID และการอ้างอิงข้ามเอกสารอยู่ที่
+`.claude/skills/traceability-consistency-check.md` Section A เป็น
+source of truth เดียว ห้ามสร้าง ID scheme ใหม่ที่ขัดหรือซ้ำซ้อนกับที่
+กำหนดไว้แล้ว
+
 ---
 
-# 11. Development Principles (หลักการพัฒนา)
+# 12. Development Principles (หลักการพัฒนา)
 
 ให้ความสำคัญกับ:
 
@@ -230,7 +296,7 @@ AI Agent ต้อง:
 
 ---
 
-# 12. Project Identity (ข้อมูลประจำตัวโครงการ)
+# 13. Project Identity (ข้อมูลประจำตัวโครงการ)
 
 **Project (โครงการ):**
 

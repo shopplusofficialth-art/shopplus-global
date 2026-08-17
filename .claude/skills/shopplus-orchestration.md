@@ -31,8 +31,12 @@ sub-agent — เมื่อ routing ไปยัง sub-agent ตัวใด 
 | สร้าง/แก้ Product Backlog, Epic, MVP scope, Sprint planning, priority P0–P3 | `product-owner` | (inline ในไฟล์ agent เอง — ไม่มี skill แยก) | `01-requirements/02-product-backlog.md` | 01-requirements |
 | สร้าง/แก้ Feature List, จัดกลุ่ม FR/US เป็น FT-xxx, MoSCoW | `feature-list-analyst` | `feature-list-and-user-journey` (Section A) | `01-requirements/03-feature-list.md` | 01-requirements |
 | สร้าง/แก้ User Journey, journey diagram, flow ของผู้ใช้แต่ละ actor | `user-journey-designer` | `feature-list-and-user-journey` (Section B) | `02-design/04-user-journey.md` | 02-design |
-| สร้าง/แก้ Test Spec, test case, QA scenario | `test-spec-analyst` | `test-spec-standard` | `04-testing/01-test-spec.md` | 04-testing |
-| สร้าง/แก้ Prototype, mockup, หน้าจอตัวอย่าง | `prototype-designer` | `prototype-standard` | `03-development/01-prototype-log.md` + `03-development/prototypes/*.html` | 03-development |
+| สร้าง/แก้ Acceptance Criteria, GWT ต่อ Backlog Item | `acceptance-criteria-writer` | `acceptance-criteria-standard` | `04-testing/acceptance-criteria.md` | 04-testing |
+| สร้าง/แก้ Test Plan, test strategy, test environment, risk management, entry/exit criteria | `test-plan-writer` | `test-plan-standard` | `04-testing/test-plan.md` | 04-testing |
+| สร้าง/แก้ Test Case, step-by-step test, QA scenario ต่อ Feature | `test-case-writer` | `test-case-standard` | `04-testing/test-cases/<feature-slug>.md` | 04-testing |
+| สร้าง/แก้ Design System, DESIGN.md, brand guideline, โทนสี/สไตล์ของ UI | `design-system-creator` | `design-system-creation` | `02-design/DESIGN.md` | 02-design |
+| สร้าง/แก้ Prototype, mockup, หน้าจอตัวอย่าง | `prototype-designer` | `prototype-standard` | `03-development/01-prototype-log.md` + `03-development/prototypes/v<N>/*.html` | 03-development |
+| รันทั้ง pipeline ต่อเนื่องตั้งแต่ Requirement→Backlog→Feature List→User Journey→(Test Plan+Acceptance Criteria→Test Case) ในคำขอเดียว, "เริ่มโปรเจกต์ใหม่ทั้งหมด", "ทำ feature ใหม่ให้ครบตั้งแต่ requirement ถึง test" | `pipeline-orchestrator` | `pipeline-orchestration` | ไฟล์ตาม stage ที่รันจริง (ดู skill `pipeline-orchestration`) | Cross-cutting |
 | ตรวจสอบความสอดคล้อง/traceability ข้ามเอกสาร, "sync", "เช็คทั้งหมดให้หน่อย" | `traceability-consistency-auditor` | `traceability-consistency-check` | Consistency Check Report (+ แก้เอกสารที่กระทบ) | Cross-cutting |
 
 ถ้าคำขอไม่ตรงกับแถวใดใน Agent Directory นี้เลย (เช่น อยู่นอกขอบเขต
@@ -44,19 +48,27 @@ Protocol (Section D) แจ้งผู้ใช้แทน
 
 ## Section B: Multi-Dimension Sequencing Rule (กฎการเรียงลำดับเมื่อคำขอครอบคลุมหลายมิติ)
 
-ถ้าคำขอเดียวครอบคลุมมากกว่า 1 แถวใน Agent Directory (เช่น "ทำ Feature
-List และ User Journey ให้ครบ" หรือ "เริ่มโปรเจกต์ใหม่ทั้งหมด") ให้ทำตาม
-ลำดับ dependency ของสาย traceability เสมอ **ห้ามข้ามลำดับ**:
+**Delegate ไปยัง `pipeline-orchestrator` ก่อนเสมอ** ถ้าคำขอต้องการรัน
+**ทั้งสาย pipeline มาตรฐาน**ต่อเนื่องกัน (ตั้งแต่ Requirement ไปจนถึง
+Test Plan/Acceptance Criteria/Test Case แบบไม่ต้องเรียกทีละขั้นตอน — ดู
+skill `pipeline-orchestration` สำหรับรายละเอียดเต็ม) — Section B นี้
+(ด้านล่าง) ใช้สำหรับกรณีคำขอครอบคลุมหลายมิติแบบ**ไม่เต็มสาย** เท่านั้น
+(เช่น "ทำ Feature List และ User Journey ให้ครบ" ที่ไม่ต้องการไปถึง Test
+Case)
+
+ถ้าคำขอเดียวครอบคลุมมากกว่า 1 แถวใน Agent Directory แบบไม่เต็มสาย ให้ทำ
+ตามลำดับ dependency ของสาย traceability เสมอ **ห้ามข้ามลำดับ**:
 
 1. `requirement-analyst` (BRD) — ต้องมีก่อนเสมอ
 2. `product-owner` (Backlog) — ต้องอิง BRD ที่มีอยู่
 3. `feature-list-analyst` (Feature List) — ต้องอิง BRD + Backlog
 4. `user-journey-designer` (User Journey) — ต้องอิง BRD + Backlog +
    Feature List
-5. `test-spec-analyst` (Test Spec) และ/หรือ `prototype-designer`
-   (Prototype) — เลือกได้ตามขอบเขตที่ผู้ใช้ต้องการ ("เลือกบางข้อมาส่ง")
-   ต้องอิง Feature List + User Journey ที่มีอยู่แล้ว และใช้ Feature/
-   Journey **เดียวกัน** ทั้งคู่
+5. `acceptance-criteria-writer` (Acceptance Criteria), `test-plan-writer`
+   (Test Plan), `test-case-writer` (Test Case), และ/หรือ
+   `prototype-designer` (Prototype) — เลือกได้ตามขอบเขตที่ผู้ใช้ต้องการ
+   ("เลือกบางข้อมาส่ง") ต้องอิง Feature List + User Journey ที่มีอยู่แล้ว
+   และใช้ Feature/Journey **เดียวกัน** กับที่ Prototype เลือกไว้ (ถ้ามี)
 6. `traceability-consistency-auditor` — เรียกใช้ **ทุกครั้ง** หลังขั้นตอน
    ใดขั้นตอนหนึ่งข้างต้นเสร็จ ไม่ว่าจะทำกี่ขั้นตอนในคำขอเดียว
 
@@ -64,6 +76,26 @@ List และ User Journey ให้ครบ" หรือ "เริ่มโ
 List ทั้งที่ยังไม่มี BRD) ให้แจ้งผู้ใช้ก่อนว่าขาดอะไร แล้วถามว่าต้องการให้
 เริ่มจากขั้นตอนที่ขาดหรือไม่ — **ห้ามข้ามไปสร้าง Feature List จากการ
 สมมติ BRD เอง**
+
+**Conditional dependency สำหรับ Prototype:** `prototype-designer` ต้อง
+มี `02-design/DESIGN.md` ที่ครบถ้วนก่อนเริ่มงานเสมอ (ไม่ใช่ dependency
+ตามลำดับ phase แบบข้อ 1–4 ข้างบน แต่เป็น**เงื่อนไข**ที่ตรวจสอบทุกครั้ง) —
+ถ้าคำขอเดียวต้องทำทั้ง Prototype และ DESIGN.md ยังไม่มี/ไม่ครบ ให้เรียก
+`design-system-creator` ก่อน `prototype-designer` เสมอ แม้ผู้ใช้จะไม่ได้
+พูดถึง Design System ในคำขอโดยตรงก็ตาม
+
+**Conditional dependency สำหรับ Test Case (บล็อกเด็ดขาด):**
+`test-case-writer` ต้องมี Acceptance Criteria ครบใน
+`04-testing/acceptance-criteria.md` สำหรับ Feature ที่จะเขียน Test Case
+ก่อนเริ่มงานเสมอ — ถ้าคำขอเดียวต้องทำทั้ง Test Case และ AC ของ Feature
+นั้นยังไม่มี/ไม่ครบ ให้เรียก `acceptance-criteria-writer` ก่อน
+`test-case-writer` เสมอ แม้ผู้ใช้จะขอแค่ Test Case ก็ตาม — ห้าม
+`test-case-writer` เขียน test case จาก scenario ที่คิดขึ้นเอง
+
+**Test Plan ไม่มี conditional dependency:** `test-plan-writer` เป็นเอกสาร
+ระดับโปรเจกต์ (ไม่ผูก Feature เดียว) ไม่ต้องรอ Acceptance Criteria หรือ
+Test Case — สร้าง/แก้ไขได้ทันทีที่ BRD + Backlog + Feature List มีอยู่
+(ขั้นตอน 1–3 ข้างบน)
 
 ---
 
@@ -73,7 +105,7 @@ List ทั้งที่ยังไม่มี BRD) ให้แจ้งผ
 
 - [ ] ไฟล์ผลลัพธ์ตรงตาม **Required Output Format** ของ skill ที่เกี่ยวข้อง
       ครบทุกส่วน (header, Revision History, ตารางที่กำหนด)
-- [ ] ทุก ID ที่อ้างอิง (FR/US/FT/TC/PT) มี traceability จริง ไม่มีการ
+- [ ] ทุก ID ที่อ้างอิง (FR/US/FT/AC/TC/PT) มี traceability จริง ไม่มีการ
       fabricate
 - [ ] มี Revision History entry ใหม่ในทุกไฟล์ที่ถูกแก้ไข
 - [ ] ถ้างานนี้เข้าเงื่อนไขต้องเรียก `traceability-consistency-auditor`
@@ -81,6 +113,23 @@ List ทั้งที่ยังไม่มี BRD) ให้แจ้งผ
       ให้ผู้ใช้เห็น ไม่ถูกซ่อนหรือข้ามไปเอง
 - [ ] ทุกจุดที่ควร trigger Ambiguity Protocol ได้ถูก trigger จริง (ไม่มี
       การสมมติแทนผู้ใช้)
+- [ ] ถ้างานนี้คือ Prototype: ได้เสนอแผน (Plan Proposal) และได้รับการ
+      ยืนยันจากผู้ใช้ก่อนเขียนไฟล์ mockup จริงแล้ว (ดู skill
+      `prototype-standard` Section C) — ไม่มีการเขียนไฟล์ก่อนยืนยัน
+- [ ] ถ้างานนี้คือ Prototype ที่เรียกซ้ำ (มี version folder อยู่แล้ว):
+      ได้ถามผู้ใช้เรื่อง Folder Version ใหม่ vs แก้ไข version ล่าสุดแล้ว
+      พร้อมคำแนะนำ (ดู skill `prototype-standard` Section D)
+- [ ] ถ้างานนี้คือ Prototype และ `02-design/DESIGN.md` ไม่มี/ไม่ครบ: ได้
+      เรียก `design-system-creator` ก่อนสร้าง prototype แล้ว (ดู Section
+      B ด้านบน)
+- [ ] ถ้างานนี้คือ Acceptance Criteria, Test Plan, หรือ Test Case: ได้
+      เสนอแผน (Plan Proposal) และได้รับการยืนยันจากผู้ใช้ก่อนเขียนไฟล์
+      จริงแล้ว (ดู skill `acceptance-criteria-standard` Section C,
+      `test-plan-standard` Section B, `test-case-standard` Section C)
+- [ ] ถ้างานนี้คือ Test Case และ Feature นั้นยังไม่มี Acceptance Criteria
+      ครบใน `04-testing/acceptance-criteria.md`: ได้เรียก
+      `acceptance-criteria-writer` ก่อนสร้าง test case แล้ว (ดู Section
+      B ด้านบน) — ไม่มี test case ที่อ้าง AC ที่ไม่มีอยู่จริง
 - [ ] รูปแบบเอกสารสอดคล้องกับเอกสารอื่นในโปรเจกต์ (bilingual heading
       ไทย/อังกฤษ, ตาราง markdown, Revision History table)
 - [ ] ไม่มีการละเมิดกฎ PDPA/Security ของ CLAUDE.md (เช่น เปิดเผยข้อมูล
