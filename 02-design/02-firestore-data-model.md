@@ -8,47 +8,50 @@
 
 ---
 
-# 1. Overview
+# 1. Overview (ภาพรวม)
 
-This document defines the Firestore database structure for ShopPlus Global.
+เอกสารนี้กำหนดโครงสร้างฐานข้อมูล Firestore สำหรับ ShopPlus Global
 
-The purpose of this design is to define how business data is stored, accessed, secured, and processed by Firebase Cloud Functions.
+วัตถุประสงค์ของการออกแบบนี้คือเพื่อกำหนดว่าข้อมูลทางธุรกิจจะถูกจัดเก็บ
+เข้าถึง รักษาความปลอดภัย และประมวลผลโดย Firebase Cloud Functions
+อย่างไร
 
-The design supports:
+การออกแบบนี้สนับสนุน:
 
-- Transaction processing
-- SP Point management
-- Merchant management
-- Customer reward system
+- การประมวลผล transaction
+- การบริหารจัดการ SP Point
+- การบริหารจัดการ merchant
+- ระบบ reward ของ customer
 - Audit trail
-- Multi-branch merchant support
-- Future AI analytics
+- การสนับสนุน merchant ที่มีหลายสาขา
+- AI analytics ในอนาคต
 
 ---
 
-# 2. Database Design Principles
+# 2. Database Design Principles (หลักการออกแบบฐานข้อมูล)
 
-## Backend Controlled Processing
+## Backend Controlled Processing (การประมวลผลที่ควบคุมโดย Backend)
 
-Sensitive business operations must not be executed directly from client applications.
+การดำเนินการทางธุรกิจที่ sensitive ต้องไม่ถูก execute โดยตรงจาก client
+application
 
-The following operations must be controlled by Firebase Cloud Functions:
+การดำเนินการต่อไปนี้ต้องถูกควบคุมโดย Firebase Cloud Functions:
 
-- Transaction approval processing
-- SP distribution
-- Wallet balance updates
-- Ledger creation
-- Marketing fund allocation
+- การประมวลผลการอนุมัติ transaction
+- การแบ่งสรร SP
+- การอัปเดต wallet balance
+- การสร้าง ledger
+- การจัดสรร marketing fund
 
-Client applications can only request operations and display results.
+Client application สามารถขอให้ดำเนินการเท่านั้น และแสดงผลลัพธ์เท่านั้น
 
 ---
 
-## Transaction Consistency
+## Transaction Consistency (ความสอดคล้องของ transaction)
 
-SP distribution must be processed atomically.
+การแบ่งสรร SP ต้องถูกประมวลผลแบบ atomic
 
-Example:
+ตัวอย่าง:
 
 ```text
 Merchant Approve
@@ -72,47 +75,54 @@ Create Audit Event
 |
 
 Complete Transaction
+```
 
-All operations must succeed together.
+การดำเนินการทั้งหมดต้องสำเร็จไปด้วยกันทั้งหมด
 
-Audit First Design
+## Audit First Design (ออกแบบให้ audit มาก่อน)
 
-Every important business event must create an audit record.
+ทุกเหตุการณ์ทางธุรกิจที่สำคัญต้องสร้าง audit record
 
-Examples:
+ตัวอย่าง:
 
-Transaction Created
-Merchant Approved
-SP Distribution Started
-SP Distribution Completed
-Transaction Completed
-3. Firestore Collection Overview
+- Transaction Created
+- Merchant Approved
+- SP Distribution Started
+- SP Distribution Completed
+- Transaction Completed
+
+---
+
+# 3. Firestore Collection Overview (ภาพรวม Collection ของ Firestore)
+
+```text
 Firestore
-
 |
 |-- users
-
 |-- merchants
-
 |-- merchantBranches
-
 |-- transactions
-
 |-- transactionEvents
-
 |-- spWallets
-
 |-- spLedger
-
 |-- marketingFunds
-4. Users Collection
-Path
-users/{userId}
-Purpose
+```
 
-Store customer, merchant staff, and admin information.
+---
 
-Example
+# 4. Users Collection
+
+**Path**
+
+`users/{userId}`
+
+**Purpose (วัตถุประสงค์)**
+
+จัดเก็บข้อมูล customer, merchant staff, และ admin
+
+**Example (ตัวอย่าง)**
+
+```json
 {
   "uid": "user123",
   "displayName": "Customer Name",
@@ -122,20 +132,29 @@ Example
   "createdAt": "timestamp",
   "updatedAt": "timestamp"
 }
-Role
-CUSTOMER
+```
 
-MERCHANT
+**Role**
 
-ADMIN
-5. Merchants Collection
-Path
-merchants/{merchantId}
-Purpose
+- CUSTOMER
+- MERCHANT
+- ADMIN
 
-Store merchant business information.
+---
 
-Example
+# 5. Merchants Collection
+
+**Path**
+
+`merchants/{merchantId}`
+
+**Purpose (วัตถุประสงค์)**
+
+จัดเก็บข้อมูลธุรกิจของ merchant
+
+**Example (ตัวอย่าง)**
+
+```json
 {
   "merchantId": "merchant001",
   "shopName": "Coffee Shop",
@@ -143,14 +162,23 @@ Example
   "status": "ACTIVE",
   "createdAt": "timestamp"
 }
-6. Merchant Branches Collection
-Path
-merchants/{merchantId}/branches/{branchId}
-Purpose
+```
 
-Support multi-branch merchants.
+---
 
-Example
+# 6. Merchant Branches Collection
+
+**Path**
+
+`merchants/{merchantId}/branches/{branchId}`
+
+**Purpose (วัตถุประสงค์)**
+
+สนับสนุน merchant ที่มีหลายสาขา
+
+**Example (ตัวอย่าง)**
+
+```json
 {
   "branchId": "branch001",
   "merchantId": "merchant001",
@@ -159,14 +187,23 @@ Example
   "status": "ACTIVE",
   "createdAt": "timestamp"
 }
-7. Transactions Collection
-Path
-transactions/{transactionId}
-Purpose
+```
 
-Main transaction record.
+---
 
-Example
+# 7. Transactions Collection
+
+**Path**
+
+`transactions/{transactionId}`
+
+**Purpose (วัตถุประสงค์)**
+
+บันทึก transaction หลัก
+
+**Example (ตัวอย่าง)**
+
+```json
 {
   "transactionId": "TX001",
   "customerId": "user123",
@@ -180,28 +217,33 @@ Example
   "createdAt": "timestamp",
   "completedAt": null
 }
-Status
-PENDING_APPROVAL
+```
 
-APPROVED
+**Status**
 
-PROCESSING
+- PENDING_APPROVAL
+- APPROVED
+- PROCESSING
+- COMPLETED
+- FAILED
+- REJECTED
+- EXPIRED
 
-COMPLETED
+---
 
-FAILED
+# 8. Transaction Events Collection
 
-REJECTED
+**Path**
 
-EXPIRED
-8. Transaction Events Collection
-Path
-transactions/{transactionId}/events/{eventId}
-Purpose
+`transactions/{transactionId}/events/{eventId}`
 
-Store transaction audit history.
+**Purpose (วัตถุประสงค์)**
 
-Example
+จัดเก็บประวัติ audit ของ transaction
+
+**Example (ตัวอย่าง)**
+
+```json
 {
   "eventType": "MERCHANT_APPROVED",
   "actorId": "merchantUser001",
@@ -209,46 +251,60 @@ Example
   "timestamp": "timestamp",
   "metadata": {}
 }
-Event Examples
-TRANSACTION_CREATED
+```
 
-MERCHANT_APPROVED
+**Event Examples (ตัวอย่าง event)**
 
-MERCHANT_REJECTED
+- TRANSACTION_CREATED
+- MERCHANT_APPROVED
+- MERCHANT_REJECTED
+- SP_DISTRIBUTION_STARTED
+- SP_DISTRIBUTION_COMPLETED
+- TRANSACTION_COMPLETED
+- TRANSACTION_FAILED
 
-SP_DISTRIBUTION_STARTED
+---
 
-SP_DISTRIBUTION_COMPLETED
+# 9. SP Wallets Collection
 
-TRANSACTION_COMPLETED
+**Path**
 
-TRANSACTION_FAILED
-9. SP Wallets Collection
-Path
-spWallets/{userId}
-Purpose
+`spWallets/{userId}`
 
-Store current SP balance.
+**Purpose (วัตถุประสงค์)**
 
-Example
+จัดเก็บ SP balance ปัจจุบัน
+
+**Example (ตัวอย่าง)**
+
+```json
 {
   "userId": "user123",
   "balance": 1000,
   "updatedAt": "timestamp"
 }
+```
 
-Important:
+**สำคัญ:**
 
-SP balance can only be updated by Firebase Cloud Functions.
+SP balance สามารถถูกอัปเดตได้เฉพาะโดย Firebase Cloud Functions เท่านั้น
 
-10. SP Ledger Collection
-Path
-spLedger/{ledgerId}
-Purpose
+---
 
-Store immutable history of all SP movements.
+# 10. SP Ledger Collection
 
-Example
+**Path**
+
+`spLedger/{ledgerId}`
+
+**Purpose (วัตถุประสงค์)**
+
+จัดเก็บประวัติการเคลื่อนไหวของ SP ทั้งหมดที่ไม่สามารถเปลี่ยนแปลงได้
+(immutable)
+
+**Example (ตัวอย่าง)**
+
+```json
 {
   "transactionId": "TX001",
   "source": "MARKETING_POOL",
@@ -257,110 +313,128 @@ Example
   "type": "CUSTOMER_REWARD",
   "createdAt": "timestamp"
 }
-Ledger Types
-CUSTOMER_REWARD
+```
 
-MARKETING_FUND
+**Ledger Types (ประเภทของ ledger)**
 
-SHOPPLUS_REVENUE
-11. Marketing Funds Collection
-Path
-marketingFunds/{fundId}
-Purpose
+- CUSTOMER_REWARD
+- MARKETING_FUND
+- SHOPPLUS_REVENUE
 
-Track marketing budget allocation.
+---
 
-Example
+# 11. Marketing Funds Collection
+
+**Path**
+
+`marketingFunds/{fundId}`
+
+**Purpose (วัตถุประสงค์)**
+
+ติดตามการจัดสรรงบประมาณด้านการตลาด
+
+**Example (ตัวอย่าง)**
+
+```json
 {
   "transactionId": "TX001",
   "amount": 10,
   "campaignId": null,
   "createdAt": "timestamp"
 }
-12. Security Considerations
-Customer
+```
 
-Can:
+---
 
-View own transactions
-View own SP balance
+# 12. Security Considerations (ข้อพิจารณาด้านความปลอดภัย)
 
-Cannot:
+**Customer**
 
-Modify SP balance
-Modify transaction status
-Create ledger records
-Merchant
+Can (ทำได้):
 
-Can:
+- ดู transaction ของตนเอง
+- ดู SP balance ของตนเอง
 
-View own shop transactions
-Approve pending transactions
+Cannot (ทำไม่ได้):
 
-Cannot:
+- แก้ไข SP balance
+- แก้ไขสถานะ transaction
+- สร้าง ledger record
 
-Modify SP Ledger
-Modify wallet balance
-Admin
+**Merchant**
 
-Can:
+Can (ทำได้):
 
-Monitor transactions
-Investigate problems
-Access audit records
-13. Idempotency Design
+- ดู transaction ของร้านค้าตนเอง
+- อนุมัติ transaction ที่รอดำเนินการ
 
-Every transaction processing flow must have a unique processing key.
+Cannot (ทำไม่ได้):
 
-Cloud Functions must verify this key before executing SP distribution.
+- แก้ไข SP Ledger
+- แก้ไข wallet balance
 
-Purpose:
+**Admin**
 
-Prevent duplicate SP allocation
-Support retry mechanism
-Maintain transaction consistency
+Can (ทำได้):
 
-Example:
+- เฝ้าติดตาม transaction
+- สอบสวนปัญหา
+- เข้าถึง audit record
 
+---
+
+# 13. Idempotency Design (การออกแบบ Idempotency)
+
+ทุก transaction processing flow ต้องมี unique processing key
+
+Cloud Functions ต้องตรวจสอบ key นี้ก่อนที่จะ execute การแบ่งสรร SP
+
+**Purpose (วัตถุประสงค์):**
+
+- ป้องกันการจัดสรร SP ซ้ำซ้อน
+- สนับสนุน retry mechanism
+- รักษาความสอดคล้อง (consistency) ของ transaction
+
+**Example (ตัวอย่าง):**
+
+```text
 Transaction Retry
-
 |
-
 Check processingKey
-
 |
-
 Already Processed?
-
 |
-
 YES = Stop
-
 |
-
 NO = Continue
-14. Future AI Analytics Support
+```
 
-This data model supports future AI capabilities.
+---
 
-Customer Analytics
+# 14. Future AI Analytics Support (การสนับสนุน AI Analytics ในอนาคต)
 
-Analyze:
+Data model นี้สนับสนุนความสามารถด้าน AI ในอนาคต
 
-Purchase behavior
-Reward usage
-Customer retention
-Merchant Analytics
+**Customer Analytics**
 
-Analyze:
+วิเคราะห์:
 
-Sales performance
-Customer frequency
-Campaign effectiveness
-AI Recommendation
+- พฤติกรรมการซื้อ
+- การใช้ reward
+- การรักษาลูกค้า (retention)
 
-Support:
+**Merchant Analytics**
 
-Personalized promotions
-Smart rewards
-Customer segmentation
+วิเคราะห์:
+
+- ผลการขาย
+- ความถี่ของลูกค้า
+- ประสิทธิภาพของแคมเปญ
+
+**AI Recommendation**
+
+สนับสนุน:
+
+- โปรโมชันเฉพาะบุคคล
+- Reward ที่ฉลาดขึ้น (smart rewards)
+- การแบ่งกลุ่มลูกค้า (customer segmentation)

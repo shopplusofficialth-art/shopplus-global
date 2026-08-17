@@ -1,89 +1,92 @@
-# ShopPlus Global AI Project Context
+# ShopPlus Global AI Project Context (บริบทโครงการ AI ของ ShopPlus Global)
 
-## 1. Project Overview
+## 1. Project Overview (ภาพรวมโครงการ)
 
-ShopPlus Global is a Community Commerce Platform
-designed to connect offline local stores, online businesses,
-and customers through digital membership, reward points,
-and AI-powered marketing solutions.
+ShopPlus Global คือ Community Commerce Platform
+ที่ออกแบบมาเพื่อเชื่อมโยงร้านค้าท้องถิ่นแบบออฟไลน์ ธุรกิจออนไลน์
+และลูกค้า เข้าด้วยกันผ่านระบบสมาชิกดิจิทัล คะแนนสะสม (reward points)
+และโซลูชันการตลาดที่ขับเคลื่อนด้วย AI
 
-The project follows an AI Native Development Workflow
-using Agile methodology, GitHub Version Control,
-Claude Code AI Agent, and structured documentation.
+โครงการนี้ดำเนินตาม AI Native Development Workflow
+โดยใช้ Agile methodology, GitHub Version Control,
+Claude Code AI Agent, และเอกสารที่มีโครงสร้างชัดเจน
 
 ---
 
-# 2. Business Vision
+# 2. Business Vision (วิสัยทัศน์ทางธุรกิจ)
 
-The mission of ShopPlus Global is:
+Mission ของ ShopPlus Global คือ:
 
 "Helping local community businesses compete in the digital economy
 by connecting merchants and customers through a shared reward ecosystem."
 
-The platform starts from offline community stores
-and expands toward online commerce, delivery, logistics,
-and marketplace services.
+(ช่วยให้ธุรกิจชุมชนท้องถิ่นสามารถแข่งขันในเศรษฐกิจดิจิทัลได้
+โดยเชื่อมโยง merchant และลูกค้าผ่าน reward ecosystem ที่ใช้ร่วมกัน)
+
+แพลตฟอร์มเริ่มต้นจากร้านค้าชุมชนแบบออฟไลน์
+และขยายไปสู่การค้าออนไลน์ การจัดส่ง โลจิสติกส์
+และบริการมาร์เกตเพลส
 
 ---
 
-# 3. Core Business Model
+# 3. Core Business Model (โมเดลธุรกิจหลัก)
 
-## Customer
+## Customer (ลูกค้า)
 
-Customers use ShopPlus Global to:
+Customer ใช้ ShopPlus Global เพื่อ:
 
-- Discover local stores
-- Receive SP Point rewards
-- Redeem rewards
-- Access promotions
+- ค้นหาร้านค้าท้องถิ่น
+- รับ SP Point reward
+- แลก reward
+- เข้าถึงโปรโมชัน
 
-## Merchant
+## Merchant (ร้านค้า)
 
-Merchants receive:
+Merchant ได้รับ:
 
-- Customer acquisition
-- Digital membership system
-- Marketing tools
-- Customer behavior insights
+- การหาลูกค้าใหม่ (customer acquisition)
+- ระบบสมาชิกดิจิทัล
+- เครื่องมือด้านการตลาด
+- Insight พฤติกรรมลูกค้า
 
-## Platform
+## Platform (แพลตฟอร์ม)
 
-ShopPlus Global manages:
+ShopPlus Global บริหารจัดการ:
 
 - Reward ecosystem
-- Marketing fee distribution
-- Platform development
+- การแบ่งสรร marketing fee
+- การพัฒนาแพลตฟอร์ม
 - Data analytics
 
 ---
 
-# 4. SP Point Rules
+# 4. SP Point Rules (กฎของ SP Point)
 
-SP Point is the internal reward system.
+SP Point คือระบบ reward ภายใน
 
-Conversion:
+**Conversion (อัตราแปลง):**
 
 10 SP = 1 Baht
 
-Minimum marketing fee:
+**Minimum marketing fee (marketing fee ขั้นต่ำ):**
 
 3 Baht / transaction
 
-Equivalent:
+**Equivalent (เทียบเท่า):**
 
-30 SP minimum reward value
+มูลค่า reward ขั้นต่ำ 30 SP
 
-All reward calculations must follow this rule.
+การคำนวณ reward ทั้งหมดต้องเป็นไปตามกฎนี้
 
 ---
 
-# 5. Product Scope
+# 5. Product Scope (ขอบเขตผลิตภัณฑ์)
 
-## Applications
+## Applications (แอปพลิเคชัน)
 
-### Customer Application
+### Customer Application (แอปพลิเคชันสำหรับลูกค้า)
 
-Features:
+**Features (ฟีเจอร์):**
 
 - Register/Login
 - Scan QR
@@ -91,20 +94,18 @@ Features:
 - View Rewards
 - Explore Shops
 
+### Merchant Application (แอปพลิเคชันสำหรับร้านค้า)
 
-### Merchant Application
-
-Features:
+**Features (ฟีเจอร์):**
 
 - Shop Management
 - Customer Campaign
 - Marketing Fee Tracking
 - Transaction Management
 
+### Admin System (ระบบสำหรับผู้ดูแลระบบ)
 
-### Admin System
-
-Features:
+**Features (ฟีเจอร์):**
 
 - User Management
 - Merchant Management
@@ -113,120 +114,111 @@ Features:
 
 ---
 
-# 6. Technical Direction
+# 6. Technical Direction (ทิศทางเทคนิค)
 
 ## Frontend
 
-Target:
+**Target (เป้าหมาย):**
 
 - Web Application
 - Mobile Application
 
 ## Backend
 
-Technology direction:
+**Technology direction (ทิศทางเทคโนโลยี):**
 
 - Firebase
 - Firestore
 - Cloud Functions
 
-## Development Principle
+## Development Principle (หลักการพัฒนา)
 
-Client side:
-- UI and user interaction only
+**Client side (ฝั่ง client):**
+- UI และ user interaction เท่านั้น
 
-Backend:
+**Backend:**
 - Business logic
-- Security validation
-- Reward calculation
+- การตรวจสอบความปลอดภัย (security validation)
+- การคำนวณ reward
 
 ---
 
-# 7. AI Native Development Rules
+# 7. AI Native Development Rules (กฎการพัฒนาแบบ AI Native)
 
-AI Agent must:
+AI Agent ต้อง:
 
-1. Understand business context before creating solutions.
-
-2. Create documentation before implementation.
-
-3. Follow Agile workflow.
-
-4. Maintain clear project structure.
-
-5. Avoid generating unnecessary complexity.
-
-6. Ask for clarification when requirements are unclear.
+1. เข้าใจ business context ก่อนสร้างโซลูชัน
+2. สร้างเอกสารก่อนการ implementation
+3. ปฏิบัติตาม Agile workflow
+4. รักษาโครงสร้างโปรเจกต์ให้ชัดเจน
+5. หลีกเลี่ยงการสร้างความซับซ้อนที่ไม่จำเป็น
+6. ขอความชัดเจนเมื่อ requirement ไม่ชัดเจน
 
 ---
 
-# 8. Agile Workflow Rules
+# 8. Agile Workflow Rules (กฎ Agile Workflow)
 
-Project phases:
+**Project phases (ขั้นตอนของโครงการ):**
 
-01-requirements
+**01-requirements**
 - Business requirements
 - User stories
 - Product backlog
 
-
-02-design
+**02-design**
 - User flow
 - Architecture
 - UI/UX
 
-
-03-development
+**03-development**
 - Source code
 
-
-04-testing
+**04-testing**
 - Test cases
 - QA
 
-
-05-release
+**05-release**
 - Deployment
 - Release notes
 
 ---
 
-# 9. Security and PDPA Rules
+# 9. Security and PDPA Rules (กฎด้านความปลอดภัยและ PDPA)
 
-All designs must consider:
+การออกแบบทั้งหมดต้องพิจารณา:
 
 - Personal Data Protection Act (PDPA)
-- User consent
-- Data minimization
+- ความยินยอมของผู้ใช้ (user consent)
+- การเก็บข้อมูลแบบ minimum (data minimization)
 - Secure authentication
-- Access control
+- การควบคุมการเข้าถึง (access control)
 
-Never expose:
+ห้ามเปิดเผย:
 
-- Personal information
-- Sensitive user data
+- ข้อมูลส่วนบุคคล (personal information)
+- ข้อมูลผู้ใช้ที่ sensitive
 - Internal credentials
 
 ---
 
-# 10. Documentation Rules
+# 10. Documentation Rules (กฎการจัดทำเอกสาร)
 
-All important decisions must be documented.
+การตัดสินใจที่สำคัญทั้งหมดต้องได้รับการจัดทำเป็นเอกสาร
 
-Documents should include:
+เอกสารควรมี:
 
-- Purpose
+- Purpose (วัตถุประสงค์)
 - Requirement
-- Decision
-- Impact
+- Decision (การตัดสินใจ)
+- Impact (ผลกระทบ)
 
-Use Markdown format.
+ใช้รูปแบบ Markdown
 
 ---
 
-# 11. Development Principles
+# 11. Development Principles (หลักการพัฒนา)
 
-Prioritize:
+ให้ความสำคัญกับ:
 
 - Clean Architecture
 - Maintainability
@@ -234,24 +226,24 @@ Prioritize:
 - Scalability
 - User Experience
 
-Every feature must provide real business value.
+ทุก feature ต้องสร้างมูลค่าทางธุรกิจที่แท้จริง
 
 ---
 
-# 12. Project Identity
+# 12. Project Identity (ข้อมูลประจำตัวโครงการ)
 
-Project:
+**Project (โครงการ):**
 
 ShopPlus Global
 
-Type:
+**Type (ประเภท):**
 
 Community Commerce Platform
 
-Development Approach:
+**Development Approach (แนวทางการพัฒนา):**
 
 AI Native + Agile + Cloud First
 
-Repository:
+**Repository (ที่เก็บ source code):**
 
 GitHub Version Control

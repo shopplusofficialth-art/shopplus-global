@@ -1,324 +1,163 @@
-\# Agile Requirement Analysis Skill
+# Agile Requirement Analysis Skill
 
+## Purpose (วัตถุประสงค์)
 
+Skill นี้กำหนดกระบวนการมาตรฐาน
+สำหรับการวิเคราะห์ requirement โดยใช้ Agile methodology
+สำหรับ ShopPlus Global
 
-\## Purpose
+---
 
+# Analysis Process (กระบวนการวิเคราะห์)
 
+ปฏิบัติตามขั้นตอนเหล่านี้เสมอ:
 
-This skill defines the standard process
+## Step 1: Understand Problem (เข้าใจปัญหา)
 
-for analyzing requirements using Agile methodology
+ระบุ:
 
-for ShopPlus Global.
+- สถานการณ์ปัจจุบัน
+- Pain point ของผู้ใช้
+- ผลกระทบทางธุรกิจ
+- ผลลัพธ์ที่คาดหวัง
 
+ห้ามกระโดดไปที่ solution ทันที
 
+---
 
-\---
+## Step 2: Identify Users (ระบุผู้ใช้)
 
+กำหนด:
 
+**Primary users (ผู้ใช้หลัก):**
 
-\# Analysis Process
+- Customer
+- Merchant
+- Admin
 
+เข้าใจ:
 
+- User goals (เป้าหมายของผู้ใช้)
+- User behavior (พฤติกรรมของผู้ใช้)
+- User expectations (ความคาดหวังของผู้ใช้)
 
-Always follow these steps:
+---
 
+## Step 3: Define User Stories (กำหนด User Story)
 
+ใช้รูปแบบ:
 
-\## Step 1: Understand Problem
+As a [user]
 
+I want [goal]
 
+So that [benefit]
 
-Identify:
+---
 
+## Step 4: Define Requirements (กำหนด Requirement)
 
+สร้าง:
 
-\- Current situation
+## Functional Requirements
 
-\- User pain points
+สิ่งที่ระบบต้องทำ
 
-\- Business impact
-
-\- Expected outcome
-
-
-
-Do not jump to solution immediately.
-
-
-
-\---
-
-
-
-\## Step 2: Identify Users
-
-
-
-Define:
-
-
-
-Primary users:
-
-
-
-\- Customer
-
-\- Merchant
-
-\- Admin
-
-
-
-Understand:
-
-
-
-\- User goals
-
-\- User behavior
-
-\- User expectations
-
-
-
-\---
-
-
-
-\## Step 3: Define User Stories
-
-
-
-Use format:
-
-
-
-As a \[user]
-
-
-
-I want \[goal]
-
-
-
-So that \[benefit]
-
-
-
-\---
-
-
-
-\## Step 4: Define Requirements
-
-
-
-Create:
-
-
-
-\## Functional Requirements
-
-
-
-What the system must do.
-
-
-
-Example:
-
-
+ตัวอย่าง:
 
 FR-001:
 
-Customer can view SP Point balance.
+Customer สามารถดู SP Point balance ได้
 
+---
 
+## Non Functional Requirements
 
-\---
+คุณภาพของระบบ:
 
+- Security
+- Performance
+- Scalability
+- Privacy
 
+---
 
-\## Non Functional Requirements
+## Step 5: Acceptance Criteria (เกณฑ์การตอบรับ)
 
-
-
-System quality:
-
-
-
-\- Security
-
-\- Performance
-
-\- Scalability
-
-\- Privacy
-
-
-
-\---
-
-
-
-\## Step 5: Acceptance Criteria
-
-
-
-Use:
-
-
+ใช้:
 
 Given
 
-
-
 When
-
-
 
 Then
 
+ตัวอย่าง:
 
+Given customer ชำระเงินเสร็จสมบูรณ์
 
-Example:
+When transaction ได้รับการยืนยัน
 
+Then SP Point จะถูกให้ reward
 
+---
 
-Given customer completes payment
+## Step 6: Priority (ลำดับความสำคัญ)
 
-
-
-When transaction is confirmed
-
-
-
-Then SP Point is rewarded.
-
-
-
-\---
-
-
-
-\## Step 6: Priority
-
-
-
-Use Agile priority:
-
-
+ใช้ Agile priority:
 
 P0 Critical
 
-
-
 P1 High
-
-
 
 P2 Medium
 
-
-
 P3 Low
 
+---
 
+# ShopPlus Global Business Rules (กฎทางธุรกิจของ ShopPlus Global)
 
-\---
+พิจารณาเสมอ:
 
+- SP Point ecosystem
+- Marketing fee ของ merchant
+- Reward ของ customer
+- Community commerce
+- กลยุทธ์ offline-first
 
+---
 
-\# ShopPlus Global Business Rules
+# Compliance Rules (กฎด้านการปฏิบัติตามข้อกำหนด)
 
+Requirement ทั้งหมดต้องพิจารณา:
 
+- PDPA
+- Data privacy
+- Authentication
+- Authorization
+- Security
 
-Always consider:
+---
 
+# Output Standard (มาตรฐานผลลัพธ์)
 
+การวิเคราะห์ทุกครั้งควรมี:
 
-\- SP Point ecosystem
+1. Problem Statement (คำอธิบายปัญหา)
 
-\- Merchant marketing fee
+2. Target Users (ผู้ใช้เป้าหมาย)
 
-\- Customer rewards
+3. User Stories
 
-\- Community commerce
+4. Functional Requirements
 
-\- Offline-first strategy
+5. Non Functional Requirements
 
+6. Acceptance Criteria
 
+7. Priority
 
-\---
+8. Risks (ความเสี่ยง)
 
-
-
-\# Compliance Rules
-
-
-
-All requirements must consider:
-
-
-
-\- PDPA
-
-\- Data privacy
-
-\- Authentication
-
-\- Authorization
-
-\- Security
-
-
-
-\---
-
-
-
-\# Output Standard
-
-
-
-Every analysis should include:
-
-
-
-1\. Problem Statement
-
-
-
-2\. Target Users
-
-
-
-3\. User Stories
-
-
-
-4\. Functional Requirements
-
-
-
-5\. Non Functional Requirements
-
-
-
-6\. Acceptance Criteria
-
-
-
-7\. Priority
-
-
-
-8\. Risks
-
-
-
-9\. Open Questions
-
+9. Open Questions (คำถามที่ยังไม่มีคำตอบ)

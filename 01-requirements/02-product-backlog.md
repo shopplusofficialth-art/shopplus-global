@@ -11,123 +11,121 @@
 
 ---
 
-## Revision History
+## Revision History (ประวัติการปรับปรุงเอกสาร)
 
 | Version | Status | Change Summary |
 |---|---|---|
-| 1.0 | Draft — pending stakeholder review | Initial MVP backlog derived from BRD v1.1. |
-| 1.1 | Revised after Product Backlog Review | Added missing QR Code Generation story (US-023), Redemption Fulfillment story (US-024), and Admin manual-cancel safety control (US-025). Split Sprint 2/3 into transaction foundation vs. reward distribution. Added a "Backlog Priority Deviation from BRD" note, a Performance NFR clarification, a Sprint capacity assumption, and narrowed US-016 to view-only for MVP. |
+| 1.0 | Draft — pending stakeholder review | Backlog เริ่มต้นของ MVP ที่มาจาก BRD v1.1 |
+| 1.1 | Revised after Product Backlog Review | เพิ่ม user story ที่ขาดไป: QR Code Generation (US-023), Redemption Fulfillment (US-024), และมาตรการความปลอดภัย manual-cancel ของ Admin (US-025) แยก Sprint 2/3 เป็น transaction foundation กับ reward distribution เพิ่มหมายเหตุ "Backlog Priority Deviation from BRD" การอธิบาย NFR ด้าน Performance ข้อสมมติฐานเรื่อง Sprint capacity และจำกัดขอบเขต US-016 ให้เป็น view-only สำหรับ MVP |
 
 ---
 
-## 1. Purpose
+## 1. Purpose (วัตถุประสงค์)
 
-This backlog translates the approved Business Requirement Document
-(BRD v1.1) into an Agile product backlog scoped to the **MVP only**.
-It prioritizes the core value loop — customer QR transaction, merchant
-approval, SP Point distribution, the Marketing Fee model, admin
-oversight, and PDPA compliance — over secondary features (campaigns,
-behavior insights, shop discovery) that add value but are not required
-to prove the core reward ecosystem.
+Backlog นี้แปลง Business Requirement Document ที่ได้รับการอนุมัติแล้ว (BRD
+v1.1) ให้อยู่ในรูปแบบ Agile product backlog ที่กำหนดขอบเขตเฉพาะ **MVP
+เท่านั้น** โดยให้ความสำคัญกับ core value loop — transaction QR ของลูกค้า,
+การอนุมัติของ merchant, การแบ่งสรร SP Point, รูปแบบ Marketing Fee, การ
+กำกับดูแลของ admin, และการปฏิบัติตาม PDPA — มากกว่า feature รอง (แคมเปญ,
+behavior insight, การค้นหาร้านค้า) ที่เพิ่มมูลค่าแต่ไม่จำเป็นต่อการพิสูจน์
+reward ecosystem หลัก
 
-Each backlog item traces back to a BRD Functional Requirement (FR-xxx)
-or Open Question where applicable, so gaps and blockers remain visible
-rather than silently resolved.
+แต่ละ backlog item จะเชื่อมโยงกลับไปยัง BRD Functional Requirement
+(FR-xxx) หรือ Open Question ที่เกี่ยวข้อง เพื่อให้ gap และ blocker ยังคง
+มองเห็นได้ ไม่ถูกแก้ไปโดยไม่รู้ตัว
 
 ---
 
-## 2. Backlog Conventions
+## 2. Backlog Conventions (แนวทางการเขียน Backlog)
 
 | Field | Meaning |
 |---|---|
-| **Priority** | P0 = MVP-blocking (core loop or compliance), P1 = required before launch, P2 = valuable but deferrable past MVP, P3 = post-MVP backlog |
-| **Sprint Recommendation** | Suggested sprint assuming ~2-week sprints and a 4-sprint MVP; sequencing reflects dependencies (auth → transaction creation → approval → distribution → audit/reporting) |
-| **Story ID** | `US-0xx`, referenced in the sprint plan and traceable to BRD `FR-0xx` |
+| **Priority** | P0 = MVP-blocking (core loop หรือ compliance), P1 = จำเป็นก่อน launch, P2 = มีมูลค่าแต่เลื่อนได้, P3 = backlog หลัง MVP |
+| **Sprint Recommendation** | Sprint ที่แนะนำ โดยสมมติ sprint ละ ~2 สัปดาห์ และ MVP ใช้ 4 sprint การจัดลำดับสะท้อน dependency (auth → transaction creation → approval → distribution → audit/reporting) |
+| **Story ID** | `US-0xx` ถูกอ้างอิงใน sprint plan และเชื่อมโยงย้อนกลับได้กับ BRD `FR-0xx` |
 
-### Definition of Ready
-A story is ready when its acceptance criteria are unambiguous, its
-BRD source FR is identified, and any blocking Open Question is either
-resolved or explicitly flagged as a sprint risk.
+### Definition of Ready (เกณฑ์ที่ถือว่า story พร้อมทำ)
+Story จะพร้อมได้เมื่อ acceptance criteria ไม่มีความกำกวม, ระบุ BRD source
+FR ได้ชัดเจน และ Open Question ที่เป็น blocker ได้ถูกแก้ไขแล้วหรือถูกระบุ
+ไว้ชัดเจนว่าเป็นความเสี่ยงของ sprint นั้น
 
-### Definition of Done
-Server-side logic implemented per BRD §6 (client is UI-only), unit/
-integration tests passing, audit logging verified where applicable
-(EPIC-08), and PDPA data-handling checks passed (EPIC-09).
+### Definition of Done (เกณฑ์ที่ถือว่า story เสร็จ)
+Server-side logic ถูก implement ตาม BRD §6 (client เป็น UI-only เท่านั้น),
+unit/integration test ผ่าน, audit logging ได้รับการตรวจสอบในส่วนที่
+เกี่ยวข้อง (EPIC-08), และการตรวจสอบการจัดการข้อมูลตาม PDPA ผ่าน (EPIC-09)
 
-### Sprint Planning Assumptions
-This backlog's sprint recommendations assume: a **2-week sprint
-duration**, a **small Agile team** (roughly full-stack coverage across
-one client surface and Cloud Functions per sprint, not three parallel
-surfaces), and that the plan is a **starting sequence, not a
-commitment** — it must be re-validated against actual velocity after
-Sprint 1 and adjusted for Sprint 2 onward.
+### Sprint Planning Assumptions (ข้อสมมติฐานในการวางแผน Sprint)
+คำแนะนำเรื่อง sprint ใน backlog นี้สมมติว่า: **sprint ละ 2 สัปดาห์**,
+**ทีม Agile ขนาดเล็ก** (ครอบคลุมงาน full-stack ในระดับหนึ่ง client surface
+กับ Cloud Functions ต่อ sprint ไม่ใช่สาม surface พร้อมกัน) และแผนนี้เป็น
+**ลำดับเริ่มต้น ไม่ใช่ข้อผูกมัด** — ต้อง re-validate กับ velocity จริงหลัง
+Sprint 1 และปรับสำหรับ Sprint 2 เป็นต้นไป
 
 ---
 
-## 3. Epics Overview
+## 3. Epics Overview (ภาพรวม Epic)
 
 | Epic ID | Epic Name | Goal | BRD Reference |
 |---|---|---|---|
-| EPIC-01 | Customer Registration & Authentication | Let customers create an account and log in securely | §5 Customer, FR-001 |
-| EPIC-02 | Customer QR Transaction Flow | Let a merchant generate a valid QR code and a customer create a transaction by scanning it, then track its status | §6.1, §6.5, FR-002, FR-003; QR generation is a new capability identified in Product Backlog Review — recommend adding to BRD in a future revision |
-| EPIC-03 | Merchant Approval Workflow | Let a merchant review, approve, or reject pending transactions | §6.2, §6.5, FR-019, FR-021 |
-| EPIC-04 | SP Point Distribution & Marketing Fee Model | Distribute 30 SP (10/10/10) server-side, only after approval | §6.4, FR-016, FR-017, FR-018 |
-| EPIC-05 | Reward Redemption | Let customers redeem SP Points for rewards and merchants verify/fulfill the redemption | §6.1, FR-004; fulfillment is a new capability identified in Product Backlog Review — recommend adding to BRD in a future revision |
-| EPIC-06 | Merchant Shop & Transaction Management | Let merchants manage their profile and reconcile fees/transactions | §6.2, FR-007, FR-009, FR-010 |
-| EPIC-07 | Admin Management & Oversight | Let admins manage accounts, view reward rules, monitor system health, and manually cancel stuck transactions | §6.3, FR-012–FR-015; manual-cancel is a new capability identified in Product Backlog Review — recommend adding to BRD in a future revision |
-| EPIC-08 | Transaction Audit & Traceability | Immutable audit log for every SP distribution event | §6.6, FR-020, FR-022 |
-| EPIC-09 | PDPA Compliance & Data Security | Consent, data minimization, secure access, retention | §7, §9 (CLAUDE.md), Open Question 4 |
+| EPIC-01 | Customer Registration & Authentication | ให้ลูกค้าสร้างบัญชีและเข้าสู่ระบบได้ | §5 Customer, FR-001 |
+| EPIC-02 | Customer QR Transaction Flow | ให้ merchant สร้าง QR code ที่ใช้งานได้ และให้ลูกค้าสร้าง transaction โดยการสแกน จากนั้นติดตามสถานะ | §6.1, §6.5, FR-002, FR-003; การสร้าง QR เป็น capability ใหม่ที่ระบุใน Product Backlog Review — แนะนำให้เพิ่มเข้า BRD ใน revision ถัดไป |
+| EPIC-03 | Merchant Approval Workflow | ให้ merchant ตรวจสอบ อนุมัติ หรือปฏิเสธ transaction ที่รอดำเนินการ | §6.2, §6.5, FR-019, FR-021 |
+| EPIC-04 | SP Point Distribution & Marketing Fee Model | แบ่งสรร 30 SP (10/10/10) ที่ฝั่ง server เท่านั้น หลังจากได้รับการอนุมัติแล้ว | §6.4, FR-016, FR-017, FR-018 |
+| EPIC-05 | Reward Redemption | ให้ลูกค้าแลก SP Point เป็น reward และให้ merchant ตรวจสอบ/ดำเนินการแลกให้เสร็จสิ้น | §6.1, FR-004; fulfillment เป็น capability ใหม่ที่ระบุใน Product Backlog Review — แนะนำให้เพิ่มเข้า BRD ใน revision ถัดไป |
+| EPIC-06 | Merchant Shop & Transaction Management | ให้ merchant จัดการโปรไฟล์ของตนและตรวจสอบยอด fee/transaction | §6.2, FR-007, FR-009, FR-010 |
+| EPIC-07 | Admin Management & Oversight | ให้ admin จัดการบัญชี ดูกฎ reward เฝ้าติดตามสุขภาพระบบ และยกเลิก transaction ที่ค้างอยู่ด้วยมือ | §6.3, FR-012–FR-015; manual-cancel เป็น capability ใหม่ที่ระบุใน Product Backlog Review — แนะนำให้เพิ่มเข้า BRD ใน revision ถัดไป |
+| EPIC-08 | Transaction Audit & Traceability | Audit log ที่ไม่สามารถเปลี่ยนแปลงได้สำหรับทุก SP distribution event | §6.6, FR-020, FR-022 |
+| EPIC-09 | PDPA Compliance & Data Security | Consent, การเก็บข้อมูลแบบ minimum, การเข้าถึงที่ปลอดภัย, การเก็บรักษาข้อมูล | §7, §9 (CLAUDE.md), Open Question 4 |
 
-Deferred secondary epics (campaigns, behavior insights, shop
-discovery/promotions — FR-005, FR-006, FR-008, FR-011) are listed at
-the end of §4.6 as P2/P3 backlog, not part of the core MVP loop.
+Epic รองที่ถูกเลื่อนไว้ (แคมเปญ, behavior insight, การค้นหาร้านค้า/
+โปรโมชัน — FR-005, FR-006, FR-008, FR-011) แสดงอยู่ท้าย §4.6 เป็น
+backlog P2/P3 ไม่ใช่ส่วนของ core MVP loop
 
 ---
 
-## Backlog Priority Deviation from BRD
+## Backlog Priority Deviation from BRD (ความเบี่ยงเบนของ priority ใน backlog เทียบกับ BRD)
 
-This backlog intentionally deprioritizes three BRD requirements below
-their BRD-assigned priority, for MVP scoping reasons. This is flagged
-explicitly here rather than left as a silent mismatch, and should be
-confirmed with stakeholders before Sprint 1 sign-off:
+Backlog นี้จงใจปรับลด priority ของ BRD requirement 3 รายการต่อไปนี้ ให้
+ต่ำกว่า priority ที่ BRD กำหนดไว้ เพื่อวัตถุประสงค์ในการจำกัดขอบเขต MVP
+เรื่องนี้ถูกระบุไว้อย่างชัดแจ้งในที่นี้ ไม่ปล่อยให้เป็นความคลาดเคลื่อนที่ซ่อนอยู่
+และควรได้รับการยืนยันกับ stakeholder ก่อน sign-off Sprint 1:
 
 | BRD FR | BRD Priority | Backlog Priority | Reason |
 |---|---|---|---|
-| FR-005 (shop discovery/search) | P1 | P2, deferred to Post-MVP backlog | Not required to prove the core QR → approval → SP distribution loop; discovery adds acquisition value once merchants/customers are already on the platform |
-| FR-008 (merchant campaigns) | P1 | P2, deferred to Post-MVP backlog | Campaign tooling is a retention/marketing feature layered on top of a working reward ecosystem; MVP validates the ecosystem itself first |
-| FR-011 (customer behavior insights) | P2 | P3, deferred to Post-MVP backlog | Insights need a meaningful volume of completed transactions to be useful; premature before the core loop has real usage data |
+| FR-005 (การค้นหา/สำรวจร้านค้า) | P1 | P2, เลื่อนไป Post-MVP backlog | ไม่จำเป็นต่อการพิสูจน์ core loop ของ QR → approval → SP distribution การค้นหาจะเพิ่มมูลค่าด้านการหาลูกค้าเมื่อ merchant/customer เข้ามาอยู่ในแพลตฟอร์มแล้ว |
+| FR-008 (แคมเปญของ merchant) | P1 | P2, เลื่อนไป Post-MVP backlog | เครื่องมือแคมเปญเป็น feature ด้าน retention/marketing ที่ต่อยอดจาก reward ecosystem ที่ใช้งานได้แล้ว MVP ต้อง validate ecosystem เองก่อน |
+| FR-011 (insight พฤติกรรมลูกค้า) | P2 | P3, เลื่อนไป Post-MVP backlog | Insight ต้องการปริมาณ transaction ที่เสร็จสมบูรณ์มากพอจึงจะมีประโยชน์ ยังเร็วเกินไปก่อนที่ core loop จะมีข้อมูลการใช้งานจริง |
 
-**Rationale:** MVP scope is intentionally narrowed to the smallest set
-of features that proves the reward ecosystem works end to end
-(transaction creation, merchant approval, SP distribution, audit,
-admin oversight, PDPA compliance). Features that add acquisition or
-analytics value on top of a working ecosystem are sequenced after it,
-not instead of it. If stakeholders need any of FR-005/008/011 in the
-initial launch (e.g., for pilot merchant acquisition), that should be
-raised now so the sprint plan can be re-scoped accordingly.
+**Rationale (เหตุผล):** ขอบเขตของ MVP ถูกจำกัดให้เล็กที่สุดโดยตั้งใจ เพื่อ
+พิสูจน์ว่า reward ecosystem ทำงานได้ตลอด end-to-end (การสร้าง
+transaction, การอนุมัติของ merchant, การแบ่งสรร SP, audit, การกำกับดูแล
+ของ admin, การปฏิบัติตาม PDPA) Feature ที่เพิ่มมูลค่าด้านการหาลูกค้าหรือ
+analytics บน ecosystem ที่ใช้งานได้แล้ว จะถูกจัดลำดับไว้หลังจากนั้น ไม่ใช่
+แทนที่ ถ้า stakeholder ต้องการ FR-005/008/011 ตัวใดตัวหนึ่งใน launch
+เริ่มต้น (เช่น เพื่อหา merchant นำร่อง) ควรแจ้งตอนนี้เพื่อให้ sprint plan
+สามารถปรับขอบเขตใหม่ได้
 
 ---
 
-## 4. Product Backlog Items
+## 4. Product Backlog Items (รายการใน Product Backlog)
 
 ### 4.1 EPIC-01: Customer Registration & Authentication
 
 | Story ID | User Story (summary) | Priority | Sprint |
 |---|---|---|---|
-| US-001 | Customer registration and login | P0 | Sprint 1 |
+| US-001 | การลงทะเบียนและเข้าสู่ระบบของ customer | P0 | Sprint 1 |
 
-**US-001 (FR-001)** — As a **customer**, I want to register and log in
-easily, so that I can start using ShopPlus Global with minimal
-friction.
+**US-001 (FR-001)** — ในฐานะ **customer** ฉันต้องการลงทะเบียนและเข้าสู่
+ระบบได้อย่างง่ายดาย เพื่อที่ฉันจะสามารถเริ่มใช้ ShopPlus Global ได้โดยมี
+friction น้อยที่สุด
 
-- **Given** a new user opens the app, **when** they complete
-  registration with valid required fields and PDPA consent, **then**
-  an account is created and they are logged in.
-- **Given** an existing user, **when** they enter valid credentials,
-  **then** they are authenticated and directed to their dashboard.
-- **Given** a user submits invalid credentials, **when** they attempt
-  login, **then** access is rejected with a generic error that does
-  not reveal which field was incorrect.
+- **Given** ผู้ใช้ใหม่เปิดแอป, **when** พวกเขากรอกข้อมูลการลงทะเบียนครบ
+  ตามฟิลด์ที่จำเป็นและให้ความยินยอมตาม PDPA แล้ว, **then** บัญชีจะถูก
+  สร้างขึ้นและพวกเขาจะถูก log in
+- **Given** ผู้ใช้ที่มีบัญชีอยู่แล้ว, **when** กรอก credential ที่ถูกต้อง,
+  **then** พวกเขาจะได้รับการยืนยันตัวตนและถูกนำไปยัง dashboard
+- **Given** ผู้ใช้กรอก credential ไม่ถูกต้อง, **when** พยายาม login,
+  **then** การเข้าถึงจะถูกปฏิเสธด้วย error ทั่วไปที่ไม่เปิดเผยว่าฟิลด์ใดผิด
 
 ---
 
@@ -135,55 +133,54 @@ friction.
 
 | Story ID | User Story (summary) | Priority | Sprint |
 |---|---|---|---|
-| US-023 | Merchant generates and manages transaction QR codes | P0 | Sprint 2 |
-| US-002 | Scan QR to create a pending transaction | P0 | Sprint 2 |
-| US-003 | View SP balance and transaction status history | P0 | Sprint 4 |
+| US-023 | Merchant สร้างและจัดการ QR code ของ transaction | P0 | Sprint 2 |
+| US-002 | สแกน QR เพื่อสร้าง transaction ที่รอดำเนินการ | P0 | Sprint 2 |
+| US-003 | ดู SP balance และประวัติสถานะ transaction | P0 | Sprint 4 |
 
-**US-023 (New — recommend adding to BRD as a future FR)** — As a
-**merchant**, I want to generate and manage transaction QR codes, so
-that customers have a valid, secure code to scan and the system can
-reliably tell genuine scans from fraudulent or reused ones.
+**US-023 (New — แนะนำให้เพิ่มเข้า BRD เป็น FR ในอนาคต)** — ในฐานะ
+**merchant** ฉันต้องการสร้างและจัดการ QR code ของ transaction เพื่อที่
+ลูกค้าจะมีโค้ดที่ถูกต้องและปลอดภัยให้สแกน และเพื่อให้ระบบสามารถแยกแยะ
+การสแกนที่ถูกต้องออกจากการสแกนที่ทุจริตหรือใช้ซ้ำได้อย่างน่าเชื่อถือ
 
-- **Given** a merchant starts a new transaction, **when** they
-  request a QR code, **then** the system generates a QR code encoding
-  a unique transaction identifier tied to that merchant.
-- **Given** a QR code has been generated, **when** it is issued,
-  **then** it is single-use and time-limited (expires after a defined
-  window if unscanned), per the fraud risk noted in BRD §8 Risks.
-- **Given** a QR code has already been successfully scanned once,
-  **when** a second scan of the same code is attempted, **then** the
-  system rejects it and does not create a second transaction.
-- **Given** a QR code has expired, **when** a customer attempts to
-  scan it, **then** the system rejects the scan with a clear
-  "expired, please request a new code" message.
-- **Given** a merchant wants to see their open codes, **when** they
-  open QR management, **then** they can view and manually invalidate
-  any outstanding unscanned QR code.
+- **Given** merchant เริ่ม transaction ใหม่, **when** พวกเขาขอ QR code,
+  **then** ระบบจะสร้าง QR code ที่เก็บ transaction identifier ที่ไม่ซ้ำกัน
+  และผูกกับ merchant นั้น
+- **Given** QR code ถูกสร้างขึ้นแล้ว, **when** มีการออกใช้งาน, **then**
+  QR code นั้นใช้ได้ครั้งเดียว (single-use) และมีเวลาจำกัด (จะหมดอายุถ้า
+  ไม่มีการสแกนภายในเวลาที่กำหนด) ตามความเสี่ยงเรื่อง fraud ที่ระบุใน
+  BRD §8 Risks
+- **Given** QR code ถูกสแกนสำเร็จไปแล้วครั้งหนึ่ง, **when** มีการพยายาม
+  สแกนซ้ำครั้งที่สองด้วยโค้ดเดียวกัน, **then** ระบบจะปฏิเสธและไม่สร้าง
+  transaction ที่สอง
+- **Given** QR code หมดอายุแล้ว, **when** ลูกค้าพยายามสแกน, **then**
+  ระบบจะปฏิเสธการสแกนพร้อมข้อความที่ชัดเจนว่า "หมดอายุ กรุณาขอโค้ดใหม่"
+- **Given** merchant ต้องการดูโค้ดที่เปิดอยู่ของตนเอง, **when** พวกเขาเปิด
+  QR management, **then** พวกเขาสามารถดูและยกเลิก QR code ที่ยังไม่ถูก
+  สแกนด้วยมือได้
 
-**US-002 (FR-002)** — As a **customer**, I want to scan a merchant's
-QR code at checkout, so that a transaction is created and I can earn
-SP Points once it is approved.
+**US-002 (FR-002)** — ในฐานะ **customer** ฉันต้องการสแกน QR code ของ
+merchant ที่จุดชำระเงิน เพื่อที่ transaction จะถูกสร้างขึ้นและฉันจะสามารถ
+สะสม SP Point ได้เมื่อได้รับการอนุมัติ
 
-- **Given** a customer scans a valid merchant QR code, **when** the
-  scan is processed, **then** a transaction is created with status
-  `PENDING_APPROVAL` and zero SP distributed.
-- **Given** a customer scans an invalid, expired, or already-used QR
-  code, **when** the scan is processed, **then** the system rejects
-  it and shows a clear error.
-- **Given** the scan succeeds, **when** the transaction is created,
-  **then** the customer sees confirmation that it is awaiting
-  merchant approval.
+- **Given** ลูกค้าสแกน QR code ที่ถูกต้องของ merchant, **when** การสแกน
+  ได้รับการประมวลผล, **then** transaction จะถูกสร้างขึ้นด้วยสถานะ
+  `PENDING_APPROVAL` และยังไม่มีการแบ่งสรร SP
+- **Given** ลูกค้าสแกน QR code ที่ไม่ถูกต้อง หมดอายุ หรือถูกใช้ไปแล้ว,
+  **when** การสแกนได้รับการประมวลผล, **then** ระบบจะปฏิเสธและแสดง
+  error ที่ชัดเจน
+- **Given** การสแกนสำเร็จ, **when** transaction ถูกสร้างขึ้น, **then**
+  ลูกค้าจะเห็นการยืนยันว่ากำลังรอการอนุมัติจาก merchant
 
-**US-003 (FR-003)** — As a **customer**, I want to view my SP Point
-balance and transaction history including status, so that I can track
-what I've earned and what's still pending.
+**US-003 (FR-003)** — ในฐานะ **customer** ฉันต้องการดู SP Point balance
+และประวัติ transaction รวมสถานะ เพื่อที่ฉันจะสามารถติดตามสิ่งที่ได้สะสมและ
+สิ่งที่ยังรอดำเนินการอยู่
 
-- **Given** a customer has one or more transactions, **when** they
-  open their history, **then** each shows its current status
-  (Pending Approval, Approved, Completed, Rejected, Cancelled).
-- **Given** a transaction reaches `COMPLETED`, **when** the customer
-  views their balance, **then** the credited 10 SP customer reward is
-  reflected within a few seconds.
+- **Given** ลูกค้ามี transaction อย่างน้อยหนึ่งรายการ, **when** พวกเขาเปิด
+  ประวัติ, **then** แต่ละรายการจะแสดงสถานะปัจจุบัน (Pending Approval,
+  Approved, Completed, Rejected, Cancelled)
+- **Given** transaction ถึงสถานะ `COMPLETED`, **when** ลูกค้าดู balance
+  ของตน, **then** 10 SP customer reward ที่ได้รับจะถูกสะท้อนภายในไม่กี่
+  วินาที
 
 ---
 
@@ -191,82 +188,78 @@ what I've earned and what's still pending.
 
 | Story ID | User Story (summary) | Priority | Sprint |
 |---|---|---|---|
-| US-004 | Merchant approves/rejects a pending transaction | P0 | Sprint 2 |
-| US-005 | System enforces valid transaction status transitions | P0 | Sprint 2 |
+| US-004 | Merchant อนุมัติ/ปฏิเสธ transaction ที่รอดำเนินการ | P0 | Sprint 2 |
+| US-005 | ระบบบังคับใช้เฉพาะ transition สถานะ transaction ที่ถูกต้อง | P0 | Sprint 2 |
 
-**US-004 (FR-019)** — As a **merchant**, I want to review and approve
-or reject a pending transaction, so that I control when the marketing
-fee is deducted and the reward is issued.
+**US-004 (FR-019)** — ในฐานะ **merchant** ฉันต้องการตรวจสอบและอนุมัติ
+หรือปฏิเสธ transaction ที่รอดำเนินการ เพื่อที่ฉันจะควบคุมได้ว่าเมื่อไหร่
+marketing fee จะถูกหักและ reward จะถูกออกให้
 
-- **Given** a transaction is `PENDING_APPROVAL`, **when** the merchant
-  opens their pending queue, **then** transaction details (amount,
-  customer reference, timestamp) are visible.
-- **Given** a merchant approves a `PENDING_APPROVAL` transaction,
-  **when** the approval is submitted, **then** it transitions to
-  `APPROVED` and SP distribution (EPIC-04) is triggered.
-- **Given** a merchant rejects a `PENDING_APPROVAL` transaction,
-  **when** the rejection is submitted, **then** it transitions to
-  `REJECTED` and no SP is distributed.
-- **Given** a transaction is not `PENDING_APPROVAL`, **when** a
-  merchant attempts to approve or reject it, **then** the system
-  blocks the action.
+- **Given** transaction อยู่ในสถานะ `PENDING_APPROVAL`, **when** merchant
+  เปิด pending queue ของตน, **then** รายละเอียด transaction (จำนวนเงิน,
+  ข้อมูลอ้างอิงลูกค้า, timestamp) จะปรากฏให้เห็น
+- **Given** merchant อนุมัติ transaction ที่เป็น `PENDING_APPROVAL`,
+  **when** การอนุมัติถูกส่ง, **then** transaction จะเปลี่ยนไปเป็น
+  `APPROVED` และการแบ่งสรร SP (EPIC-04) จะถูก trigger
+- **Given** merchant ปฏิเสธ transaction ที่เป็น `PENDING_APPROVAL`,
+  **when** การปฏิเสธถูกส่ง, **then** transaction จะเปลี่ยนไปเป็น
+  `REJECTED` และไม่มีการแบ่งสรร SP
+- **Given** transaction ไม่ได้อยู่ในสถานะ `PENDING_APPROVAL`, **when**
+  merchant พยายามอนุมัติหรือปฏิเสธ, **then** ระบบจะปิดกั้นการกระทำนั้น
 
-**US-005 (FR-021)** — As the **platform**, I want every transaction to
-move through a defined status lifecycle, so that SP is never
-distributed outside of an approved transaction.
+**US-005 (FR-021)** — ในฐานะ **platform** ฉันต้องการให้ทุก transaction
+เคลื่อนผ่าน status lifecycle ที่กำหนดไว้ เพื่อที่ SP จะไม่ถูกแบ่งสรรออกจาก
+transaction ที่ได้รับการอนุมัติแล้ว
 
-- **Given** a transaction, **when** any status change is attempted,
-  **then** only defined transitions are allowed: `PENDING_APPROVAL` →
-  `APPROVED` → `COMPLETED`, `PENDING_APPROVAL` → `REJECTED`, or
-  `PENDING_APPROVAL` → `CANCELLED`.
-- **Given** an invalid transition is attempted, **when** the system
-  evaluates it, **then** it is rejected and no state change occurs.
+- **Given** transaction ใด ๆ, **when** มีการพยายามเปลี่ยนสถานะ, **then**
+  จะอนุญาตเฉพาะ transition ที่กำหนดไว้เท่านั้น: `PENDING_APPROVAL` →
+  `APPROVED` → `COMPLETED`, `PENDING_APPROVAL` → `REJECTED`, หรือ
+  `PENDING_APPROVAL` → `CANCELLED`
+- **Given** มีการพยายาม transition ที่ไม่ถูกต้อง, **when** ระบบประเมินผล,
+  **then** จะถูกปฏิเสธและไม่มีการเปลี่ยนสถานะเกิดขึ้น
 
 ---
 
 ### 4.4 EPIC-04: SP Point Distribution & Marketing Fee Model
 
-> **Performance Requirement Note:** BRD §7 states reward crediting
-> should complete "within a few seconds" of the QR scan. Under the
-> v1.1 approval-gated model this no longer applies at scan time — SP
-> is not distributed until the merchant approves the transaction, which
-> may happen minutes or hours later. **The "few seconds" performance
-> target starts from the moment of merchant approval, not from QR scan
-> time.** This should be reflected in BRD NFRs in a future revision;
-> until then, treat this note as the authoritative clarification for
-> implementation and testing.
+> **Performance Requirement Note (หมายเหตุด้าน Performance):** BRD §7
+> ระบุว่าการให้ reward ควรเสร็จภายใน "ไม่กี่วินาที" หลังการสแกน QR ภายใต้
+> approval-gated model ของ v1.1 ข้อนี้ไม่ถูกนำมาใช้ ณ เวลาสแกนอีกต่อไป —
+> SP จะไม่ถูกแบ่งสรรจนกว่า merchant จะอนุมัติ transaction ซึ่งอาจเกิดขึ้นใน
+> อีกไม่กี่นาทีหรือหลายชั่วโมงต่อมา **เป้าหมายด้าน performance "ไม่กี่
+> วินาที" จะเริ่มนับจากช่วงเวลาที่ merchant อนุมัติ ไม่ใช่จากช่วงเวลาที่สแกน
+> QR** เรื่องนี้ควรถูกสะท้อนใน BRD NFR ใน revision ถัดไป จนกว่าจะถึงเวลา
+> นั้น ให้ถือหมายเหตุนี้เป็นคำอธิบายที่ใช้อ้างอิงสำหรับ implementation และ
+> การทดสอบ
 
 | Story ID | User Story (summary) | Priority | Sprint |
 |---|---|---|---|
-| US-006 | Distribute 30 SP (10/10/10) on approval | P0 | Sprint 3 |
-| US-007 | Server-side-only, approval-gated calculation | P0 | Sprint 3 |
+| US-006 | แบ่งสรร 30 SP (10/10/10) เมื่อได้รับการอนุมัติ | P0 | Sprint 3 |
+| US-007 | การคำนวณที่ฝั่ง server เท่านั้น และเกิดขึ้นหลังจากได้รับการอนุมัติ | P0 | Sprint 3 |
 
-**US-006 (FR-016)** — As the **platform**, I want to distribute 30 SP
-per approved transaction, split 10 SP Customer Reward / 10 SP
-Marketing Fund / 10 SP ShopPlus Global Platform, so that the reward
-ecosystem is funded consistently.
+**US-006 (FR-016)** — ในฐานะ **platform** ฉันต้องการแบ่งสรร 30 SP ต่อ
+transaction ที่ได้รับการอนุมัติ โดยแบ่งเป็น 10 SP Customer Reward /
+10 SP Marketing Fund / 10 SP ShopPlus Global Platform เพื่อที่ reward
+ecosystem จะมีเงินทุนอย่างสม่ำเสมอ
 
-- **Given** a transaction transitions to `APPROVED`, **when**
-  distribution runs, **then** exactly 10 SP is credited to the
-  customer, 10 SP to the Marketing Fund, and 10 SP to the Platform.
-- **Given** distribution completes successfully, **when** all three
-  allocations are recorded, **then** the transaction transitions to
-  `COMPLETED`.
-- **Given** a distribution fails partway, **when** the system detects
-  the failure, **then** the transaction does not move to `COMPLETED`
-  and the failure is surfaced for admin follow-up.
+- **Given** transaction เปลี่ยนไปเป็น `APPROVED`, **when** การแบ่งสรร
+  ดำเนินการ, **then** 10 SP จะถูกให้กับลูกค้า, 10 SP ให้กับ Marketing
+  Fund, และ 10 SP ให้กับ Platform อย่างครบถ้วน
+- **Given** การแบ่งสรรสำเร็จ, **when** การจัดสรรทั้งสามรายการถูกบันทึก
+  ครบ, **then** transaction จะเปลี่ยนไปเป็น `COMPLETED`
+- **Given** การแบ่งสรรล้มเหลวกลางทาง, **when** ระบบตรวจพบความล้มเหลว,
+  **then** transaction จะไม่เปลี่ยนไปเป็น `COMPLETED` และความล้มเหลวจะ
+  ถูกแจ้งให้ admin ติดตามต่อไป
 
-**US-007 (FR-017, FR-018)** — As the **platform**, I want all SP
-distribution and fee calculation to run server-side and only after
-merchant approval, so that no client can forge or bypass the
-reward/fee logic.
+**US-007 (FR-017, FR-018)** — ในฐานะ **platform** ฉันต้องการให้การแบ่งสรร
+SP และการคำนวณ fee ทั้งหมดทำงานที่ฝั่ง server และเกิดขึ้นหลังจาก merchant
+อนุมัติเท่านั้น เพื่อไม่ให้ client ใด ๆ ปลอมแปลงหรือข้าม reward/fee logic ได้
 
-- **Given** any client request, **when** it includes a client-supplied
-  SP amount or fee value, **then** the server ignores it and
-  recalculates from the fixed 30 SP (10/10/10) rule.
-- **Given** a transaction is not `APPROVED`, **when** any client
-  attempts to trigger distribution, **then** the server rejects the
-  request.
+- **Given** คำขอจาก client ใด ๆ, **when** มีการส่งค่า SP หรือ fee ที่มา
+  จาก client, **then** server จะไม่สนใจค่านั้นและคำนวณใหม่จากกฎ 30 SP
+  (10/10/10) ที่กำหนดไว้แน่นอน
+- **Given** transaction ยังไม่ `APPROVED`, **when** client พยายาม trigger
+  การแบ่งสรร, **then** server จะปฏิเสธคำขอนั้น
 
 ---
 
@@ -274,40 +267,38 @@ reward/fee logic.
 
 | Story ID | User Story (summary) | Priority | Sprint |
 |---|---|---|---|
-| US-008 | Browse and redeem rewards with SP Points | P1 | Sprint 4 |
-| US-024 | Merchant verifies and completes reward redemption | P1 | Sprint 4 |
+| US-008 | เลือกดูและแลก reward ด้วย SP Point | P1 | Sprint 4 |
+| US-024 | Merchant ตรวจสอบและดำเนินการแลก reward ให้เสร็จสิ้น | P1 | Sprint 4 |
 
-**US-008 (FR-004)** — As a **customer**, I want to browse and redeem
-available rewards using my SP Points, so that I get tangible value
-from my balance.
+**US-008 (FR-004)** — ในฐานะ **customer** ฉันต้องการเลือกดูและแลก reward
+ที่มีอยู่ด้วย SP Point ของฉัน เพื่อที่ฉันจะได้รับมูลค่าที่จับต้องได้จาก
+balance ของฉัน
 
-- **Given** a customer has sufficient SP balance, **when** they redeem
-  a reward, **then** the SP cost is deducted and the redemption is
-  created with a status of pending fulfillment (see US-024).
-- **Given** a customer has insufficient SP balance, **when** they
-  attempt redemption, **then** the system prevents it and shows a
-  clear message.
+- **Given** ลูกค้ามี SP balance เพียงพอ, **when** พวกเขาแลก reward,
+  **then** ค่าใช้จ่าย SP จะถูกหักและการแลกจะถูกสร้างขึ้นด้วยสถานะรอ
+  fulfillment (ดู US-024)
+- **Given** ลูกค้ามี SP balance ไม่เพียงพอ, **when** พวกเขาพยายามแลก,
+  **then** ระบบจะป้องกันการแลกและแสดงข้อความที่ชัดเจน
 
-**US-024 (New — recommend adding to BRD as a future FR)** — As a
-**merchant**, I want to verify and complete a customer's reward
-redemption in-store, so that the reward is only fulfilled once and the
-platform has a record it actually happened.
+**US-024 (New — แนะนำให้เพิ่มเข้า BRD เป็น FR ในอนาคต)** — ในฐานะ
+**merchant** ฉันต้องการตรวจสอบและดำเนินการแลก reward ของลูกค้าให้เสร็จ
+สิ้นที่ร้าน เพื่อให้ reward ถูกใช้จริงเพียงครั้งเดียวเท่านั้น และแพลตฟอร์มมี
+บันทึกว่ามันเกิดขึ้นจริง
 
-- **Given** a customer has redeemed a reward and received a
-  redemption reference (e.g., a code shown in-app), **when** the
-  customer presents it in-store, **then** the merchant can validate
-  that reference against the system.
-- **Given** a redemption reference is validated by the merchant,
-  **when** the merchant marks it fulfilled, **then** the system
-  records the fulfillment and the redemption cannot be validated or
-  fulfilled a second time.
-- **Given** a redemption reference has already been fulfilled or does
-  not exist, **when** a merchant attempts to validate it again,
-  **then** the system rejects the attempt and shows a clear error.
-- **Given** any redemption fulfillment event, **when** it is
-  processed, **then** an audit log entry is created recording the
-  redemption ID, customer ID, merchant ID, reward, and timestamp,
-  consistent with the audit approach in EPIC-08.
+- **Given** ลูกค้าแลก reward แล้วและได้รับ redemption reference (เช่น
+  โค้ดที่แสดงในแอป), **when** ลูกค้านำมาแสดงที่ร้าน, **then** merchant
+  สามารถตรวจสอบ reference นั้นกับระบบได้
+- **Given** redemption reference ได้รับการตรวจสอบจาก merchant แล้ว,
+  **when** merchant ทำเครื่องหมายว่า fulfilled, **then** ระบบจะบันทึกการ
+  fulfillment นั้น และ redemption นั้นจะไม่สามารถตรวจสอบหรือ fulfilled
+  ได้เป็นครั้งที่สอง
+- **Given** redemption reference ถูก fulfilled ไปแล้วหรือไม่มีอยู่จริง,
+  **when** merchant พยายามตรวจสอบอีกครั้ง, **then** ระบบจะปฏิเสธและแสดง
+  error ที่ชัดเจน
+- **Given** เกิด redemption fulfillment event ใด ๆ, **when** ถูกประมวลผล,
+  **then** จะมีการสร้าง audit log entry ที่บันทึก redemption ID, customer
+  ID, merchant ID, reward, และ timestamp สอดคล้องกับแนวทาง audit ใน
+  EPIC-08
 
 ---
 
@@ -315,36 +306,36 @@ platform has a record it actually happened.
 
 | Story ID | User Story (summary) | Priority | Sprint |
 |---|---|---|---|
-| US-009 | Manage shop profile | P0 | Sprint 1 |
-| US-010 | View marketing fee tracking and transaction records | P0 | Sprint 4 |
+| US-009 | จัดการโปรไฟล์ร้านค้า | P0 | Sprint 1 |
+| US-010 | ดูการติดตาม marketing fee และบันทึก transaction | P0 | Sprint 4 |
 
-**US-009 (FR-007)** — As a **merchant**, I want to manage my shop
-profile and store information, so that customers can find accurate
-information about my store.
+**US-009 (FR-007)** — ในฐานะ **merchant** ฉันต้องการจัดการโปรไฟล์และ
+ข้อมูลร้านค้าของฉัน เพื่อที่ลูกค้าจะสามารถค้นหาข้อมูลร้านค้าของฉันได้อย่าง
+ถูกต้อง
 
-- **Given** a merchant is onboarded, **when** they edit profile fields
-  (name, address, category, hours), **then** changes are saved and
-  visible to customers.
+- **Given** merchant ได้รับการ onboard แล้ว, **when** พวกเขาแก้ไขฟิลด์
+  โปรไฟล์ (ชื่อ, ที่อยู่, ประเภท, เวลาเปิด-ปิด), **then** การเปลี่ยนแปลงจะ
+  ถูกบันทึกและแสดงให้ลูกค้าเห็น
 
-**US-010 (FR-009, FR-010)** — As a **merchant**, I want to view
-marketing fee tracking and transaction records, so that I understand
-costs and can reconcile sales.
+**US-010 (FR-009, FR-010)** — ในฐานะ **merchant** ฉันต้องการดูการติดตาม
+marketing fee และบันทึก transaction เพื่อที่ฉันจะเข้าใจต้นทุนและสามารถ
+ตรวจสอบยอดขายได้
 
-- **Given** approved/completed transactions exist, **when** a merchant
-  opens transaction records, **then** each shows amount, status, and
-  the 10 SP marketing fee deducted.
-- **Given** a merchant filters by date range, **when** applied,
-  **then** the fee total for that range is displayed accurately.
+- **Given** มี transaction ที่ approved/completed อยู่, **when** merchant
+  เปิดบันทึก transaction, **then** แต่ละรายการจะแสดงจำนวนเงิน สถานะ
+  และ marketing fee 10 SP ที่ถูกหัก
+- **Given** merchant กรองตามช่วงวันที่, **when** นำไปใช้, **then** ยอด
+  fee รวมของช่วงนั้นจะแสดงอย่างถูกต้อง
 
-**Deferred secondary items (Post-MVP backlog — see "Backlog Priority
-Deviation from BRD" above for FR-005/FR-008/FR-011):**
+**รายการรองที่ถูกเลื่อนไว้ (Post-MVP backlog — ดู "Backlog Priority
+Deviation from BRD" ด้านบนสำหรับ FR-005/FR-008/FR-011):**
 
 | Story ID | User Story (summary) | Priority | Sprint | Notes |
 |---|---|---|---|---|
-| US-011 | Merchant creates campaigns/promotions (FR-008) | P2 | Post-MVP backlog | Adds acquisition value but not required to prove the reward loop |
-| US-012 | Merchant views customer behavior insights (FR-011) | P3 | Post-MVP backlog | Needs a data volume baseline first |
-| US-013 | Customer explores/searches nearby shops (FR-005) | P2 | Post-MVP backlog | Useful for discovery, not blocking core loop |
-| US-014 | Customer views active promotions (FR-006) | P2 | Post-MVP backlog | Depends on US-011 existing first |
+| US-011 | Merchant สร้างแคมเปญ/โปรโมชัน (FR-008) | P2 | Post-MVP backlog | เพิ่มมูลค่าด้านการหาลูกค้า แต่ไม่จำเป็นต่อการพิสูจน์ reward loop |
+| US-012 | Merchant ดู insight พฤติกรรมลูกค้า (FR-011) | P3 | Post-MVP backlog | ต้องการปริมาณข้อมูล baseline ก่อน |
+| US-013 | Customer สำรวจ/ค้นหาร้านค้าใกล้เคียง (FR-005) | P2 | Post-MVP backlog | มีประโยชน์ด้านการค้นพบ แต่ไม่ block core loop |
+| US-014 | Customer ดูโปรโมชันที่กำลังดำเนินการอยู่ (FR-006) | P2 | Post-MVP backlog | ขึ้นอยู่กับว่า US-011 มีอยู่ก่อน |
 
 ---
 
@@ -352,73 +343,66 @@ Deviation from BRD" above for FR-005/FR-008/FR-011):**
 
 | Story ID | User Story (summary) | Priority | Sprint |
 |---|---|---|---|
-| US-015 | Manage customer and merchant accounts | P0 | Sprint 1 |
-| US-016 | View fixed SP Point reward rules (read-only in MVP) | P0 | Sprint 4 |
-| US-017 | Monitor system usage, health, and transaction activity | P1 | Sprint 4 |
-| US-025 | Admin manually cancels a stuck `PENDING_APPROVAL` transaction | P1 | Sprint 2 |
+| US-015 | จัดการบัญชี customer และ merchant | P0 | Sprint 1 |
+| US-016 | ดูกฎ SP Point reward ที่คงที่ (read-only ใน MVP) | P0 | Sprint 4 |
+| US-017 | เฝ้าติดตามการใช้งาน สุขภาพระบบ และกิจกรรม transaction | P1 | Sprint 4 |
+| US-025 | Admin ยกเลิก transaction ที่ค้างอยู่ใน `PENDING_APPROVAL` ด้วยมือ | P1 | Sprint 2 |
 
-**US-015 (FR-012, FR-013)** — As an **admin**, I want to manage
-customer and merchant accounts (create/update/suspend/onboard), so
-that I can maintain a trustworthy platform.
+**US-015 (FR-012, FR-013)** — ในฐานะ **admin** ฉันต้องการจัดการบัญชี
+customer และ merchant (สร้าง/อัปเดต/ระงับ/onboard) เพื่อที่ฉันจะสามารถ
+รักษาความน่าเชื่อถือของแพลตฟอร์มไว้ได้
 
-- **Given** an admin suspends a merchant, **when** suspension is
-  applied, **then** that merchant can no longer approve QR
-  transactions.
-- **Given** an admin suspends a customer, **when** suspension is
-  applied, **then** that customer can no longer create new
-  transactions via QR scan.
+- **Given** admin ระงับ merchant, **when** การระงับถูกใช้งาน, **then**
+  merchant นั้นจะไม่สามารถอนุมัติ QR transaction ได้อีก
+- **Given** admin ระงับ customer, **when** การระงับถูกใช้งาน, **then**
+  customer นั้นจะไม่สามารถสร้าง transaction ใหม่ผ่านการสแกน QR ได้อีก
 
-**US-016 (FR-014) — MVP scope clarified:** As an **admin**, I want to
-**view** the fixed SP Point reward rule (30 SP, split 10/10/10), so
-that I can confirm the ecosystem's active configuration.
+**US-016 (FR-014) — ขอบเขต MVP ที่ชัดเจนขึ้น:** ในฐานะ **admin** ฉัน
+ต้องการ **ดู** กฎ SP Point reward ที่คงที่ (30 SP, แบ่ง 10/10/10) เพื่อที่ฉัน
+จะยืนยันการตั้งค่าที่ใช้งานอยู่ของ ecosystem ได้
 
-> **Scope note:** In MVP, the 10/10/10 split and the 30 SP amount are
-> fixed values, not admin-editable at runtime. FR-014 ("configure and
-> manage") is satisfied at the MVP level by making the fixed rule
-> visible and change-controlled only through a new deployment — not
-> through an in-app editor. **Runtime rule configuration (letting an
-> admin change the split or amount without a deploy) is out of scope
-> for MVP and is deferred to Post-MVP backlog**, pending a decision on
-> what guardrails such an editor would need (e.g., minimum/maximum
-> splits, approval workflow for rule changes).
+> **Scope note (หมายเหตุเรื่องขอบเขต):** ใน MVP สัดส่วน 10/10/10 และ
+> จำนวน 30 SP เป็นค่าคงที่ ไม่สามารถแก้ไขได้ที่ runtime โดย admin FR-014
+> ("configure and manage") จะได้รับการตอบสนองในระดับ MVP โดยการทำให้
+> กฎที่คงที่นั้นแสดงผลได้และมีการควบคุมการเปลี่ยนแปลงเฉพาะผ่านการ
+> deploy ใหม่เท่านั้น — ไม่ใช่ผ่าน in-app editor **การกำหนดค่ากฎแบบ
+> runtime (ให้ admin เปลี่ยนสัดส่วนหรือจำนวนได้โดยไม่ต้อง deploy) อยู่
+> นอกขอบเขตของ MVP และถูกเลื่อนไป Post-MVP backlog** จนกว่าจะมีการ
+> ตัดสินใจเรื่อง guardrail ที่ editor แบบนี้ต้องมี (เช่น สัดส่วนขั้นต่ำ/สูงสุด,
+> ขั้นตอนอนุมัติสำหรับการเปลี่ยนกฎ)
 
-- **Given** the fixed 30 SP (10/10/10) model, **when** an admin opens
-  the reward rule screen, **then** the current active values are
-  displayed as read-only.
-- **Given** the rule values are only changed via a new deployment,
-  **when** a deployment changes them, **then** the change is captured
-  in deployment/release records (not an in-app admin edit action).
+- **Given** กฎ 30 SP (10/10/10) ที่คงที่, **when** admin เปิดหน้ากฎ
+  reward, **then** ค่าที่ใช้งานอยู่ปัจจุบันจะแสดงเป็น read-only
+- **Given** ค่าของกฎจะเปลี่ยนได้เฉพาะผ่านการ deploy ใหม่, **when** การ
+  deploy เปลี่ยนค่าเหล่านั้น, **then** การเปลี่ยนแปลงจะถูกบันทึกใน
+  deployment/release record (ไม่ใช่การแก้ไขโดย admin ในแอป)
 
-**US-017 (FR-015)** — As an **admin**, I want to monitor system usage,
-health, and transaction activity, so that I can detect and resolve
-issues before they impact users.
+**US-017 (FR-015)** — ในฐานะ **admin** ฉันต้องการเฝ้าติดตามการใช้งาน
+ระบบ สุขภาพระบบ และกิจกรรม transaction เพื่อที่ฉันจะสามารถตรวจพบและ
+แก้ไขปัญหาก่อนที่จะส่งผลกระทบต่อผู้ใช้
 
-- **Given** transactions are flowing through the system, **when** an
-  admin opens the monitoring dashboard, **then** counts of
-  `PENDING_APPROVAL` / `APPROVED` / `COMPLETED` / `REJECTED` /
-  `CANCELLED` transactions are visible.
+- **Given** transaction กำลังไหลผ่านระบบ, **when** admin เปิด monitoring
+  dashboard, **then** จำนวน transaction ในสถานะ `PENDING_APPROVAL` /
+  `APPROVED` / `COMPLETED` / `REJECTED` / `CANCELLED` จะแสดงให้เห็น
 
-**US-025 (New — Admin Safety Control, recommend adding to BRD as a
-future FR)** — As an **admin**, I want to manually cancel a
-transaction that is stuck in `PENDING_APPROVAL`, so that the platform
-has a way to unblock a transaction even before an automated approval
-SLA/timeout (US-022) is defined.
+**US-025 (New — Admin Safety Control, แนะนำให้เพิ่มเข้า BRD เป็น FR ใน
+อนาคต)** — ในฐานะ **admin** ฉันต้องการยกเลิก transaction ที่ค้างอยู่ใน
+`PENDING_APPROVAL` ด้วยมือ เพื่อให้แพลตฟอร์มมีวิธีปลดบล็อก transaction
+ได้ แม้ก่อนที่จะมีการกำหนด SLA/timeout การอนุมัติแบบอัตโนมัติ (US-022)
 
-- **Given** a transaction is `PENDING_APPROVAL`, **when** an admin
-  selects it and chooses to cancel, **then** it transitions to
-  `CANCELLED` and no SP is distributed, consistent with the lifecycle
-  rules in US-005.
-- **Given** a transaction is not `PENDING_APPROVAL` (e.g., already
-  `APPROVED`, `COMPLETED`, `REJECTED`, or `CANCELLED`), **when** an
-  admin attempts to cancel it, **then** the system blocks the action.
-- **Given** an admin cancels a transaction, **when** the cancellation
-  is processed, **then** an audit log entry records the transaction
-  ID, the admin who acted, the prior status, and a timestamp,
-  consistent with the audit approach in EPIC-08.
-- **Note:** This is an interim manual control. Once US-022 (approval
-  SLA/timeout) is resolved and built, automatic cancellation should
-  handle the common case, with this manual control remaining for
-  exceptions.
+- **Given** transaction อยู่ในสถานะ `PENDING_APPROVAL`, **when** admin
+  เลือก transaction นั้นและเลือกยกเลิก, **then** จะเปลี่ยนไปเป็น
+  `CANCELLED` และไม่มีการแบ่งสรร SP สอดคล้องกับกฎ lifecycle ใน US-005
+- **Given** transaction ไม่ได้อยู่ในสถานะ `PENDING_APPROVAL` (เช่น เป็น
+  `APPROVED`, `COMPLETED`, `REJECTED`, หรือ `CANCELLED` ไปแล้ว),
+  **when** admin พยายามยกเลิก, **then** ระบบจะปิดกั้นการกระทำนั้น
+- **Given** admin ยกเลิก transaction, **when** การยกเลิกถูกประมวลผล,
+  **then** audit log entry จะบันทึก transaction ID, admin ที่ดำเนินการ,
+  สถานะก่อนหน้า, และ timestamp สอดคล้องกับแนวทาง audit ใน EPIC-08
+- **Note (หมายเหตุ):** นี่เป็นมาตรการควบคุมด้วยมือแบบชั่วคราว เมื่อ
+  US-022 (approval SLA/timeout) ได้รับการแก้ไขและสร้างเสร็จแล้ว การ
+  ยกเลิกอัตโนมัติควรจัดการกรณีทั่วไป โดยการควบคุมด้วยมือนี้ยังคงอยู่
+  สำหรับกรณีข้อยกเว้น
 
 ---
 
@@ -426,21 +410,21 @@ SLA/timeout (US-022) is defined.
 
 | Story ID | User Story (summary) | Priority | Sprint |
 |---|---|---|---|
-| US-018 | Immutable audit log for every SP distribution | P0 | Sprint 3 |
+| US-018 | Audit log ที่ไม่สามารถเปลี่ยนแปลงได้สำหรับทุก SP distribution | P0 | Sprint 3 |
 
-**US-018 (FR-020, FR-022)** — As an **admin**, I want to view an
-immutable audit log for every SP distribution, so that I can verify
-accuracy and investigate disputes.
+**US-018 (FR-020, FR-022)** — ในฐานะ **admin** ฉันต้องการดู audit log ที่
+ไม่สามารถเปลี่ยนแปลงได้สำหรับทุก SP distribution เพื่อที่ฉันจะสามารถ
+ตรวจสอบความถูกต้องและสอบสวนกรณีพิพาทได้
 
-- **Given** a transaction is approved and distributed, **when**
-  distribution occurs, **then** an audit log entry records transaction
-  ID, merchant ID, customer ID, status transition, the SP amount per
-  distribution target, and a timestamp.
-- **Given** an admin searches by transaction ID, **when** they open
-  audit logs, **then** the full distribution and status history for
-  that transaction is visible.
-- **Given** an audit log entry exists, **when** any user attempts to
-  modify or delete it, **then** the system prevents the change.
+- **Given** transaction ได้รับการอนุมัติและแบ่งสรรแล้ว, **when** การแบ่งสรร
+  เกิดขึ้น, **then** audit log entry จะบันทึก transaction ID, merchant ID,
+  customer ID, status transition, จำนวน SP ต่อ distribution target, และ
+  timestamp
+- **Given** admin ค้นหาโดย transaction ID, **when** พวกเขาเปิด audit log,
+  **then** ประวัติการแบ่งสรรและสถานะทั้งหมดของ transaction นั้นจะแสดง
+  ให้เห็น
+- **Given** มี audit log entry อยู่, **when** ผู้ใช้ใดพยายามแก้ไขหรือลบ,
+  **then** ระบบจะป้องกันการเปลี่ยนแปลงนั้น
 
 ---
 
@@ -448,73 +432,71 @@ accuracy and investigate disputes.
 
 | Story ID | User Story (summary) | Priority | Sprint |
 |---|---|---|---|
-| US-019 | Explicit consent before data collection | P0 | Sprint 1 |
-| US-020 | Secure auth/authorization and data minimization | P0 | Sprint 1 |
-| US-021 | Defined data retention policy | P1 | Post-MVP backlog (blocked) |
+| US-019 | ความยินยอมที่ชัดแจ้งก่อนการเก็บข้อมูล | P0 | Sprint 1 |
+| US-020 | Auth/authorization ที่ปลอดภัยและการเก็บข้อมูลแบบ minimum | P0 | Sprint 1 |
+| US-021 | นโยบายการเก็บรักษาข้อมูลที่ชัดเจน | P1 | Post-MVP backlog (blocked) |
 
-**US-019** — As a **customer/merchant**, I want to give explicit
-consent before my personal data is collected, so that my data rights
-under PDPA are respected.
+**US-019** — ในฐานะ **customer/merchant** ฉันต้องการให้ความยินยอมที่
+ชัดแจ้งก่อนที่ข้อมูลส่วนบุคคลของฉันจะถูกเก็บ เพื่อที่สิทธิด้านข้อมูลของฉัน
+ภายใต้ PDPA จะได้รับการเคารพ
 
-- **Given** a new user registers, **when** they reach the consent
-  step, **then** they must explicitly accept data collection terms
-  before an account is created.
-- **Given** a user has not given consent, **when** they attempt to use
-  data-collecting features, **then** access is blocked.
+- **Given** ผู้ใช้ใหม่ลงทะเบียน, **when** พวกเขาไปถึงขั้นตอน consent,
+  **then** พวกเขาต้องยอมรับเงื่อนไขการเก็บข้อมูลอย่างชัดแจ้งก่อนที่บัญชี
+  จะถูกสร้างขึ้น
+- **Given** ผู้ใช้ยังไม่ได้ให้ความยินยอม, **when** พวกเขาพยายามใช้ feature
+  ที่เก็บข้อมูล, **then** การเข้าถึงจะถูกปิดกั้น
 
-**US-020** — As the **platform**, I want secure authentication/
-authorization for all roles and data minimization by default, so that
-personal and sensitive data is protected.
+**US-020** — ในฐานะ **platform** ฉันต้องการ authentication/authorization
+ที่ปลอดภัยสำหรับทุก role และการเก็บข้อมูลแบบ minimum โดย default เพื่อที่
+ข้อมูลส่วนบุคคลและข้อมูลที่ sensitive จะได้รับการปกป้อง
 
-- **Given** any API request, **when** it is not authenticated/
-  authorized for the requesting role, **then** it is rejected.
-- **Given** personal data is stored, **when** it is accessed by a
-  feature, **then** only the fields required for that specific feature
-  are exposed.
+- **Given** คำขอ API ใด ๆ, **when** ไม่ได้ authenticated/authorized สำหรับ
+  role ที่ขอ, **then** คำขอนั้นจะถูกปฏิเสธ
+- **Given** ข้อมูลส่วนบุคคลถูกจัดเก็บอยู่, **when** feature ใดเข้าถึงข้อมูล
+  นั้น, **then** จะเปิดเผยเฉพาะฟิลด์ที่จำเป็นสำหรับ feature นั้นเท่านั้น
 
-**US-021 (Open Question 4)** — As an **admin**, I want a defined data
-retention policy for personal data and audit logs, so that the
-platform meets PDPA retention requirements.
+**US-021 (Open Question 4)** — ในฐานะ **admin** ฉันต้องการนโยบายการเก็บ
+รักษาข้อมูล (retention policy) ที่ชัดเจนสำหรับข้อมูลส่วนบุคคลและ audit log
+เพื่อที่แพลตฟอร์มจะปฏิบัติตามข้อกำหนดด้าน retention ของ PDPA
 
-- **Given** a retention policy is defined by legal/compliance
-  stakeholders, **when** data reaches its retention limit, **then** it
-  is archived or deleted per policy.
-- **Blocked:** requires resolution of BRD Open Question 4 (PDPA
-  consent flows and retention periods) before implementation can be
-  estimated with confidence.
+- **Given** retention policy ถูกกำหนดโดย stakeholder ฝ่ายกฎหมาย/
+  compliance แล้ว, **when** ข้อมูลถึงขีดจำกัดการเก็บรักษา, **then** ข้อมูล
+  จะถูก archive หรือลบตามนโยบาย
+- **Blocked (ติดบล็อก):** ต้องรอการแก้ไข BRD Open Question 4 (consent
+  flow และระยะเวลาการเก็บรักษาข้อมูลตาม PDPA) ก่อนที่จะสามารถประมาณ
+  การ implementation ได้อย่างมั่นใจ
 
 ---
 
-## 5. Cross-Cutting Backlog Item: Approval SLA
+## 5. Cross-Cutting Backlog Item: Approval SLA (รายการ backlog ข้ามหมวด: Approval SLA)
 
 | Story ID | User Story (summary) | Priority | Sprint |
 |---|---|---|---|
-| US-022 | Auto-cancel transactions stuck in Pending Approval | P2 | Post-MVP backlog (blocked) |
+| US-022 | ยกเลิก transaction ที่ค้างอยู่ใน Pending Approval โดยอัตโนมัติ | P2 | Post-MVP backlog (blocked) |
 
-**US-022 (Open Question 6)** — As the **platform**, I want a defined
-SLA/timeout for merchant approval, so that transactions don't remain
-`PENDING_APPROVAL` indefinitely.
+**US-022 (Open Question 6)** — ในฐานะ **platform** ฉันต้องการ SLA/timeout
+สำหรับการอนุมัติของ merchant ที่ชัดเจน เพื่อไม่ให้ transaction ค้างอยู่ใน
+สถานะ `PENDING_APPROVAL` โดยไม่มีกำหนด
 
-- **Given** a transaction remains `PENDING_APPROVAL` beyond the
-  defined SLA, **when** the timeout elapses, **then** it automatically
-  transitions to `CANCELLED`.
-- **Blocked:** requires stakeholder decision on the SLA duration (BRD
-  Open Question 6) before implementation.
-- **Interim mitigation:** US-025 (Admin manual cancel, Sprint 2)
-  provides a manual path to unblock a stuck transaction until this
-  automated SLA is defined and built.
+- **Given** transaction ยังอยู่ใน `PENDING_APPROVAL` เกินกว่า SLA ที่
+  กำหนดไว้, **when** timeout หมดเวลา, **then** จะเปลี่ยนไปเป็น
+  `CANCELLED` โดยอัตโนมัติ
+- **Blocked (ติดบล็อก):** ต้องรอการตัดสินใจจาก stakeholder เรื่องระยะเวลา
+  SLA (BRD Open Question 6) ก่อนที่จะ implement
+- **Interim mitigation (มาตรการชั่วคราว):** US-025 (Admin manual cancel,
+  Sprint 2) เป็นทางออกให้ปลดบล็อก transaction ที่ค้างด้วยมือ จนกว่า SLA
+  อัตโนมัตินี้จะถูกกำหนดและสร้างขึ้น
 
 ---
 
-## 6. Sprint Recommendation Summary
+## 6. Sprint Recommendation Summary (สรุปคำแนะนำ Sprint)
 
-Per the Sprint Planning Assumptions (§2), this table assumes 2-week
-sprints and a small team; it is a starting sequence to be re-validated
-after Sprint 1 velocity is known. Sprint 2/3 are now explicitly split
-between **transaction foundation** (creating and approving a
-transaction) and **reward distribution** (paying it out), so a slip in
-distribution logic no longer blocks the approval workflow shipping on
-schedule, and vice versa.
+ตาม Sprint Planning Assumptions (§2) ตารางนี้สมมติ sprint ละ 2 สัปดาห์
+และทีมขนาดเล็ก เป็นลำดับเริ่มต้นที่ต้อง re-validate หลังจากรู้ velocity ของ
+Sprint 1 แล้ว Sprint 2/3 ถูกแยกอย่างชัดเจนระหว่าง **transaction
+foundation** (สร้างและอนุมัติ transaction) กับ **reward distribution**
+(จ่ายออกไป) เพื่อที่ความล่าช้าใน distribution logic จะไม่ block ให้
+approval workflow ต้อง delay ตามไปด้วย และในทางกลับกัน
 
 | Sprint | Focus | Stories |
 |---|---|---|
@@ -523,40 +505,40 @@ schedule, and vice versa.
 | **Sprint 3** | Reward distribution: SP distribution, 10/10/10 Marketing Fee split, audit log | US-006, US-007, US-018 |
 | **Sprint 4** | Customer/merchant/admin value loop: balance & status history, redemption + fulfillment, fee reconciliation, reward-rule visibility (read-only), monitoring | US-003, US-008, US-024, US-010, US-016, US-017 |
 
-### Post-MVP Backlog (Sprint 5+)
+### Post-MVP Backlog (Sprint 5+) (Backlog หลัง MVP)
 
-Secondary features (deprioritized per "Backlog Priority Deviation
-from BRD" above) and items blocked on unresolved BRD Open Questions:
+Feature รอง (ปรับลด priority ตาม "Backlog Priority Deviation from BRD"
+ด้านบน) และรายการที่ถูก block จาก BRD Open Question ที่ยังไม่ได้แก้ไข:
 
 | Item | Priority | Status |
 |---|---|---|
-| US-011 (merchant campaigns) | P2 | Deferred |
-| US-012 (behavior insights) | P3 | Deferred |
-| US-013 (shop discovery) | P2 | Deferred |
-| US-014 (promotions) | P2 | Deferred |
-| US-021 (data retention policy) | P1 | Blocked on BRD Open Question 4 |
+| US-011 (แคมเปญของ merchant) | P2 | Deferred |
+| US-012 (behavior insight) | P3 | Deferred |
+| US-013 (การค้นหาร้านค้า) | P2 | Deferred |
+| US-014 (โปรโมชัน) | P2 | Deferred |
+| US-021 (นโยบายการเก็บรักษาข้อมูล) | P1 | Blocked on BRD Open Question 4 |
 | US-022 (approval SLA/auto-cancel) | P2 | Blocked on BRD Open Question 6 |
 
-**Note:** US-021 and US-022 are blocked on stakeholder answers to BRD
-Open Questions 4 and 6, respectively. These should be resolved during
-Sprint 1–2 so Post-MVP planning isn't delayed further, and so US-022
-can be scheduled promptly once unblocked (US-025 in Sprint 2 is the
-interim manual mitigation in the meantime).
+**Note (หมายเหตุ):** US-021 และ US-022 ถูก block เพื่อรอคำตอบจาก
+stakeholder สำหรับ BRD Open Question 4 และ 6 ตามลำดับ ควรได้รับการ
+แก้ไขระหว่าง Sprint 1–2 เพื่อไม่ให้การวางแผน Post-MVP ล่าช้าไปมากกว่านี้
+และเพื่อให้ US-022 สามารถจัดเข้า sprint ได้ทันทีเมื่อปลดบล็อกแล้ว (US-025
+ใน Sprint 2 คือมาตรการชั่วคราวในระหว่างนี้)
 
 ---
 
-## 7. Out of Scope (carried from BRD)
+## 7. Out of Scope (carried from BRD) (สิ่งที่อยู่นอกขอบเขต, สืบทอดจาก BRD)
 
-Per BRD §6 Out of Scope, the following remain excluded from this
-backlog entirely (not deferred, not scheduled):
+ตาม BRD §6 Out of Scope รายการต่อไปนี้ยังคงถูกกันออกจาก backlog นี้
+โดยสิ้นเชิง (ไม่ใช่แค่เลื่อน ไม่ใช่แค่ยังไม่จัดตาราง):
 
-- Delivery and logistics management
-- Full online marketplace / e-commerce checkout
-- Third-party payment gateway integration
-- Multi-language/localization support beyond Thai/English baseline
+- การบริหารจัดการการจัดส่งและโลจิสติกส์
+- ระบบ online marketplace / e-commerce checkout แบบสมบูรณ์
+- การผสานระบบ third-party payment gateway
+- การสนับสนุนหลายภาษา/การแปลนอกเหนือจากพื้นฐานไทย/อังกฤษ
 
 ---
 
-*This backlog should be reviewed and re-prioritized with stakeholders
-each sprint planning session, and updated as Open Questions in the BRD
-are resolved.*
+*Backlog นี้ควรได้รับการ review และจัดลำดับ priority ใหม่ร่วมกับ
+stakeholder ในทุก sprint planning session และปรับปรุงเมื่อ Open Question
+ใน BRD ได้รับการแก้ไข*
