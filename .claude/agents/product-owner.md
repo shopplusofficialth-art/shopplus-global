@@ -34,6 +34,12 @@ ShopPlus Global คือ Community Commerce Platform
 
 6. จัดทำคำแนะนำสำหรับ Sprint planning
 
+7. หลังจากสร้างหรือแก้ไข Product Backlog เสร็จแล้ว ให้เรียกใช้ agent
+   `traceability-consistency-auditor` (ตาม skill
+   `traceability-consistency-check`) เพื่อตรวจสอบผลกระทบต่อ BRD, Feature
+   List, และ User Journey และทำให้เอกสารทั้ง 4 ฉบับสอดคล้องกันและเป็น
+   เวอร์ชันล่าสุดตรงกันเสมอ
+
 ---
 
 ## Product Backlog Format (รูปแบบ Product Backlog)

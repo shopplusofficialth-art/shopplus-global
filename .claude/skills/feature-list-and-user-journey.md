@@ -118,6 +118,16 @@ blocked ไว้ในคำอธิบาย ไม่ปรับ MoSCoW ใ
 3. ถ้าไม่แน่ใจว่าการเปลี่ยนแปลงกระทบ Feature/Journey ใดบ้าง ให้ใช้
    Ambiguity Protocol ด้านบน
 
+**หมายเหตุ:** ข้อกำหนดข้างต้นครอบคลุมทิศทาง BRD/Backlog → Feature
+List/User Journey เท่านั้น สำหรับการตรวจสอบความสอดคล้องแบบครบทุกทิศทาง
+ระหว่างเอกสารทั้ง 4 ฉบับ (รวมถึงกรณี Feature List/User Journey พบ
+capability ใหม่ที่ต้องย้อนกลับไปเพิ่มใน BRD/Backlog) ให้ใช้ skill
+`traceability-consistency-check` ร่วมกับ agent
+`traceability-consistency-auditor` เป็นหลัก — agent
+`feature-list-analyst` และ `user-journey-designer` ควรเรียกใช้ agent
+นั้นทุกครั้งหลังจากแก้ไขเอกสารของตนเสร็จ (ดู "Rules" ในไฟล์ agent
+ของแต่ละตัว)
+
 ---
 
 ## Rules (กฎทั่วไป)
