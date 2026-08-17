@@ -10,222 +10,222 @@
 
 ---
 
-## Revision History
+## Revision History (ประวัติการปรับปรุงเอกสาร)
 
 | Version | Status | Change Summary |
 |---|---|---|
-| 1.0 | Draft — pending stakeholder review | Initial business requirement draft. |
-| 1.1 | Revised Draft after Requirement Review | Added the approved Marketing Fee Distribution Model (30 SP split 10/10/10), the Merchant Approval Workflow and transaction status lifecycle, and the Transaction Audit requirement. Updated affected functional requirements and acceptance criteria. |
+| 1.0 | Draft — pending stakeholder review | ร่างเอกสาร Business Requirement ฉบับแรก |
+| 1.1 | Revised Draft after Requirement Review | เพิ่มรูปแบบการแบ่งสรร Marketing Fee ที่ได้รับการอนุมัติ (30 SP แบ่ง 10/10/10), Merchant Approval Workflow และ transaction status lifecycle, และข้อกำหนดด้าน Transaction Audit ปรับปรุง Functional Requirements และ Acceptance Criteria ที่เกี่ยวข้อง |
 
 ---
 
-## 1. Project Background
+## 1. Project Background (ความเป็นมาของโครงการ)
 
-ShopPlus Global is a Community Commerce Platform designed to connect
-offline local stores, online businesses, and customers through digital
-membership, reward points, and AI-powered marketing solutions.
+ShopPlus Global คือ Community Commerce Platform ที่ออกแบบมาเพื่อเชื่อมโยง
+ร้านค้าท้องถิ่นแบบออฟไลน์ ธุรกิจออนไลน์ และลูกค้า เข้าด้วยกันผ่านระบบสมาชิก
+ดิจิทัล ระบบสะสมคะแนนสะสม (Reward Point) และโซลูชันการตลาดที่ขับเคลื่อนด้วย AI
 
-The platform starts from offline community stores and is intended to
-expand toward online commerce, delivery, logistics, and marketplace
-services as the ecosystem matures.
+แพลตฟอร์มเริ่มต้นจากร้านค้าชุมชนแบบออฟไลน์ และมีเป้าหมายที่จะขยายไปสู่
+การค้าออนไลน์ การจัดส่ง โลจิสติกส์ และบริการมาร์เกตเพลส เมื่อ ecosystem
+มีความพร้อมมากขึ้น
 
-The project follows an AI Native Development Workflow using Agile
-methodology, GitHub version control, the Claude Code AI Agent, and
-structured documentation across five phases: Requirements, Design,
-Development, Testing, and Release.
+โครงการนี้ดำเนินตาม AI Native Development Workflow โดยใช้ Agile
+methodology, GitHub version control, Claude Code AI Agent และเอกสารที่มี
+โครงสร้างชัดเจนครอบคลุม 5 phase ได้แก่ Requirements, Design, Development,
+Testing และ Release
 
-This document is the first artifact in the `01-requirements` phase and
-establishes the shared understanding of the business problem, users,
-and requirements before any design or development work begins.
-
----
-
-## 2. Business Problem
-
-Local community businesses — independent shops, small retailers, and
-neighborhood service providers — struggle to compete with large chains
-and online marketplaces because they lack:
-
-- A digital way to build and retain a loyal customer base
-- Tools to run structured, trackable marketing campaigns
-- Visibility into customer behavior and purchase patterns
-- A shared, cross-merchant reward system that gives customers a
-  reason to keep returning to community stores rather than switching
-  to larger competitors
-
-Customers, meanwhile, have no unified way to discover local stores,
-earn consistent rewards across multiple merchants, or track and redeem
-value for everyday purchases at small businesses. Reward programs, when
-they exist, are typically fragmented per-merchant, paper-based, or
-manual, which limits their value and makes them easy to abandon.
-
-**Expected outcome:** A shared digital membership and reward ecosystem
-(SP Point) that gives merchants marketing and customer-insight tools,
-gives customers a consistent way to discover shops and earn/redeem
-rewards, and gives the platform a sustainable revenue model through
-marketing fees — while keeping the experience simple enough for
-offline-first, non-technical community merchants to adopt.
+เอกสารนี้เป็น artifact ฉบับแรกใน phase `01-requirements` และมีวัตถุประสงค์
+เพื่อสร้างความเข้าใจร่วมกันเกี่ยวกับปัญหาทางธุรกิจ ผู้ใช้งาน และ requirement
+ต่าง ๆ ก่อนเริ่มงาน design หรือ development ใด ๆ
 
 ---
 
-## 3. Vision and Objectives
+## 2. Business Problem (ปัญหาทางธุรกิจ)
 
-### Vision
+ธุรกิจชุมชนท้องถิ่น — ร้านค้าอิสระ ร้านค้าปลีกขนาดเล็ก และผู้ให้บริการใน
+ละแวกใกล้เคียง — ประสบปัญหาในการแข่งขันกับเชนร้านค้าขนาดใหญ่และ
+มาร์เกตเพลสออนไลน์ เนื่องจากขาด:
+
+- วิธีการทางดิจิทัลในการสร้างและรักษาฐานลูกค้าที่ภักดี
+- เครื่องมือสำหรับดำเนินแคมเปญการตลาดที่เป็นระบบและติดตามผลได้
+- การมองเห็นพฤติกรรมและรูปแบบการซื้อของลูกค้า
+- ระบบ reward ร่วมข้ามร้านค้า (cross-merchant) ที่ทำให้ลูกค้ามีเหตุผล
+  กลับมาซื้อที่ร้านค้าชุมชนซ้ำ ๆ แทนที่จะเปลี่ยนไปใช้บริการคู่แข่งรายใหญ่
+
+ในขณะเดียวกัน ลูกค้าก็ไม่มีวิธีที่เป็นหนึ่งเดียวในการค้นหาร้านค้าท้องถิ่น
+สะสม reward ได้อย่างสม่ำเสมอในหลายร้านค้า หรือติดตาม/แลกมูลค่าสำหรับ
+การซื้อของในชีวิตประจำวันที่ร้านค้าขนาดเล็ก โปรแกรม reward ที่มีอยู่ในปัจจุบัน
+(ถ้ามี) มักกระจัดกระจายแยกตามร้านค้า เป็นแบบกระดาษ หรือทำด้วยมือ ซึ่งจำกัด
+มูลค่าของโปรแกรมและทำให้เลิกใช้ได้ง่าย
+
+**Expected outcome (ผลลัพธ์ที่คาดหวัง):** ระบบสมาชิกดิจิทัลและ reward
+ecosystem ร่วมกัน (SP Point) ที่มอบเครื่องมือด้านการตลาดและ
+customer-insight ให้แก่ merchant ให้ลูกค้ามีวิธีที่สม่ำเสมอในการค้นหาร้านค้า
+และสะสม/แลก reward และให้แพลตฟอร์มมีรูปแบบรายได้ที่ยั่งยืนผ่าน marketing
+fee — ในขณะที่ยังคงให้ประสบการณ์การใช้งานเรียบง่ายพอสำหรับ merchant
+ชุมชนที่เน้นออฟไลน์และไม่มีความเชี่ยวชาญด้านเทคนิคให้สามารถใช้งานได้
+
+---
+
+## 3. Vision and Objectives (วิสัยทัศน์และเป้าหมาย)
+
+### Vision (วิสัยทัศน์)
 
 "Helping local community businesses compete in the digital economy by
 connecting merchants and customers through a shared reward ecosystem."
 
-### Objectives
+(ช่วยให้ธุรกิจชุมชนท้องถิ่นสามารถแข่งขันในเศรษฐกิจดิจิทัลได้ โดยเชื่อมโยง
+merchant และลูกค้าผ่าน reward ecosystem ที่ใช้ร่วมกัน)
 
-1. Enable customers to discover, engage with, and earn rewards from
-   local community stores through a single digital membership.
-2. Give merchants low-friction digital tools for customer acquisition,
-   campaign management, and behavior insights without requiring deep
-   technical expertise.
-3. Establish a sustainable SP Point reward ecosystem funded by a
-   marketing fee of 30 SP (3 THB) per merchant-approved transaction,
-   distributed across the customer reward, a shared marketing fund,
-   and the platform.
-4. Provide the platform administrators with the tools to manage users,
-   merchants, rewards, and system health at scale.
-5. Build the platform cloud-first (Firebase / Firestore / Cloud
-   Functions) so it can scale from offline community stores toward
-   online commerce, delivery, and marketplace services over time.
-6. Ensure all designs comply with PDPA and follow secure, minimal-data
-   practices from day one.
+### Objectives (เป้าหมาย)
+
+1. ให้ลูกค้าสามารถค้นหา มีส่วนร่วม และสะสม reward จากร้านค้าชุมชนท้องถิ่น
+   ผ่านระบบสมาชิกดิจิทัลเดียว
+2. มอบเครื่องมือดิจิทัลที่ใช้งานง่ายให้แก่ merchant สำหรับการหาลูกค้าใหม่
+   การจัดการแคมเปญ และ insight ด้านพฤติกรรม โดยไม่ต้องมีความเชี่ยวชาญ
+   ด้านเทคนิคเชิงลึก
+3. สร้าง SP Point reward ecosystem ที่ยั่งยืน โดยได้รับเงินทุนจาก marketing
+   fee 30 SP (3 THB) ต่อ transaction ที่ merchant อนุมัติ โดยแบ่งสรรระหว่าง
+   customer reward, กองทุนการตลาดร่วม (marketing fund), และแพลตฟอร์ม
+4. มอบเครื่องมือให้ผู้ดูแลระบบแพลตฟอร์ม (platform administrators) สำหรับ
+   บริหารจัดการผู้ใช้ merchant reward และสุขภาพของระบบในระดับ scale
+5. สร้างแพลตฟอร์มแบบ cloud-first (Firebase / Firestore / Cloud Functions)
+   เพื่อให้สามารถ scale จากร้านค้าชุมชนออฟไลน์ไปสู่การค้าออนไลน์ การจัดส่ง
+   และมาร์เกตเพลสได้ในอนาคต
+6. ให้แน่ใจว่าการออกแบบทั้งหมดเป็นไปตาม PDPA และปฏิบัติตามหลักการด้าน
+   ข้อมูลที่ปลอดภัยและ minimal ตั้งแต่วันแรก
 
 ---
 
-## 4. Target Users
+## 4. Target Users (ผู้ใช้เป้าหมาย)
 
 | User Type | Description | Primary Goals |
 |---|---|---|
-| **Customer** | Individuals who shop at participating local/community stores | Discover shops, earn SP Points, redeem rewards, access promotions |
-| **Merchant** | Local/community store owners or staff who join the platform | Acquire and retain customers, run campaigns, track marketing fees and transactions |
-| **Admin** | Platform operations team managing the ShopPlus Global ecosystem | Manage users and merchants, oversee reward economy, monitor system health |
+| **Customer** | บุคคลที่ซื้อสินค้า/บริการที่ร้านค้าท้องถิ่น/ชุมชนที่เข้าร่วมโครงการ | ค้นหาร้านค้า, สะสม SP Point, แลก reward, เข้าถึงโปรโมชัน |
+| **Merchant** | เจ้าของร้านค้าหรือพนักงานร้านค้าท้องถิ่น/ชุมชนที่เข้าร่วมแพลตฟอร์ม | หาลูกค้าใหม่และรักษาลูกค้าเดิม, ดำเนินแคมเปญ, ติดตาม marketing fee และ transaction |
+| **Admin** | ทีมปฏิบัติการของแพลตฟอร์มที่บริหารจัดการ ecosystem ของ ShopPlus Global | บริหารจัดการผู้ใช้และ merchant, ดูแล reward economy, ตรวจสอบสุขภาพของระบบ |
 
-### User Goals, Behavior, and Expectations
+### User Goals, Behavior, and Expectations (เป้าหมาย พฤติกรรม และความคาดหวังของผู้ใช้)
 
-- **Customer:** Wants a fast, low-friction way (e.g., QR scan) to earn
-  and check rewards at the point of purchase. Expects rewards to feel
-  fair and transparent (clear SP-to-Baht conversion) and expects to
-  discover new shops nearby easily.
-- **Merchant:** Wants customer acquisition and retention tools without
-  needing technical or marketing expertise. Expects clear visibility
-  into marketing fees charged and the value received in return
-  (customer insights, repeat visits), and expects to retain control
-  over each transaction by reviewing and approving it before any fee
-  is deducted.
-- **Admin:** Needs oversight and control over the reward economy to
-  prevent abuse (e.g., point fraud), and needs system monitoring to
-  ensure platform reliability as merchant/customer counts grow.
+- **Customer:** ต้องการวิธีที่รวดเร็วและมี friction น้อย (เช่น สแกน QR) ในการ
+  สะสมและตรวจสอบ reward ณ จุดขาย คาดหวังให้ reward รู้สึกเป็นธรรมและ
+  โปร่งใส (มีอัตราแปลง SP-to-Baht ที่ชัดเจน) และคาดหวังว่าจะค้นพบร้านค้าใหม่
+  ใกล้เคียงได้ง่าย
+- **Merchant:** ต้องการเครื่องมือหาลูกค้าใหม่และรักษาลูกค้าเดิม โดยไม่ต้องมี
+  ความเชี่ยวชาญด้านเทคนิคหรือการตลาด คาดหวังให้เห็น marketing fee ที่ถูก
+  เรียกเก็บและมูลค่าที่ได้รับกลับมาอย่างชัดเจน (customer insight, การกลับมา
+  ซื้อซ้ำ) และคาดหวังว่าจะยังคงมีสิทธิควบคุมในแต่ละ transaction โดยการ
+  ตรวจสอบและอนุมัติก่อนที่ fee จะถูกหักออก
+- **Admin:** ต้องการการกำกับดูแลและควบคุม reward economy เพื่อป้องกันการ
+  ใช้งานในทางที่ผิด (เช่น การปลอมแปลง point) และต้องการระบบเฝ้าติดตาม
+  (monitoring) เพื่อให้แพลตฟอร์มมีความน่าเชื่อถือเมื่อจำนวน merchant/customer
+  เพิ่มขึ้น
 
 ---
 
-## 5. Business Requirements
+## 5. Business Requirements (ความต้องการทางธุรกิจ)
 
-Expressed as user stories per the Agile Requirement Analysis process.
+นำเสนอในรูปแบบ user story ตามกระบวนการ Agile Requirement Analysis
 
 ### Customer
 
-- As a **customer**, I want to register and log in easily, so that I
-  can start using ShopPlus Global with minimal friction.
-- As a **customer**, I want to scan a QR code at a participating store,
-  so that I can earn SP Points automatically for my purchase.
-- As a **customer**, I want to view my SP Point balance and history, so
-  that I can track the rewards I have earned.
-- As a **customer**, I want to redeem SP Points for rewards, so that I
-  receive tangible value from being a loyal customer.
-- As a **customer**, I want to explore nearby participating shops, so
-  that I can discover new local businesses to support.
+- ในฐานะ **customer** ฉันต้องการลงทะเบียนและเข้าสู่ระบบได้อย่างง่ายดาย
+  เพื่อที่ฉันจะสามารถเริ่มใช้ ShopPlus Global ได้โดยมี friction น้อยที่สุด
+- ในฐานะ **customer** ฉันต้องการสแกน QR code ที่ร้านค้าที่เข้าร่วมโครงการ
+  เพื่อที่ฉันจะได้สะสม SP Point โดยอัตโนมัติจากการซื้อของ
+- ในฐานะ **customer** ฉันต้องการดู SP Point balance และประวัติของฉัน
+  เพื่อที่ฉันจะสามารถติดตาม reward ที่ได้สะสมไว้
+- ในฐานะ **customer** ฉันต้องการแลก SP Point เป็น reward เพื่อที่ฉันจะได้
+  รับมูลค่าที่จับต้องได้จากการเป็นลูกค้าที่ภักดี
+- ในฐานะ **customer** ฉันต้องการสำรวจร้านค้าที่เข้าร่วมโครงการใกล้เคียง
+  เพื่อที่ฉันจะได้ค้นพบธุรกิจท้องถิ่นใหม่ ๆ ที่จะสนับสนุน
 
 ### Merchant
 
-- As a **merchant**, I want to manage my shop profile and details, so
-  that customers can find accurate information about my store.
-- As a **merchant**, I want to create customer campaigns/promotions, so
-  that I can attract and retain customers.
-- As a **merchant**, I want to review and approve or reject each
-  pending transaction, so that I control when the marketing fee is
-  deducted and the reward is issued.
-- As a **merchant**, I want to track marketing fees per transaction, so
-  that I understand the cost of participating in the reward ecosystem.
-- As a **merchant**, I want to view transaction history, so that I can
-  reconcile sales and rewards issued.
-- As a **merchant**, I want basic customer behavior insights, so that I
-  can make informed marketing decisions.
+- ในฐานะ **merchant** ฉันต้องการจัดการโปรไฟล์และรายละเอียดร้านค้าของฉัน
+  เพื่อที่ลูกค้าจะสามารถค้นหาข้อมูลร้านค้าของฉันได้อย่างถูกต้อง
+- ในฐานะ **merchant** ฉันต้องการสร้างแคมเปญ/โปรโมชันสำหรับลูกค้า
+  เพื่อที่ฉันจะสามารถดึงดูดและรักษาลูกค้าไว้ได้
+- ในฐานะ **merchant** ฉันต้องการตรวจสอบและอนุมัติหรือปฏิเสธ transaction
+  ที่รอดำเนินการแต่ละรายการ เพื่อที่ฉันจะควบคุมได้ว่าเมื่อไหร่ marketing fee
+  จะถูกหักและ reward จะถูกออกให้
+- ในฐานะ **merchant** ฉันต้องการติดตาม marketing fee ต่อ transaction
+  เพื่อที่ฉันจะเข้าใจต้นทุนของการเข้าร่วม reward ecosystem
+- ในฐานะ **merchant** ฉันต้องการดูประวัติ transaction เพื่อที่ฉันจะสามารถ
+  ตรวจสอบยอดขายและ reward ที่ออกให้แล้ว
+- ในฐานะ **merchant** ฉันต้องการ insight พฤติกรรมลูกค้าขั้นพื้นฐาน เพื่อที่ฉัน
+  จะสามารถตัดสินใจด้านการตลาดได้อย่างมีข้อมูล
 
 ### Admin
 
-- As an **admin**, I want to manage customer and merchant accounts, so
-  that I can maintain a trustworthy platform.
-- As an **admin**, I want to manage and configure reward rules, so that
-  the SP Point ecosystem stays consistent and fair.
-- As an **admin**, I want to monitor system health and activity, so
-  that I can detect and resolve issues before they impact users.
-- As an **admin**, I want to view the audit log for every SP
-  transaction distribution, so that I can verify accuracy and
-  investigate disputes.
+- ในฐานะ **admin** ฉันต้องการบริหารจัดการบัญชี customer และ merchant
+  เพื่อที่ฉันจะสามารถรักษาความน่าเชื่อถือของแพลตฟอร์มไว้ได้
+- ในฐานะ **admin** ฉันต้องการบริหารจัดการและกำหนดค่ากฎ reward เพื่อที่
+  SP Point ecosystem จะยังคงมีความสม่ำเสมอและเป็นธรรม
+- ในฐานะ **admin** ฉันต้องการเฝ้าติดตามสุขภาพของระบบและกิจกรรมการใช้งาน
+  เพื่อที่ฉันจะสามารถตรวจพบและแก้ไขปัญหาก่อนที่จะส่งผลกระทบต่อผู้ใช้
+- ในฐานะ **admin** ฉันต้องการดู audit log ของทุก SP transaction
+  distribution เพื่อที่ฉันจะสามารถตรวจสอบความถูกต้องและสอบสวนกรณีพิพาทได้
 
 ---
 
-## 6. Functional Scope
+## 6. Functional Scope (ขอบเขตด้านฟังก์ชัน)
 
-### 6.1 Customer Application
-
-| ID | Requirement | Priority |
-|---|---|---|
-| FR-001 | Customer can register and log in | P0 |
-| FR-002 | Customer can scan a QR code to earn SP Points at checkout | P0 |
-| FR-003 | Customer can view current SP Point balance and transaction/reward history, including each transaction's status (Pending Approval, Approved, Completed, Rejected, Cancelled) | P0 |
-| FR-004 | Customer can browse and redeem available rewards using SP Points | P1 |
-| FR-005 | Customer can explore/search participating shops | P1 |
-| FR-006 | Customer can view and access active promotions | P2 |
-
-### 6.2 Merchant Application
+### 6.1 Customer Application (แอปพลิเคชันสำหรับลูกค้า)
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-007 | Merchant can manage shop profile and store information | P0 |
-| FR-008 | Merchant can create and manage customer campaigns | P1 |
-| FR-009 | Merchant can view marketing fee tracking per transaction | P0 |
-| FR-010 | Merchant can view and manage transaction records | P0 |
-| FR-011 | Merchant can view basic customer behavior insights/reports | P2 |
-| FR-019 | Merchant can review and approve or reject a transaction while it is in `PENDING_APPROVAL` status, before any marketing fee is deducted or reward is issued | P0 |
+| FR-001 | Customer สามารถลงทะเบียนและเข้าสู่ระบบได้ | P0 |
+| FR-002 | Customer สามารถสแกน QR code เพื่อสะสม SP Point ที่จุดชำระเงินได้ | P0 |
+| FR-003 | Customer สามารถดู SP Point balance ปัจจุบัน และประวัติ transaction/reward รวมถึงสถานะของแต่ละ transaction (Pending Approval, Approved, Completed, Rejected, Cancelled) | P0 |
+| FR-004 | Customer สามารถเลือกดูและแลก reward ที่มีอยู่ด้วย SP Point | P1 |
+| FR-005 | Customer สามารถสำรวจ/ค้นหาร้านค้าที่เข้าร่วมโครงการ | P1 |
+| FR-006 | Customer สามารถดูและเข้าถึงโปรโมชันที่กำลังดำเนินการอยู่ | P2 |
 
-### 6.3 Admin System
-
-| ID | Requirement | Priority |
-|---|---|---|
-| FR-012 | Admin can manage (create/update/suspend) customer user accounts | P0 |
-| FR-013 | Admin can manage (onboard/update/suspend) merchant accounts | P0 |
-| FR-014 | Admin can configure and manage SP Point reward rules | P0 |
-| FR-015 | Admin can monitor system usage, health, and transaction activity | P1 |
-| FR-020 | Admin can view SP transaction audit logs and the distribution breakdown (Customer Reward / Marketing Fund / Platform) for reconciliation and dispute investigation | P0 |
-
-### 6.4 Core Reward Logic (Cross-cutting)
+### 6.2 Merchant Application (แอปพลิเคชันสำหรับร้านค้า)
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-016 | System must distribute a fixed Marketing Fee of 30 SP (10 SP = 1 Baht conversion) per merchant-approved transaction, split as: 10 SP Customer Reward, 10 SP Marketing Fund, 10 SP ShopPlus Global Platform | P0 |
-| FR-017 | System must deduct and distribute the Marketing Fee only after the merchant approves the transaction; no SP distribution occurs while a transaction is `PENDING_APPROVAL`, `REJECTED`, or `CANCELLED` | P0 |
-| FR-018 | All reward calculations and distributions must be performed server-side (Cloud Functions), never trusted from the client | P0 |
-| FR-021 | System must manage every transaction through a defined status lifecycle (`PENDING_APPROVAL` → `APPROVED` → `COMPLETED`, or `PENDING_APPROVAL` → `REJECTED` / `CANCELLED`) and must enforce valid transitions only | P0 |
-| FR-022 | System must write an immutable audit log entry for every SP distribution event, recording transaction ID, status transition, the SP amount sent to each of the three distribution targets, and a timestamp | P0 |
+| FR-007 | Merchant สามารถจัดการโปรไฟล์ร้านค้าและข้อมูลร้านค้าได้ | P0 |
+| FR-008 | Merchant สามารถสร้างและจัดการแคมเปญลูกค้าได้ | P1 |
+| FR-009 | Merchant สามารถดูการติดตาม marketing fee ต่อ transaction ได้ | P0 |
+| FR-010 | Merchant สามารถดูและจัดการบันทึก transaction ได้ | P0 |
+| FR-011 | Merchant สามารถดู insight/รายงานพฤติกรรมลูกค้าขั้นพื้นฐาน | P2 |
+| FR-019 | Merchant สามารถตรวจสอบและอนุมัติหรือปฏิเสธ transaction ในขณะที่สถานะเป็น `PENDING_APPROVAL` ก่อนที่ marketing fee จะถูกหักหรือ reward จะถูกออกให้ | P0 |
 
-### 6.5 Transaction Status Workflow
+### 6.3 Admin System (ระบบสำหรับผู้ดูแลระบบ)
 
-Every transaction created from a customer QR scan moves through the
-following statuses. SP distribution (FR-016) and its audit log entry
-(FR-022) occur only on the `PENDING_APPROVAL` → `APPROVED` transition.
+| ID | Requirement | Priority |
+|---|---|---|
+| FR-012 | Admin สามารถบริหารจัดการ (สร้าง/อัปเดต/ระงับ) บัญชีผู้ใช้ customer ได้ | P0 |
+| FR-013 | Admin สามารถบริหารจัดการ (onboard/อัปเดต/ระงับ) บัญชี merchant ได้ | P0 |
+| FR-014 | Admin สามารถกำหนดค่าและบริหารจัดการกฎ SP Point reward ได้ | P0 |
+| FR-015 | Admin สามารถเฝ้าติดตามการใช้งานระบบ สุขภาพระบบ และกิจกรรม transaction | P1 |
+| FR-020 | Admin สามารถดู audit log ของ SP transaction และรายละเอียดการแบ่งสรร (Customer Reward / Marketing Fund / Platform) เพื่อการตรวจสอบยอดและสอบสวนกรณีพิพาท | P0 |
+
+### 6.4 Core Reward Logic (ตรรกะ reward หลัก, Cross-cutting)
+
+| ID | Requirement | Priority |
+|---|---|---|
+| FR-016 | ระบบต้องแบ่งสรร Marketing Fee คงที่ 30 SP (อัตราแปลง 10 SP = 1 Baht) ต่อ transaction ที่ merchant อนุมัติแล้ว โดยแบ่งเป็น: 10 SP Customer Reward, 10 SP Marketing Fund, 10 SP ShopPlus Global Platform | P0 |
+| FR-017 | ระบบต้องหักและแบ่งสรร Marketing Fee เฉพาะหลังจาก merchant อนุมัติ transaction แล้วเท่านั้น จะไม่มีการแบ่งสรร SP ใด ๆ ในขณะที่ transaction อยู่ในสถานะ `PENDING_APPROVAL`, `REJECTED`, หรือ `CANCELLED` | P0 |
+| FR-018 | การคำนวณและแบ่งสรร reward ทั้งหมดต้องดำเนินการที่ฝั่ง server (Cloud Functions) เท่านั้น ห้ามเชื่อถือค่าจากฝั่ง client โดยเด็ดขาด | P0 |
+| FR-021 | ระบบต้องบริหารจัดการทุก transaction ผ่าน status lifecycle ที่กำหนดไว้ (`PENDING_APPROVAL` → `APPROVED` → `COMPLETED`, หรือ `PENDING_APPROVAL` → `REJECTED` / `CANCELLED`) และต้องบังคับใช้เฉพาะ transition ที่ถูกต้องเท่านั้น | P0 |
+| FR-022 | ระบบต้องเขียน audit log entry ที่ไม่สามารถเปลี่ยนแปลงได้ (immutable) สำหรับทุก SP distribution event โดยบันทึก transaction ID, status transition, จำนวน SP ที่ส่งไปยังแต่ละ distribution target ทั้งสาม และ timestamp | P0 |
+
+### 6.5 Transaction Status Workflow (ขั้นตอนสถานะของ transaction)
+
+ทุก transaction ที่ถูกสร้างขึ้นจากการสแกน QR ของลูกค้าจะเคลื่อนผ่านสถานะ
+ดังต่อไปนี้ การแบ่งสรร SP (FR-016) และ audit log entry ที่เกี่ยวข้อง (FR-022)
+จะเกิดขึ้นเฉพาะในช่วง transition `PENDING_APPROVAL` → `APPROVED` เท่านั้น
 
 | Status | Meaning |
 |---|---|
-| `PENDING_APPROVAL` | Created when the customer scans the merchant's QR code. Awaiting merchant review. No SP distributed. |
-| `APPROVED` | Merchant has approved the transaction. Triggers the 30 SP distribution (10/10/10 split) and the associated audit log entry. |
-| `COMPLETED` | SP distribution has been successfully processed and recorded. Terminal success state. |
-| `REJECTED` | Merchant declined the transaction. No SP distributed. Terminal state. |
-| `CANCELLED` | Transaction cancelled before merchant action completes (e.g., customer- or system-initiated, or an approval timeout). No SP distributed. Terminal state. |
+| `PENDING_APPROVAL` | ถูกสร้างขึ้นเมื่อลูกค้าสแกน QR code ของ merchant กำลังรอการตรวจสอบจาก merchant ยังไม่มีการแบ่งสรร SP |
+| `APPROVED` | Merchant ได้อนุมัติ transaction แล้ว ทำให้เกิดการแบ่งสรร 30 SP (สัดส่วน 10/10/10) และ audit log entry ที่เกี่ยวข้อง |
+| `COMPLETED` | การแบ่งสรร SP ได้ดำเนินการและบันทึกสำเร็จแล้ว เป็น terminal success state |
+| `REJECTED` | Merchant ปฏิเสธ transaction ไม่มีการแบ่งสรร SP เป็น terminal state |
+| `CANCELLED` | Transaction ถูกยกเลิกก่อนที่ merchant จะดำเนินการเสร็จสิ้น (เช่น ริเริ่มโดย customer/system หรือ approval timeout) ไม่มีการแบ่งสรร SP เป็น terminal state |
 
 Valid transitions:
 
@@ -233,117 +233,113 @@ Valid transitions:
 - `PENDING_APPROVAL` → `REJECTED`
 - `PENDING_APPROVAL` → `CANCELLED`
 
-### 6.6 Transaction Audit Requirement
+### 6.6 Transaction Audit Requirement (ข้อกำหนดด้าน audit ของ transaction)
 
-Every SP distribution (Customer Reward, Marketing Fund, and Platform
-share) must generate an immutable audit log entry capturing, at
-minimum: transaction ID, merchant ID, customer ID, status transition,
-the SP amount allocated to each of the three distribution targets, and
-a timestamp. Audit logs must be retained per the PDPA data retention
-policy (see Open Questions) and must be viewable by Admins for
-reconciliation and dispute investigation (FR-020, FR-022).
+ทุกการแบ่งสรร SP (ส่วนของ Customer Reward, Marketing Fund และ Platform)
+ต้องสร้าง audit log entry ที่ไม่สามารถเปลี่ยนแปลงได้ (immutable) โดยบันทึก
+อย่างน้อย: transaction ID, merchant ID, customer ID, status transition,
+จำนวน SP ที่แบ่งสรรให้แต่ละ distribution target ทั้งสาม และ timestamp
+Audit log ต้องถูกเก็บรักษาตามนโยบายการเก็บรักษาข้อมูลของ PDPA (ดู Open
+Questions) และต้องให้ Admin สามารถดูได้เพื่อการตรวจสอบยอดและสอบสวนกรณี
+พิพาท (FR-020, FR-022)
 
-### Acceptance Criteria (representative examples)
+### Acceptance Criteria (เกณฑ์การตอบรับ, ตัวอย่างที่เป็นตัวแทน)
 
-- **Given** a customer scans a participating merchant's QR code,
-  **when** the scan is recorded, **then** the transaction is created
-  with status `PENDING_APPROVAL` and no SP is distributed.
-- **Given** a transaction is `PENDING_APPROVAL`, **when** the merchant
-  approves it, **then** the transaction moves to `APPROVED`, the
-  system distributes 30 SP as 10 SP to the customer, 10 SP to the
-  Marketing Fund, and 10 SP to the ShopPlus Global Platform, and the
-  transaction then moves to `COMPLETED`.
-- **Given** a transaction is `PENDING_APPROVAL`, **when** the merchant
-  rejects it, **then** the transaction moves to `REJECTED` and no SP
-  is distributed.
-- **Given** any SP distribution is processed, **when** the
-  distribution completes, **then** an immutable audit log entry is
-  created recording the transaction ID, status transition, the
-  distribution breakdown, and a timestamp.
-- **Given** a customer attempts to redeem a reward, **when** their SP
-  Point balance is insufficient, **then** the system prevents
-  redemption and displays a clear message.
+- **Given** ลูกค้าสแกน QR code ของ merchant ที่เข้าร่วมโครงการ, **when** การ
+  สแกนถูกบันทึก, **then** transaction จะถูกสร้างขึ้นด้วยสถานะ
+  `PENDING_APPROVAL` และไม่มีการแบ่งสรร SP
+- **Given** transaction อยู่ในสถานะ `PENDING_APPROVAL`, **when** merchant
+  อนุมัติ, **then** transaction จะเปลี่ยนไปเป็น `APPROVED` ระบบจะแบ่งสรร
+  30 SP เป็น 10 SP ให้ลูกค้า, 10 SP ให้ Marketing Fund, และ 10 SP ให้
+  ShopPlus Global Platform จากนั้น transaction จะเปลี่ยนไปเป็น `COMPLETED`
+- **Given** transaction อยู่ในสถานะ `PENDING_APPROVAL`, **when** merchant
+  ปฏิเสธ, **then** transaction จะเปลี่ยนไปเป็น `REJECTED` และไม่มีการแบ่งสรร
+  SP
+- **Given** มีการดำเนินการแบ่งสรร SP ใด ๆ, **when** การแบ่งสรรเสร็จสมบูรณ์,
+  **then** จะมีการสร้าง audit log entry ที่ไม่สามารถเปลี่ยนแปลงได้ โดยบันทึก
+  transaction ID, status transition, รายละเอียดการแบ่งสรร และ timestamp
+- **Given** ลูกค้าพยายามแลก reward, **when** SP Point balance ของลูกค้าไม่
+  เพียงพอ, **then** ระบบจะป้องกันการแลกและแสดงข้อความที่ชัดเจน
 
-### Out of Scope for this Initial Phase
+### Out of Scope for this Initial Phase (สิ่งที่อยู่นอกขอบเขตของ phase เริ่มต้นนี้)
 
-- Delivery and logistics management
-- Full online marketplace / e-commerce checkout
-- Third-party payment gateway integration
-- Multi-language/localization support beyond Thai/English baseline
+- การบริหารจัดการการจัดส่งและโลจิสติกส์
+- ระบบ online marketplace / e-commerce checkout แบบสมบูรณ์
+- การผสานระบบ third-party payment gateway
+- การสนับสนุนหลายภาษา/การแปลนอกเหนือจากพื้นฐานไทย/อังกฤษ
 
-These items align with the platform's longer-term expansion direction
-but are not part of the initial business requirement scope.
+รายการเหล่านี้สอดคล้องกับแนวทางการขยายในระยะยาวของแพลตฟอร์ม แต่ยัง
+ไม่อยู่ในขอบเขตของ business requirement ฉบับเริ่มต้นนี้
 
 ---
 
-## 7. Non-Functional Requirements
+## 7. Non-Functional Requirements (ความต้องการที่ไม่ใช่ฟังก์ชัน)
 
 | Category | Requirement |
 |---|---|
-| **Security** | Secure authentication and authorization for all user roles; no client-side trust for reward or fee calculations; sensitive operations validated server-side (Cloud Functions) |
-| **Privacy / PDPA** | Compliance with Thailand's Personal Data Protection Act (PDPA); explicit user consent for data collection; data minimization; no exposure of personal information, sensitive user data, or internal credentials |
-| **Performance** | QR scan and reward crediting should complete within a few seconds to support smooth point-of-sale interactions |
-| **Scalability** | Cloud-first architecture (Firebase / Firestore / Cloud Functions) to scale from offline community stores toward broader online commerce use cases |
-| **Availability** | Core reward-earning and redemption flows should remain available during merchant business hours; system monitoring in place to detect outages |
-| **Maintainability** | Clean separation of concerns — client handles UI/interaction only; backend owns business logic, security validation, and reward calculation |
-| **Usability** | Simple, low-friction UX suitable for non-technical community merchants and a broad customer demographic |
-| **Auditability** | Transaction and reward records must be traceable for merchant fee reconciliation and admin oversight; every SP distribution (Customer Reward, Marketing Fund, Platform share) must generate an immutable audit log entry linked to the transaction ID (see §6.6) |
+| **Security** | ต้องมี secure authentication และ authorization สำหรับทุก user role, ห้ามเชื่อถือค่าจากฝั่ง client สำหรับการคำนวณ reward หรือ fee, การดำเนินการที่ sensitive ต้องผ่านการตรวจสอบที่ฝั่ง server (Cloud Functions) |
+| **Privacy / PDPA** | ต้องปฏิบัติตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคลของประเทศไทย (PDPA), ต้องมีความยินยอมของผู้ใช้อย่างชัดแจ้งสำหรับการเก็บข้อมูล, การเก็บข้อมูลแบบ minimum ที่จำเป็น, ห้ามเปิดเผยข้อมูลส่วนบุคคล ข้อมูลผู้ใช้ที่ sensitive หรือ internal credentials |
+| **Performance** | การสแกน QR และการให้ reward ควรเสร็จสิ้นภายในไม่กี่วินาที เพื่อสนับสนุนการทำงาน point-of-sale ที่ราบรื่น |
+| **Scalability** | ต้องเป็น cloud-first architecture (Firebase / Firestore / Cloud Functions) เพื่อให้สามารถ scale จากร้านค้าชุมชนออฟไลน์ไปสู่การใช้งานด้านการค้าออนไลน์ในวงกว้างมากขึ้น |
+| **Availability** | flow หลักในการสะสมและแลก reward ควรพร้อมใช้งานตลอดเวลาทำการของ merchant, ต้องมีระบบเฝ้าติดตามเพื่อตรวจจับการหยุดทำงาน |
+| **Maintainability** | ต้องแยกส่วนความรับผิดชอบอย่างชัดเจน — client จัดการเฉพาะ UI/interaction, backend เป็นผู้ดูแล business logic, การตรวจสอบความปลอดภัย และการคำนวณ reward |
+| **Usability** | UX ต้องเรียบง่ายและมี friction น้อย เหมาะสำหรับ merchant ชุมชนที่ไม่มีความเชี่ยวชาญด้านเทคนิค และลูกค้าในกลุ่มประชากรที่หลากหลาย |
+| **Auditability** | บันทึก transaction และ reward ต้องสามารถตรวจสอบย้อนกลับได้สำหรับการตรวจสอบยอด marketing fee ของ merchant และการกำกับดูแลของ admin, ทุกการแบ่งสรร SP (ส่วนของ Customer Reward, Marketing Fund, Platform) ต้องสร้าง audit log entry ที่ไม่สามารถเปลี่ยนแปลงได้ ผูกกับ transaction ID (ดู §6.6) |
 
 ---
 
-## 8. Risks and Constraints
+## 8. Risks and Constraints (ความเสี่ยงและข้อจำกัด)
 
-### Risks
+### Risks (ความเสี่ยง)
 
 | Risk | Impact | Notes |
 |---|---|---|
-| Merchant adoption resistance due to unfamiliarity with digital tools | High | Offline-first, community merchants may need onboarding support and a simple UX |
-| Reward/point abuse or fraud (e.g., fake QR scans, duplicate redemption) | High | Requires server-side validation and admin monitoring tools (FR-018, FR-015) |
-| PDPA non-compliance in data handling | High | Legal/regulatory exposure; must be addressed at design stage, not retrofitted |
-| Low initial customer density limiting network effects | Medium | Reward ecosystem value depends on both merchant and customer participation reaching critical mass |
-| Marketing fee model (3 Baht minimum) may be a barrier for very low-value transactions | Medium | Needs validation with pilot merchants before full rollout |
-| Merchant delay or non-response when approving `PENDING_APPROVAL` transactions | Medium | Delays reward crediting and fee/fund distribution; requires a defined approval SLA/timeout policy (see Open Questions) |
+| Merchant ต่อต้านการนำมาใช้ เนื่องจากไม่คุ้นเคยกับเครื่องมือดิจิทัล | High | Merchant ชุมชนที่เน้นออฟไลน์อาจต้องการการสนับสนุนด้าน onboarding และ UX ที่เรียบง่าย |
+| การใช้งาน reward/point ในทางที่ผิดหรือทุจริต (เช่น QR ปลอม, การแลก reward ซ้ำซ้อน) | High | ต้องมีการตรวจสอบที่ฝั่ง server และเครื่องมือเฝ้าติดตามของ admin (FR-018, FR-015) |
+| การไม่ปฏิบัติตาม PDPA ในการจัดการข้อมูล | High | มีความเสี่ยงด้านกฎหมาย/regulatory ต้องได้รับการจัดการตั้งแต่ขั้น design ไม่ใช่มาแก้ย้อนหลัง |
+| ความหนาแน่นของลูกค้าเริ่มต้นต่ำ จำกัด network effect | Medium | มูลค่าของ reward ecosystem ขึ้นอยู่กับทั้ง merchant และ customer ที่เข้าร่วมจนถึง critical mass |
+| Marketing fee model (ขั้นต่ำ 3 Baht) อาจเป็นอุปสรรคสำหรับ transaction ที่มีมูลค่าต่ำมาก | Medium | ต้องมีการตรวจสอบความเหมาะสมกับ merchant นำร่องก่อนเปิดใช้งานเต็มรูปแบบ |
+| Merchant ล่าช้าหรือไม่ตอบสนองในการอนุมัติ transaction ที่อยู่ในสถานะ `PENDING_APPROVAL` | Medium | ทำให้การให้ reward และการแบ่งสรร fee/fund ล่าช้า ต้องมีนโยบาย SLA/timeout ในการอนุมัติที่ชัดเจน (ดู Open Questions) |
 
-### Constraints
+### Constraints (ข้อจำกัด)
 
-- SP Point conversion rule (10 SP = 1 Baht) and the marketing fee
-  (3 Baht / 30 SP per approved transaction) are fixed business rules
-  from CLAUDE.md and must be respected in all reward calculations.
-- The 30 SP marketing fee is split 10/10/10 across the Customer
-  Reward, the Marketing Fund, and the ShopPlus Global Platform, and is
-  distributed only after merchant approval (`PENDING_APPROVAL` →
-  `APPROVED`); no distribution occurs on `REJECTED` or `CANCELLED`
-  transactions.
-- Technical direction is constrained to Firebase, Firestore, and Cloud
-  Functions for the backend, and Web + Mobile for frontend targets.
-- All business logic, security validation, and reward calculation must
-  reside on the backend; the client is UI/interaction only.
-- Development must follow the Agile phase structure
+- กฎการแปลง SP Point (10 SP = 1 Baht) และ marketing fee (3 Baht / 30 SP
+  ต่อ transaction ที่อนุมัติแล้ว) เป็นกฎทางธุรกิจที่กำหนดไว้แน่นอนจาก
+  CLAUDE.md และต้องได้รับการปฏิบัติตามในการคำนวณ reward ทั้งหมด
+- marketing fee 30 SP ถูกแบ่งสรร 10/10/10 ระหว่าง Customer Reward,
+  Marketing Fund, และ ShopPlus Global Platform และจะแบ่งสรรก็เมื่อ
+  merchant อนุมัติแล้วเท่านั้น (`PENDING_APPROVAL` → `APPROVED`); จะไม่มี
+  การแบ่งสรรใน transaction ที่ `REJECTED` หรือ `CANCELLED`
+- ทิศทางเทคนิคถูกจำกัดไว้ที่ Firebase, Firestore, และ Cloud Functions
+  สำหรับ backend, และ Web + Mobile สำหรับ frontend
+- business logic, การตรวจสอบความปลอดภัย, และการคำนวณ reward ทั้งหมด
+  ต้องอยู่ที่ backend; client ทำหน้าที่เฉพาะ UI/interaction
+- การพัฒนาต้องดำเนินตามโครงสร้าง Agile phase
   (01-requirements → 02-design → 03-development → 04-testing →
-  05-release) with documentation before implementation.
+  05-release) โดยต้องมีเอกสารก่อนการ implementation
 
 ---
 
-## Open Questions
+## Open Questions (คำถามที่ยังไม่มีคำตอบ)
 
-The following require stakeholder clarification before design begins:
+รายการต่อไปนี้ต้องการความชัดเจนจาก stakeholder ก่อนเริ่ม design:
 
-1. What is the expected initial pilot scope — number of merchants,
-   geographic region, and timeline?
-2. Are reward redemption options (e.g., discounts, free items, cash
-   equivalent) merchant-specific or platform-wide?
-3. Is there a defined process for merchant onboarding/verification
-   (e.g., business registration checks)?
-4. What specific PDPA consent flows and data retention periods are
-   required by legal/compliance stakeholders?
-5. Will SP Points expire, and if so, under what policy?
-6. What is the SLA/timeout for merchant approval of a
-   `PENDING_APPROVAL` transaction before it is automatically moved to
-   `CANCELLED`?
-7. Does the customer receive visibility or notification while a
-   transaction is awaiting merchant approval (`PENDING_APPROVAL`)?
+1. ขอบเขตของ pilot เริ่มต้นที่คาดหวังคืออะไร — จำนวน merchant, พื้นที่
+   ทางภูมิศาสตร์, และ timeline?
+2. ตัวเลือกการแลก reward (เช่น ส่วนลด, ของฟรี, มูลค่าเทียบเท่าเงินสด) เป็น
+   แบบเฉพาะ merchant หรือใช้ได้ทั่วทั้งแพลตฟอร์ม?
+3. มีกระบวนการที่ชัดเจนสำหรับการ onboarding/ตรวจสอบ merchant หรือไม่
+   (เช่น การตรวจสอบการจดทะเบียนธุรกิจ)?
+4. Consent flow และระยะเวลาการเก็บรักษาข้อมูล (data retention) ตาม PDPA
+   แบบใดที่ฝ่ายกฎหมาย/compliance ต้องการโดยเฉพาะเจาะจง?
+5. SP Point จะมีวันหมดอายุหรือไม่ และถ้ามี จะใช้นโยบายแบบใด?
+6. SLA/timeout สำหรับการอนุมัติ transaction ที่อยู่ในสถานะ
+   `PENDING_APPROVAL` ของ merchant ก่อนที่จะเปลี่ยนไปเป็น `CANCELLED`
+   โดยอัตโนมัติ คือเท่าใด?
+7. ลูกค้าจะได้เห็นหรือได้รับการแจ้งเตือนหรือไม่ ในระหว่างที่ transaction
+   กำลังรอการอนุมัติจาก merchant (`PENDING_APPROVAL`)?
 
 ---
 
-*This document should be reviewed with business stakeholders and
-updated before proceeding to `02-design`.*
+*เอกสารนี้ควรได้รับการ review ร่วมกับ business stakeholder และปรับปรุงให้
+เรียบร้อยก่อนดำเนินการต่อไปยัง `02-design`.*

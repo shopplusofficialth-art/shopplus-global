@@ -8,47 +8,58 @@
 
 ---
 
-# 1. Overview
+# 1. Overview (ภาพรวม)
 
-## Purpose
+## Purpose (วัตถุประสงค์)
 
-This document describes the end-to-end transaction flow of ShopPlus Global, from the moment a customer scans a merchant QR Code until the transaction is completed and all SP distributions are recorded.
+เอกสารนี้อธิบาย transaction flow แบบ end-to-end ของ ShopPlus Global
+ตั้งแต่ช่วงเวลาที่ customer สแกน QR Code ของ merchant จนถึงเมื่อ
+transaction เสร็จสมบูรณ์และการแบ่งสรร SP ทั้งหมดถูกบันทึกไว้
 
-The objective is to provide a single source of truth for business logic, system behavior, and backend processing so that developers, testers, product owners, and stakeholders share the same understanding.
+วัตถุประสงค์คือเพื่อให้มี single source of truth สำหรับ business logic,
+system behavior, และ backend processing เพื่อให้ developer, tester,
+product owner, และ stakeholder มีความเข้าใจร่วมกัน
 
-This transaction flow is designed to ensure:
+Transaction flow นี้ถูกออกแบบมาเพื่อให้แน่ใจว่า:
 
-- Accurate transaction processing
-- Secure marketing fee distribution
-- Complete audit trail
-- Compliance with Thai regulations and PDPA
-- Scalability for future platform expansion
+- การประมวลผล transaction มีความถูกต้อง
+- การแบ่งสรร marketing fee มีความปลอดภัย
+- มี audit trail ที่สมบูรณ์
+- ปฏิบัติตามกฎระเบียบของไทยและ PDPA
+- สามารถ scale ได้สำหรับการขยายแพลตฟอร์มในอนาคต
 
-## Scope
+## Scope (ขอบเขต)
 
-This document covers the complete transaction lifecycle within the ShopPlus Global platform, including transaction creation, approval process, status transitions, SP distribution, backend processing, and audit logging.
+เอกสารนี้ครอบคลุม transaction lifecycle แบบสมบูรณ์ภายในแพลตฟอร์ม
+ShopPlus Global รวมถึงการสร้าง transaction, กระบวนการอนุมัติ, การ
+เปลี่ยนสถานะ, การแบ่งสรร SP, การประมวลผลที่ backend, และ audit
+logging
 
-This document does not cover UI/UX design, Firestore database schema, API specifications, Cloud Functions implementation details, or infrastructure architecture. These topics are documented separately under the Design folder.
+เอกสารนี้ไม่ครอบคลุมการออกแบบ UI/UX, Firestore database schema,
+ข้อกำหนด API, รายละเอียดการ implement Cloud Functions, หรือ
+infrastructure architecture หัวข้อเหล่านี้ถูกจัดทำเป็นเอกสารแยกไว้ภายใต้
+โฟลเดอร์ Design
 
 ---
 
-# 2. Actors
+# 2. Actors (ผู้มีส่วนเกี่ยวข้องในระบบ)
 
 | Actor | Responsibility |
 |--------|----------------|
-| Customer | Scan merchant QR Code and initiate a transaction |
-| Merchant | Review and approve or reject pending transactions |
-| Web / Mobile Application | Submit transaction requests and display transaction status |
-| Firebase Authentication | Verify user identity and access permissions |
-| Cloud Functions | Validate transactions, calculate SP distribution, and execute business rules |
-| Firestore | Store transaction data and audit logs |
-| Admin | Monitor transactions, investigate issues, and perform administrative operations |
+| Customer | สแกน QR Code ของ merchant และเริ่มต้น transaction |
+| Merchant | ตรวจสอบและอนุมัติหรือปฏิเสธ transaction ที่รอดำเนินการ |
+| Web / Mobile Application | ส่งคำขอ transaction และแสดงสถานะ transaction |
+| Firebase Authentication | ยืนยันตัวตนผู้ใช้และสิทธิ์การเข้าถึง |
+| Cloud Functions | ตรวจสอบความถูกต้องของ transaction, คำนวณการแบ่งสรร SP, และดำเนินการตาม business rule |
+| Firestore | จัดเก็บข้อมูล transaction และ audit log |
+| Admin | เฝ้าติดตาม transaction, สอบสวนปัญหา, และดำเนินการด้านการบริหารระบบ |
 
 ---
 
-# 3. Transaction Lifecycle
+# 3. Transaction Lifecycle (วงจรชีวิตของ transaction)
 
-The following lifecycle describes the complete journey of a transaction within the ShopPlus Global platform.
+Lifecycle ต่อไปนี้อธิบายเส้นทางแบบสมบูรณ์ของ transaction ภายใน
+แพลตฟอร์ม ShopPlus Global
 
 ```text
 Customer
@@ -91,34 +102,34 @@ Write Audit Log
 COMPLETED
 ```
 
-## Lifecycle Description
+## Lifecycle Description (คำอธิบายวงจรชีวิต)
 
 | Step | Description |
 |------|-------------|
-| 1 | Customer scans the merchant QR Code. |
-| 2 | The application creates a new transaction with the status **PENDING_APPROVAL**. |
-| 3 | The merchant reviews the pending transaction. |
-| 4 | The merchant either approves or rejects the transaction. |
-| 5 | If approved, Firebase Cloud Functions validate the transaction and execute the business rules. |
-| 6 | The system deducts the Marketing Fee of **30 SP**. |
-| 7 | The system distributes SP to Customer Reward, Marketing Fund, and ShopPlus Global. |
-| 8 | Every important event is recorded in the Audit Log. |
-| 9 | The transaction status is updated to **COMPLETED**. |
+| 1 | Customer สแกน QR Code ของ merchant |
+| 2 | แอปพลิเคชันสร้าง transaction ใหม่ด้วยสถานะ **PENDING_APPROVAL** |
+| 3 | Merchant ตรวจสอบ transaction ที่รอดำเนินการ |
+| 4 | Merchant อนุมัติหรือปฏิเสธ transaction |
+| 5 | ถ้าได้รับการอนุมัติ Firebase Cloud Functions จะตรวจสอบความถูกต้องของ transaction และดำเนินการตาม business rule |
+| 6 | ระบบหัก Marketing Fee จำนวน **30 SP** |
+| 7 | ระบบแบ่งสรร SP ให้ Customer Reward, Marketing Fund, และ ShopPlus Global |
+| 8 | ทุกเหตุการณ์ที่สำคัญจะถูกบันทึกใน Audit Log |
+| 9 | สถานะ transaction จะถูกอัปเดตเป็น **COMPLETED** |
 
-# 4. Transaction Status
+# 4. Transaction Status (สถานะของ transaction)
 
-## Status Definitions
+## Status Definitions (คำอธิบายสถานะ)
 
 | Status | Description | Next Status |
 |--------|-------------|-------------|
-| PENDING_APPROVAL | Transaction has been created and is waiting for merchant review. | APPROVED, REJECTED |
-| APPROVED | Merchant has approved the transaction and backend processing is ready to start. | PROCESSING |
-| PROCESSING | Firebase Cloud Functions are validating and processing the transaction. | COMPLETED, FAILED |
-| REJECTED | Merchant rejected the transaction. No SP distribution will occur. | Final |
-| COMPLETED | Transaction completed successfully and all SP distributions have been recorded. | Final |
-| FAILED | Backend processing failed and requires investigation or retry. | PROCESSING (Retry) |
+| PENDING_APPROVAL | Transaction ถูกสร้างขึ้นและกำลังรอการตรวจสอบจาก merchant | APPROVED, REJECTED |
+| APPROVED | Merchant อนุมัติ transaction แล้ว และการประมวลผลที่ backend พร้อมที่จะเริ่มต้น | PROCESSING |
+| PROCESSING | Firebase Cloud Functions กำลังตรวจสอบและประมวลผล transaction | COMPLETED, FAILED |
+| REJECTED | Merchant ปฏิเสธ transaction ไม่มีการแบ่งสรร SP เกิดขึ้น | Final |
+| COMPLETED | Transaction เสร็จสมบูรณ์และการแบ่งสรร SP ทั้งหมดถูกบันทึกแล้ว | Final |
+| FAILED | การประมวลผลที่ backend ล้มเหลว ต้องมีการสอบสวนหรือ retry | PROCESSING (Retry) |
 
-## State Transition
+## State Transition (การเปลี่ยนสถานะ)
 
 ```text
 PENDING_APPROVAL
@@ -143,20 +154,30 @@ PENDING_APPROVAL
     REJECTED
 ```
 
-# 5. Main Flow
+# 5. Main Flow (Flow หลัก)
+
+*(ยังไม่มีเนื้อหาในต้นฉบับ — รอการเพิ่มเติมในการปรับปรุงครั้งต่อไป)*
 
 ---
 
-# 6. Exception Flow
+# 6. Exception Flow (Flow กรณีข้อยกเว้น)
+
+*(ยังไม่มีเนื้อหาในต้นฉบับ — รอการเพิ่มเติมในการปรับปรุงครั้งต่อไป)*
 
 ---
 
-# 7. SP Distribution
+# 7. SP Distribution (การแบ่งสรร SP)
+
+*(ยังไม่มีเนื้อหาในต้นฉบับ — รอการเพิ่มเติมในการปรับปรุงครั้งต่อไป)*
 
 ---
 
 # 8. Audit Log
 
+*(ยังไม่มีเนื้อหาในต้นฉบับ — รอการเพิ่มเติมในการปรับปรุงครั้งต่อไป)*
+
 ---
 
-# 9. Design Decision
+# 9. Design Decision (การตัดสินใจด้านการออกแบบ)
+
+*(ยังไม่มีเนื้อหาในต้นฉบับ — รอการเพิ่มเติมในการปรับปรุงครั้งต่อไป)*

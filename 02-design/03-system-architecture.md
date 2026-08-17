@@ -1,15 +1,18 @@
 # ShopPlus Global System Architecture
 
-Version: 1.0  
-Document Type: System Architecture Design  
+Version: 1.0
+Document Type: System Architecture Design
 Project: ShopPlus Global Community Commerce Platform
 
+---
 
-# 1. Architecture Overview
+# 1. Architecture Overview (ภาพรวม Architecture)
 
-ShopPlus Global is a Community Commerce Platform that connects local merchants and customers through digital transactions, reward systems, and AI-powered business intelligence.
+ShopPlus Global คือ Community Commerce Platform ที่เชื่อมโยง merchant
+ท้องถิ่นและลูกค้าเข้าด้วยกันผ่านการทำ transaction ดิจิทัล ระบบ reward
+และ business intelligence ที่ขับเคลื่อนด้วย AI
 
-The system is designed using Cloud-Native Architecture with separation between:
+ระบบถูกออกแบบด้วย Cloud-Native Architecture โดยแยกส่วนกันระหว่าง:
 
 - Presentation Layer
 - Application Layer
@@ -17,390 +20,311 @@ The system is designed using Cloud-Native Architecture with separation between:
 - Data Layer
 - AI Intelligence Layer
 
+## High Level Architecture (Architecture ระดับสูง)
 
-## High Level Architecture
-
-
+```text
 Customer / Merchant / Admin
-
-↓
-
+        ↓
 Web Application + Mobile Application
-
-↓
-
+        ↓
 Firebase Authentication
-
-↓
-
+        ↓
 Cloud Functions Backend
-
-↓
-
+        ↓
 Firestore Database
-
-↓
-
+        ↓
 AI Intelligence Layer
+```
 
+## Architecture Principles (หลักการด้าน Architecture)
 
-## Architecture Principles
-
-- Client applications handle only presentation and user interaction.
-- Backend controls all business rules.
-- Financial and reward transactions must be validated server-side.
-- Every important action must have an audit trail.
-
+- Client application จัดการเฉพาะการนำเสนอ (presentation) และการโต้ตอบกับผู้ใช้ (user interaction) เท่านั้น
+- Backend ควบคุม business rule ทั้งหมด
+- Transaction ด้านการเงินและ reward ต้องได้รับการตรวจสอบที่ฝั่ง server
+- ทุกการกระทำที่สำคัญต้องมี audit trail
 
 ---
 
-# 2. Application Layer
-
+# 2. Application Layer (ชั้น Application)
 
 ## 2.1 Web Application
 
-Technology:
+**Technology:**
 
 - Next.js
 - React
 - Firebase SDK
 
+**Responsibilities (หน้าที่ความรับผิดชอบ):**
 
-Responsibilities:
+- อินเทอร์เฟซสำหรับ customer
+- Dashboard ของ merchant
+- การบริหารจัดการของ admin
+- การเฝ้าติดตาม transaction
+- การแสดง reward
 
-- Customer interface
-- Merchant dashboard
-- Admin management
-- Transaction monitoring
-- Reward display
+**Restrictions (ข้อจำกัด):**
 
+Web Application ต้องไม่อัปเดตข้อมูลต่อไปนี้โดยตรง:
 
-Restrictions:
-
-The Web Application must not directly update:
-
-- Transaction status
+- สถานะ transaction
 - SP balance
 - Marketing Fund
-- Financial records
-
+- บันทึกทางการเงิน
 
 ---
 
 ## 2.2 Mobile Application
 
+**Responsibilities (หน้าที่ความรับผิดชอบ):**
 
-Responsibilities:
+- การสแกน QR
+- การตรวจสอบ reward ของ customer
+- การอนุมัติ transaction ของ merchant
+- Push notification
 
-- QR scanning
-- Customer reward checking
-- Merchant transaction approval
-- Push notifications
-
-
-Mobile Application communicates with backend services through secure authentication.
-
+Mobile Application สื่อสารกับ backend service ผ่านการยืนยันตัวตนที่
+ปลอดภัย
 
 ---
 
-# 3. Backend Layer
+# 3. Backend Layer (ชั้น Backend)
 
+Backend คือ core business processing layer
 
-Backend is the core business processing layer.
-
-Technology:
+**Technology:**
 
 - Firebase Cloud Functions
 
-
 ## 3.1 Transaction Service
 
+**Responsibilities (หน้าที่ความรับผิดชอบ):**
 
-Responsibilities:
+- สร้าง transaction
+- ตรวจสอบความถูกต้องของ merchant
+- ตรวจสอบความถูกต้องของ customer
+- บริหารจัดการ transaction lifecycle
 
-- Create transaction
-- Validate merchant
-- Validate customer
-- Manage transaction lifecycle
+**Transaction Flow:**
 
-
-Transaction Flow:
-
+```text
 PENDING_APPROVAL
-
-↓
-
+        ↓
 MERCHANT_APPROVED
-
-↓
-
+        ↓
 COMPLETED
-
+```
 
 ---
 
 ## 3.2 Marketing Fee Engine
 
+รับผิดชอบการคำนวณและแบ่งสรร marketing fee
 
-Responsible for calculating and distributing marketing fees.
-
-
-Example:
+**ตัวอย่าง:**
 
 Marketing Fee = 30 SP
 
+**การแบ่งสรร:**
 
-Distribution:
-
-
-Customer Reward
-
-10 SP
-
-
-Marketing Fund
-
-10 SP
-
-
-ShopPlus Global
-
-10 SP
-
+- Customer Reward — 10 SP
+- Marketing Fund — 10 SP
+- ShopPlus Global — 10 SP
 
 ---
 
 ## 3.3 Reward Service
 
+**Responsibilities (หน้าที่ความรับผิดชอบ):**
 
-Responsibilities:
-
-- Create reward records
-- Update customer SP balance
-- Maintain reward history
-
+- สร้างบันทึก reward
+- อัปเดต SP balance ของ customer
+- รักษาประวัติ reward
 
 ---
 
 ## 3.4 Audit Log Service
 
+ทุกการกระทำที่สำคัญของระบบต้องสร้าง audit record
 
-All important system actions must create audit records.
+**ตัวอย่าง:**
 
-
-Examples:
-
-- Transaction created
-- Merchant approved transaction
-- Reward distributed
-- Balance updated
-- Admin actions
-
+- Transaction ถูกสร้างขึ้น
+- Merchant อนุมัติ transaction
+- Reward ถูกแบ่งสรร
+- Balance ถูกอัปเดต
+- การกระทำของ admin
 
 ---
 
-# 4. Data Layer
+# 4. Data Layer (ชั้นข้อมูล)
 
-
-Database:
+**Database:**
 
 Firebase Firestore
 
+**Main Collections (Collection หลัก):**
 
-Main Collections:
+**users**
 
+จัดเก็บ:
 
-## users
-
-Stores:
-
-- User profile
+- Profile ของผู้ใช้
 - Role
-- Authentication information
+- ข้อมูลการยืนยันตัวตน
 
+**merchants**
 
-## merchants
+จัดเก็บ:
 
-Stores:
+- ข้อมูล merchant
+- สถานะ merchant
+- ข้อมูลธุรกิจ
 
-- Merchant information
-- Merchant status
-- Business information
+**transactions**
 
+จัดเก็บ:
 
-## transactions
+- Transaction ของ customer
+- สถานะการอนุมัติของ merchant
+- การคำนวณ marketing fee
 
-Stores:
+**rewards**
 
-- Customer transaction
-- Merchant approval status
-- Marketing fee calculation
+จัดเก็บ:
 
+- ประวัติ reward ของ customer
+- บันทึกการได้รับ SP
 
-## rewards
+**marketingFunds**
 
-Stores:
+จัดเก็บ:
 
-- Customer reward history
-- SP earning records
+- Transaction ของ marketing fund
 
+**auditLogs**
 
-## marketingFunds
+จัดเก็บ:
 
-Stores:
+- ประวัติกิจกรรมของระบบ
+- การติดตามด้านความปลอดภัย
 
-- Marketing fund transactions
-
-
-## auditLogs
-
-Stores:
-
-- System activity history
-- Security tracking
-
-
-Firestore design follows:
+การออกแบบ Firestore เป็นไปตามหลักการ:
 
 - Scalability
 - Security Rules
 - Data consistency
 - Auditability
 
+---
+
+# 5. Security Architecture (Architecture ด้านความปลอดภัย)
+
+## Authentication (การยืนยันตัวตน)
+
+Firebase Authentication บริหารจัดการ:
+
+- การยืนยันตัวตน
+- การ login ของผู้ใช้
+- การจัดการ session
 
 ---
 
-# 5. Security Architecture
-
-
-## Authentication
-
-
-Firebase Authentication manages:
-
-- Identity verification
-- User login
-- Session management
-
-
----
-
-## Authorization
-
+## Authorization (การควบคุมสิทธิ์)
 
 Role Based Access Control (RBAC)
 
+**Customer:**
 
-Customer:
+- ดู profile ของตนเอง
+- ดู reward ของตนเอง
+- ดู transaction ของตนเอง
 
-- View own profile
-- View own rewards
-- View own transactions
+**Merchant:**
 
+- อนุมัติ transaction ของลูกค้า
+- ดูข้อมูลของ merchant ตนเอง
 
-Merchant:
+**Admin:**
 
-- Approve customer transactions
-- View merchant data
-
-
-Admin:
-
-- Manage system operations
-- Review transactions
-- Monitor platform
-
+- บริหารจัดการการดำเนินงานของระบบ
+- ตรวจสอบ transaction
+- เฝ้าติดตามแพลตฟอร์ม
 
 ---
 
-## Backend Security
+## Backend Security (ความปลอดภัยของ Backend)
 
+การดำเนินการที่สำคัญต้องทำงานบน Cloud Functions เท่านั้น
 
-Critical operations must run only on Cloud Functions.
+Client ไม่สามารถดำเนินการต่อไปนี้ได้โดยตรง:
 
-
-Client cannot directly:
-
-- Change transaction status
-- Modify SP balance
-- Modify reward distribution
-- Modify marketing fund
-
+- เปลี่ยนสถานะ transaction
+- แก้ไข SP balance
+- แก้ไขการแบ่งสรร reward
+- แก้ไข marketing fund
 
 ---
 
-## PDPA Compliance
+## PDPA Compliance (การปฏิบัติตาม PDPA)
 
+ระบบสนับสนุน:
 
-System supports:
-
-- User consent management
-- Access control
-- Personal data protection
-- Audit logging
-- Data minimization
-
+- การบริหารจัดการความยินยอมของผู้ใช้ (user consent management)
+- การควบคุมการเข้าถึง (access control)
+- การปกป้องข้อมูลส่วนบุคคล (personal data protection)
+- การบันทึก audit log
+- การเก็บข้อมูลแบบ minimum (data minimization)
 
 ---
 
-# 6. AI Layer
+# 6. AI Layer (ชั้น AI)
 
-
-AI works as an intelligence layer to support business decisions.
-
+AI ทำงานเป็น intelligence layer เพื่อสนับสนุนการตัดสินใจทางธุรกิจ
 
 ## Customer Intelligence
 
+**Capabilities (ความสามารถ):**
 
-Capabilities:
-
-- Personalized rewards
-- Customer behavior analysis
-- Promotion recommendation
-
+- Reward เฉพาะบุคคล
+- การวิเคราะห์พฤติกรรมลูกค้า
+- คำแนะนำโปรโมชัน
 
 ---
 
 ## Merchant Intelligence
 
+**Capabilities (ความสามารถ):**
 
-Capabilities:
-
-- Customer retention analysis
-- Sales insight
-- Marketing recommendation
-
+- การวิเคราะห์การรักษาลูกค้า (retention)
+- Insight ด้านการขาย
+- คำแนะนำด้านการตลาด
 
 ---
 
 ## Business Intelligence
 
+**Capabilities (ความสามารถ):**
 
-Capabilities:
+- การวิเคราะห์แนวโน้มทางธุรกิจ
+- Insight ด้านประสิทธิภาพของแพลตฟอร์ม
+- การสนับสนุนการตัดสินใจ
 
-- Business trend analysis
-- Platform performance insight
-- Decision support
+**ข้อจำกัดของ AI:**
 
+AI ไม่สามารถแก้ไข transaction ทางการเงินได้โดยตรง
 
-AI limitation:
-
-AI cannot directly modify financial transactions.
-
-All critical business operations must pass backend validation.
-
+การดำเนินการทางธุรกิจที่สำคัญทั้งหมดต้องผ่านการตรวจสอบที่ backend
 
 ---
 
-# 7. Deployment Architecture
+# 7. Deployment Architecture (Architecture การ Deploy)
 
-
-Cloud Platform:
+**Cloud Platform:**
 
 Firebase
 
-
-Services:
+**Services:**
 
 - Firebase Hosting
 - Firebase Authentication
@@ -408,43 +332,34 @@ Services:
 - Firestore
 - Cloud Storage
 
+**Development Workflow (ขั้นตอนการพัฒนา):**
 
-Development Workflow:
-
-
+```text
 Developer
-
-↓
-
+    ↓
 GitHub Repository
-
-↓
-
+    ↓
 CI/CD Process
-
-↓
-
+    ↓
 Production Environment
-
+```
 
 ---
 
-# 8. Future Scalability
+# 8. Future Scalability (การขยายตัวในอนาคต)
 
+Architecture นี้สนับสนุนการขยายตัวในอนาคต:
 
-The architecture supports future expansion:
-
-- More merchants
-- More customers
-- Mobile applications
-- Advanced AI analytics
+- Merchant ที่มากขึ้น
+- Customer ที่มากขึ้น
+- Mobile application
+- AI analytics ขั้นสูง
 - Recommendation engine
 - Business intelligence dashboard
 
-
 ---
 
-# Document Status
+# Document Status (สถานะเอกสาร)
 
 Version: 1.0
 
