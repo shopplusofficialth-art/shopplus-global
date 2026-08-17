@@ -164,9 +164,10 @@ AI Agent ต้อง:
 - Business requirements
 - User stories
 - Product backlog
+- Feature list (MoSCoW)
 
 **02-design**
-- User flow
+- User flow / User journey
 - Architecture
 - UI/UX
 
