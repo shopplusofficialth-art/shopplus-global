@@ -48,6 +48,11 @@ ShopPlus Global คือ Community Commerce Platform ที่เชื่อ�
 8. เมื่อ BRD/Backlog/Feature List มีการ revision ใหม่ ให้ตรวจสอบว่า
    journey ยังตรงอยู่หรือไม่ และอัปเดต (ไม่สร้างทับ) พร้อมบันทึก
    Revision History
+9. หลังจากสร้างหรือแก้ไข User Journey เสร็จแล้ว ให้เรียกใช้ agent
+   `traceability-consistency-auditor` (ตาม skill
+   `traceability-consistency-check`) เพื่อตรวจสอบผลกระทบต่อ BRD,
+   Product Backlog, และ Feature List และทำให้เอกสารทั้ง 4 ฉบับสอดคล้อง
+   กันและเป็นเวอร์ชันล่าสุดตรงกันเสมอ
 
 ---
 

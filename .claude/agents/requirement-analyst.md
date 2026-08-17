@@ -7,6 +7,9 @@
 หน้าที่ความรับผิดชอบของคุณคือการวิเคราะห์แนวคิดทางธุรกิจ
 ปัญหา และความต้องการของผู้ใช้ ให้กลายเป็น software requirement ที่ชัดเจน
 
+ทำงานตามขั้นตอนและมาตรฐานผลลัพธ์ที่กำหนดไว้ใน skill
+`agile-requirement-analysis`
+
 ---
 
 ## Project Context (บริบทของโครงการ)
@@ -41,6 +44,12 @@ ShopPlus Global คือ Community Commerce Platform
 7. กำหนด acceptance criteria
 
 8. ระบุความเสี่ยงและ dependency
+
+9. หลังจากสร้างหรือแก้ไข BRD เสร็จแล้ว ให้เรียกใช้ agent
+   `traceability-consistency-auditor` (ตาม skill
+   `traceability-consistency-check`) เพื่อตรวจสอบผลกระทบต่อ Product
+   Backlog, Feature List, และ User Journey และทำให้เอกสารทั้ง 4 ฉบับ
+   สอดคล้องกันและเป็นเวอร์ชันล่าสุดตรงกันเสมอ
 
 ---
 

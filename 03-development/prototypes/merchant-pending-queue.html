@@ -1,0 +1,236 @@
+<!--
+  Conceptual UI prototype — non-functional, no backend integration.
+  ShopPlus Global — Merchant App
+
+  Prototype ID: PT-005-01
+  Page Name: Merchant Pending Queue — Approve/Reject
+  Related Feature: FT-005 (Merchant Transaction Approval Workflow)
+  Related FR: FR-019, FR-021
+  Related US: US-004, US-005
+  Related Journey Step: Merchant Journey (02-design/04-user-journey.md §3), node F (เปิด Pending Queue)
+                         และ node G (อนุมัติหรือปฏิเสธ?)
+
+  ข้อจำกัดตาม skill `prototype-standard`:
+  - เป็น static mockup เท่านั้น ใช้ mock data ที่ hardcode ไว้ในไฟล์นี้
+  - ไม่เชื่อมต่อ Firebase/Firestore/Cloud Functions หรือ API จริงใด ๆ
+  - ไม่มีการคำนวณ/validate business logic จริง — ปุ่ม Approve/Reject
+    เปลี่ยนสถานะในหน้าจอนี้เท่านั้น (จำลอง UI feedback) ไม่มีการแบ่งสรร
+    SP จริงเกิดขึ้น ค่า "30 SP (10/10/10)" ที่แสดงเป็นเพียงข้อความคงที่
+    ตามกฎ SP Point ที่กำหนดไว้ใน CLAUDE.md ไม่ใช่ผลคำนวณจากระบบ
+  - แสดงข้อมูลลูกค้าแบบ masked (รหัสอ้างอิงเท่านั้น) ตามหลัก Data
+    Minimization (FT-017)
+-->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ShopPlus Merchant — Pending Queue (Prototype)</title>
+<style>
+  :root {
+    --sp-green: #0f7a5c;
+    --sp-green-dark: #0b5c45;
+    --sp-bg: #f4f7f6;
+    --sp-card: #ffffff;
+    --sp-border: #e1e6e4;
+    --sp-text: #1c2622;
+    --sp-muted: #6b7a75;
+    --sp-danger: #c0392b;
+    --sp-danger-bg: #fdecea;
+    --sp-approved-bg: #e8f6f0;
+    --sp-warning-bg: #fff8e6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif;
+    background: var(--sp-bg);
+    color: var(--sp-text);
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+  }
+  .device {
+    width: 100%;
+    max-width: 430px;
+    background: var(--sp-card);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  header.app-bar {
+    background: var(--sp-green);
+    color: white;
+    padding: 18px 16px 14px;
+  }
+  header.app-bar .shop-name {
+    font-size: 13px;
+    opacity: 0.85;
+    margin: 0 0 2px;
+  }
+  header.app-bar h1 {
+    font-size: 19px;
+    margin: 0;
+  }
+  .prototype-banner {
+    background: var(--sp-warning-bg);
+    color: #7a5b00;
+    font-size: 11px;
+    text-align: center;
+    padding: 6px 10px;
+    border-bottom: 1px solid #f0e0a8;
+  }
+  .queue-summary {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--sp-muted);
+    border-bottom: 1px solid var(--sp-border);
+  }
+  .queue-summary strong { color: var(--sp-text); }
+  ul.tx-list { list-style: none; margin: 0; padding: 0; }
+  li.tx-card {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--sp-border);
+    transition: background 0.2s ease;
+  }
+  li.tx-card.state-approved { background: var(--sp-approved-bg); }
+  li.tx-card.state-rejected { background: var(--sp-danger-bg); opacity: 0.7; }
+  .tx-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 2px;
+  }
+  .tx-ref { font-weight: 600; font-size: 14px; }
+  .tx-amount { font-weight: 700; font-size: 15px; color: var(--sp-green-dark); }
+  .tx-meta { font-size: 12px; color: var(--sp-muted); margin-bottom: 10px; }
+  .tx-actions { display: flex; gap: 8px; }
+  button.btn {
+    flex: 1;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button.btn-approve { background: var(--sp-green); color: white; }
+  button.btn-approve:hover { background: var(--sp-green-dark); }
+  button.btn-reject { background: #f5eceb; color: var(--sp-danger); }
+  button.btn-reject:hover { background: #f0d9d6; }
+  .tx-status-line {
+    font-size: 13px;
+    font-weight: 600;
+    padding-top: 4px;
+  }
+  .tx-status-line.approved { color: var(--sp-green-dark); }
+  .tx-status-line.rejected { color: var(--sp-danger); }
+  .tx-status-line small {
+    display: block;
+    font-weight: 400;
+    color: var(--sp-muted);
+    margin-top: 2px;
+  }
+  footer.note {
+    padding: 12px 16px 16px;
+    font-size: 11px;
+    color: var(--sp-muted);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+  <div class="device">
+    <div class="prototype-banner">
+      Prototype แนวคิด UI เท่านั้น — ไม่เชื่อมต่อระบบจริง / ไม่มีการแบ่งสรร SP จริง (PT-005-01)
+    </div>
+    <header class="app-bar">
+      <p class="shop-name">ร้านกาแฟบ้านสวน · ShopPlus Merchant</p>
+      <h1>Pending Queue</h1>
+    </header>
+
+    <div class="queue-summary">
+      <span>รายการรอดำเนินการ</span>
+      <strong id="pending-count">3 รายการ</strong>
+    </div>
+
+    <ul class="tx-list" id="tx-list">
+      <li class="tx-card" data-id="TX-10231">
+        <div class="tx-top">
+          <span class="tx-ref">รหัสลูกค้า: CUS-8823</span>
+          <span class="tx-amount">฿ 180.00</span>
+        </div>
+        <div class="tx-meta">สแกน QR เมื่อ 17 ส.ค. 2569 · 14:32 น. · TX-10231</div>
+        <div class="tx-actions">
+          <button class="btn btn-reject" onclick="decide('TX-10231','rejected')">ปฏิเสธ</button>
+          <button class="btn btn-approve" onclick="decide('TX-10231','approved')">อนุมัติ</button>
+        </div>
+      </li>
+
+      <li class="tx-card" data-id="TX-10232">
+        <div class="tx-top">
+          <span class="tx-ref">รหัสลูกค้า: CUS-4410</span>
+          <span class="tx-amount">฿ 65.00</span>
+        </div>
+        <div class="tx-meta">สแกน QR เมื่อ 17 ส.ค. 2569 · 14:41 น. · TX-10232</div>
+        <div class="tx-actions">
+          <button class="btn btn-reject" onclick="decide('TX-10232','rejected')">ปฏิเสธ</button>
+          <button class="btn btn-approve" onclick="decide('TX-10232','approved')">อนุมัติ</button>
+        </div>
+      </li>
+
+      <li class="tx-card" data-id="TX-10233">
+        <div class="tx-top">
+          <span class="tx-ref">รหัสลูกค้า: CUS-1027</span>
+          <span class="tx-amount">฿ 320.00</span>
+        </div>
+        <div class="tx-meta">สแกน QR เมื่อ 17 ส.ค. 2569 · 14:55 น. · TX-10233</div>
+        <div class="tx-actions">
+          <button class="btn btn-reject" onclick="decide('TX-10233','rejected')">ปฏิเสธ</button>
+          <button class="btn btn-approve" onclick="decide('TX-10233','approved')">อนุมัติ</button>
+        </div>
+      </li>
+    </ul>
+
+    <footer class="note">
+      FT-005 · FR-019 / FR-021 · US-004 / US-005 — Concept prototype, ShopPlus Global
+    </footer>
+  </div>
+
+<script>
+  // จำลอง UI feedback เท่านั้น — ไม่มีการเรียก API หรือคำนวณ business logic จริง
+  // ค่า "30 SP (10/10/10)" เป็นข้อความคงที่ตามกฎที่กำหนดไว้ใน CLAUDE.md เท่านั้น
+  function decide(txId, outcome) {
+    var card = document.querySelector('li[data-id="' + txId + '"]');
+    if (!card || card.classList.contains('state-approved') || card.classList.contains('state-rejected')) {
+      return;
+    }
+    var actions = card.querySelector('.tx-actions');
+    var statusLine = document.createElement('div');
+
+    if (outcome === 'approved') {
+      card.classList.add('state-approved');
+      statusLine.className = 'tx-status-line approved';
+      statusLine.innerHTML = 'อนุมัติแล้ว → เปลี่ยนสถานะเป็น COMPLETED' +
+        '<small>(จำลอง) แบ่งสรร 30 SP ตามกฎคงที่ 10/10/10 — คำนวณจริงที่ server เท่านั้น</small>';
+    } else {
+      card.classList.add('state-rejected');
+      statusLine.className = 'tx-status-line rejected';
+      statusLine.innerHTML = 'ปฏิเสธแล้ว → เปลี่ยนสถานะเป็น REJECTED' +
+        '<small>(จำลอง) ไม่มีการแบ่งสรร SP</small>';
+    }
+
+    actions.replaceWith(statusLine);
+    updatePendingCount();
+  }
+
+  function updatePendingCount() {
+    var remaining = document.querySelectorAll('#tx-list li.tx-card:not(.state-approved):not(.state-rejected)').length;
+    document.getElementById('pending-count').textContent = remaining + ' รายการ';
+  }
+</script>
+</body>
+</html>
