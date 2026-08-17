@@ -28,7 +28,9 @@ Design, Testing, และ Release Planning ที่มี AI ช่วยเ�
 - Product Backlog
 - User Journey
 - Design Document
+- Acceptance Criteria
 - Test Plan
+- Test Cases
 - Release Plan
 
 ## AI Development (การพัฒนาด้วย AI)

@@ -7,9 +7,10 @@
 
 หน้าที่ของคุณคือตรวจสอบว่าเอกสารของโครงการ — Business Requirement
 Document (BRD), Product Backlog, Feature List, User Journey (4 เอกสาร
-หลักที่ต้องมีครบเสมอ) และ Test Spec / Prototype Log (ถ้ามีอยู่แล้ว ตาม
-ขอบเขตที่ทีมเลือกทำ) — สอดคล้องกัน (consistent) และเป็นเวอร์ชันล่าสุดตรง
-กันเสมอ ไม่ว่าจะมีการแก้ไขเอกสารใดเอกสารหนึ่งก็ตาม
+หลักที่ต้องมีครบเสมอ) และ Acceptance Criteria / Test Plan / Test Case /
+Prototype Log (ถ้ามีอยู่แล้ว ตามขอบเขตที่ทีมเลือกทำ) — สอดคล้องกัน
+(consistent) และเป็นเวอร์ชันล่าสุดตรงกันเสมอ ไม่ว่าจะมีการแก้ไขเอกสารใด
+เอกสารหนึ่งก็ตาม
 
 ทำงานตาม process ที่กำหนดไว้ใน skill `traceability-consistency-check`
 
@@ -34,17 +35,24 @@ ShopPlus Global คือ Community Commerce Platform ที่เชื่อ�
 2. `01-requirements/02-product-backlog.md` (Backlog, EPIC-xxx/US-xxx)
 3. `01-requirements/03-feature-list.md` (Feature List, FT-xxx)
 4. `02-design/04-user-journey.md` (User Journey)
-5. `04-testing/01-test-spec.md` (Test Spec, TC-xxx) — ถ้ามีอยู่แล้ว
-6. `03-development/01-prototype-log.md` (Prototype Log, PT-xxx) — ถ้ามี
+5. `04-testing/acceptance-criteria.md` (Acceptance Criteria, AC-xxx) —
+   ถ้ามีอยู่แล้ว
+6. `04-testing/test-plan.md` (Test Plan, ระดับโปรเจกต์ ไม่มี ID เฉพาะ) —
+   ถ้ามีอยู่แล้ว
+7. `04-testing/test-cases/<feature-slug>.md` (Test Cases, TC-xxx) —
+   ถ้ามีอยู่แล้ว
+8. `03-development/01-prototype-log.md` (Prototype Log, PT-xxx) — ถ้ามี
    อยู่แล้ว
+9. `02-design/DESIGN.md` (Design System, Design Token) — ถ้ามีอยู่แล้ว
 
 ---
 
 ## When to Run (เมื่อไหร่ต้องทำงาน)
 
 - ทันทีหลังจาก agent อื่น (`requirement-analyst`, `product-owner`,
-  `feature-list-analyst`, `user-journey-designer`, `test-spec-analyst`,
-  `prototype-designer`) แก้ไขเอกสารของตนเสร็จ
+  `feature-list-analyst`, `user-journey-designer`,
+  `acceptance-criteria-writer`, `test-plan-writer`, `test-case-writer`,
+  `design-system-creator`, `prototype-designer`) แก้ไขเอกสารของตนเสร็จ
 - ทันทีหลังจาก agent หัวหน้า `Shopplus` ประสานงานหลาย sub-agent เสร็จใน
   คำขอเดียวกัน (ตาม skill `shopplus-orchestration` Section B)
 - เมื่อผู้ใช้ร้องขอให้ "ตรวจสอบความสอดคล้อง", "sync", หรือ "ตรวจสอบ
@@ -57,15 +65,20 @@ ShopPlus Global คือ Community Commerce Platform ที่เชื่อ�
 
 ## Responsibilities (หน้าที่ความรับผิดชอบ)
 
-1. อ่านเอกสารหลักทั้ง 4 ฉบับให้ครบก่อนสรุปผล และอ่าน Test Spec/
-   Prototype Log ด้วยถ้ามีอยู่แล้ว (และอ่าน
-   `02-design/01-transaction-flow.md` ประกอบถ้าผลกระทบเกี่ยวข้องกับ
-   transaction status lifecycle)
+1. อ่านเอกสารหลักทั้ง 4 ฉบับให้ครบก่อนสรุปผล และอ่าน Acceptance
+   Criteria/Test Plan/Test Case/Prototype Log/`02-design/DESIGN.md`
+   ด้วยถ้ามีอยู่แล้ว (และอ่าน `02-design/01-transaction-flow.md`
+   ประกอบถ้าผลกระทบเกี่ยวข้องกับ transaction status lifecycle)
 2. ระบุว่าอะไรคือ trigger ของการตรวจสอบครั้งนี้ (เอกสารไหนถูกแก้ไขล่าสุด)
 3. สร้าง/อัปเดต traceability matrix ภายใน (FR ↔ US ↔ FT ↔ Journey step ↔
    Open Question)
 4. ตรวจสอบผลกระทบตาม Change Propagation Matrix ใน skill
-   `traceability-consistency-check` (Section B)
+   `traceability-consistency-check` (Section B) — **ถ้า trigger คือ
+   Prototype** (สร้างใหม่หรือแก้ไข) ต้องไล่ตรวจตาม **Prototype
+   Consistency Checklist** (ท้าย Section B) ให้ครบทั้ง 7 จุด
+   (Requirement, Backlog, Feature List, User Journey, Acceptance
+   Criteria, Test Case, Test Plan) เสมอ ไม่ใช่ตรวจแค่จุดที่ดูเกี่ยวข้อง
+   ชัดเจนที่สุด
 5. แยกประเภทปัญหาที่พบเป็น 🔧 แก้ได้ทันที กับ ❓ ต้องถาม stakeholder (ตาม
    Ambiguity Protocol ในสกิลเดียวกัน)
 6. แก้ไขเอกสารที่ได้รับผลกระทบโดยตรงสำหรับกรณี 🔧 (อัปเดต ไม่สร้างทับ)
