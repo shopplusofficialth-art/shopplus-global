@@ -37,6 +37,8 @@ sub-agent — เมื่อ routing ไปยัง sub-agent ตัวใด 
 | สร้าง/แก้ Design System, DESIGN.md, brand guideline, โทนสี/สไตล์ของ UI | `design-system-creator` | `design-system-creation` | `02-design/DESIGN.md` | 02-design |
 | สร้าง/แก้ Prototype, mockup, หน้าจอตัวอย่าง | `prototype-designer` | `prototype-standard` | `03-development/01-prototype-log.md` + `03-development/prototypes/v<N>/*.html` | 03-development |
 | สร้าง/แก้ High-Level Architecture, Conceptual/System Architecture, data flow ระดับระบบตาม user journey (ยังไม่ผูกกับ technical stack) | `architecture-designer` | `architecture-design-standard` | `02-design/03-system-architecture.md` | 02-design |
+| สร้าง/แก้ Database Schema, Data Model, ER Diagram, รายละเอียด table/entity ระดับ conceptual (ยังไม่ผูกกับ technical stack) | `database-schema-designer` | `data-api-design-standard` (Section A) | `02-design/05-database-schema.md` | 02-design |
+| สร้าง/แก้ API Specification, API Design, endpoint/operation ระดับ conceptual (ยังไม่ผูกกับ protocol/technical stack) | `api-spec-designer` | `data-api-design-standard` (Section B) | `02-design/06-api-spec.md` | 02-design |
 | รันทั้ง pipeline ต่อเนื่องตั้งแต่ Requirement→Backlog→Feature List→User Journey→(Test Plan+Acceptance Criteria→Test Case) ในคำขอเดียว, "เริ่มโปรเจกต์ใหม่ทั้งหมด", "ทำ feature ใหม่ให้ครบตั้งแต่ requirement ถึง test" | `pipeline-orchestrator` | `pipeline-orchestration` | ไฟล์ตาม stage ที่รันจริง (ดู skill `pipeline-orchestration`) | Cross-cutting |
 | ตรวจสอบความสอดคล้อง/traceability ข้ามเอกสาร, "sync", "เช็คทั้งหมดให้หน่อย" | `traceability-consistency-auditor` | `traceability-consistency-check` | Consistency Check Report (+ แก้เอกสารที่กระทบ) | Cross-cutting |
 
@@ -108,6 +110,29 @@ data flow ต้องอ้างอิงจาก user journey จริง �
 ขั้นตอน 1–6 ข้างบน) ถูกเรียกใช้ผ่าน `Shopplus` โดยตรงเท่านั้นเมื่อผู้ใช้
 ร้องขอ
 
+**Conditional dependency สำหรับ Database Schema Designer:**
+`database-schema-designer` ต้องมี `01-requirements/03-feature-list.md`
+(FT-xxx), `02-design/04-user-journey.md`, และ
+`02-design/03-system-architecture.md` §6 "Key Conceptual Data Entities"
+ครบก่อนเริ่มงานเสมอ (entity ทุกตัวต้องขยายจาก §6 นี้ ไม่ใช่คิดขึ้นเอง) —
+ถ้ายังไม่มี/ไม่ครบ ให้แจ้งผู้ใช้และเสนอเริ่มจาก
+`feature-list-analyst`/`user-journey-designer`/`architecture-designer`
+ก่อนตามลำดับที่ขาด แม้ผู้ใช้จะขอแค่ Database Schema ก็ตาม — **agent นี้
+ไม่ได้ถูกผนวกเข้า `pipeline-orchestrator`** ถูกเรียกใช้ผ่าน `Shopplus`
+โดยตรงเท่านั้น เอกสารผลลัพธ์ (`02-design/05-database-schema.md`) เป็น
+**เอกสารแยกอิสระ** จาก `02-design/02-firestore-data-model.md` เดิม
+(ไม่แก้ไข ไม่ merge เนื้อหา อ้างอิงกันเฉย ๆ ตามที่ผู้ใช้เลือกไว้)
+
+**Conditional dependency สำหรับ API Spec Designer (บล็อกเด็ดขาด):**
+`api-spec-designer` ต้องมี `02-design/05-database-schema.md` ครอบคลุม
+entity ที่จะใช้ในรอบนี้ก่อนเริ่มงานเสมอ (operation ทุกตัวต้องอ้างอิง
+entity/attribute ที่มีอยู่จริงในเอกสารนั้น) — ถ้ายังไม่มี/ไม่ครบ ให้แจ้ง
+ผู้ใช้และเสนอเรียก `database-schema-designer` ก่อนเสมอ แม้ผู้ใช้จะขอแค่
+API Spec ก็ตาม (เช่นเดียวกับที่ `prototype-designer` ต้องมี `DESIGN.md`
+ก่อน) — นอกจากนี้ยังต้องมี Feature List + User Journey + Architecture
+ครบเช่นเดียวกับ Database Schema Designer — **agent นี้ไม่ได้ถูกผนวกเข้า
+`pipeline-orchestrator`** ถูกเรียกใช้ผ่าน `Shopplus` โดยตรงเท่านั้น
+
 ---
 
 ## Section C: Quality Gate Checklist (รายการตรวจสอบก่อนส่งมอบงาน)
@@ -147,6 +172,22 @@ data flow ต้องอ้างอิงจาก user journey จริง �
       (ดู skill `architecture-design-standard` Section B), และเนื้อหาไม่
       ระบุชื่อ technology/vendor เฉพาะเจาะจงนอกเหนือ section "Current
       Technical Direction (Non-Binding Reference)"
+- [ ] ถ้างานนี้คือ Database Schema (`02-design/05-database-schema.md`):
+      ได้ตรวจสอบว่ามี Feature List + User Journey + Architecture §6
+      ครบก่อนแล้ว, ได้เสนอแผนและรอการยืนยันจากผู้ใช้ก่อนเขียนไฟล์จริง
+      แล้ว (ดู skill `data-api-design-standard` Section A), ทุก
+      attribute มีการจัดประเภท PDPA Classification ครบ, มี ER Diagram
+      (Mermaid) อย่างน้อย 1 diagram, และเนื้อหาไม่ระบุชื่อ database
+      engine/ORM เฉพาะเจาะจงนอกเหนือ section "Current Technical
+      Direction" — และไม่ได้แก้ไข `02-design/02-firestore-data-model.md`
+- [ ] ถ้างานนี้คือ API Spec (`02-design/06-api-spec.md`): ได้ตรวจสอบว่า
+      มี `02-design/05-database-schema.md` ครอบคลุม entity ที่ใช้แล้ว
+      (ไม่มี operation ที่อ้าง entity/attribute ที่ไม่มีอยู่จริง), ได้
+      เสนอแผนและรอการยืนยันจากผู้ใช้ก่อนเขียนไฟล์จริงแล้ว (ดู skill
+      `data-api-design-standard` Section B), ทุก operation ที่คืนค่า
+      personal data มี PDPA & Security Notes ครบ, และเนื้อหาไม่ระบุ
+      protocol/HTTP method/URL scheme เฉพาะเจาะจงนอกเหนือ section
+      "Current Technical Direction"
 - [ ] รูปแบบเอกสารสอดคล้องกับเอกสารอื่นในโปรเจกต์ (bilingual heading
       ไทย/อังกฤษ, ตาราง markdown, Revision History table)
 - [ ] ไม่มีการละเมิดกฎ PDPA/Security ของ CLAUDE.md (เช่น เปิดเผยข้อมูล

@@ -3,7 +3,7 @@
 ## Purpose (วัตถุประสงค์)
 
 Skill นี้กำหนดกระบวนการมาตรฐานสำหรับตรวจสอบและรักษาความสอดคล้อง
-(consistency) ระหว่างเอกสารหลักทั้ง **9 ฉบับ** ของ ShopPlus Global ที่
+(consistency) ระหว่างเอกสารหลักทั้ง **12 ฉบับ** ของ ShopPlus Global ที่
 ประกอบกันเป็นสาย traceability เดียว ตั้งแต่ requirement ไปจนถึง test
 case/prototype:
 
@@ -32,8 +32,23 @@ case/prototype:
     (เอกสาร 4) โดยตรงในเนื้อหา และต้องไม่ผูกกับ technology/vendor
     เฉพาะเจาะจงนอกเหนือ section "Current Technical Direction (Non-Binding
     Reference)" ของเอกสารนั้น
+11. **Database Schema (Conceptual)** — `02-design/05-database-schema.md`
+    — ถ้ามีอยู่แล้ว ไม่มี ID scheme ของตัวเอง แต่ทุก entity ต้องอ้างอิง
+    entity เดียวกันใน Architecture §6 (เอกสาร 10) และ `FT-xxx`/journey
+    step ที่เกี่ยวข้องโดยตรงในเนื้อหา ต้องไม่ผูกกับ database
+    engine/ORM เฉพาะเจาะจงนอกเหนือ section "Current Technical Direction
+    (Non-Binding Reference)" และ**เป็นเอกสารแยกอิสระ**จาก
+    `02-design/02-firestore-data-model.md` เดิม (ไม่ merge เนื้อหากัน)
+12. **API Spec (Conceptual)** — `02-design/06-api-spec.md` — ถ้ามีอยู่
+    แล้ว ไม่มี ID scheme ของตัวเอง แต่ทุก operation ต้องอ้างอิง
+    entity/attribute ที่มีอยู่จริงใน Database Schema (เอกสาร 11) และ
+    `FT-xxx`/journey step ที่เกี่ยวข้องโดยตรงในเนื้อหา ต้องไม่ผูกกับ
+    protocol/HTTP method/URL scheme เฉพาะเจาะจงนอกเหนือ section
+    "Current Technical Direction (Non-Binding Reference)" —
+    **มี dependency บล็อกเด็ดขาดกับ Database Schema**: operation ที่อ้าง
+    entity/attribute ที่ไม่มีอยู่จริงในเอกสาร 11 ถือเป็น ❓ ทันที
 
-เอกสาร 1–4 เป็นแกนหลักที่ต้องมีครบเสมอ ส่วนเอกสาร 5–9 เป็น "เลือกบางข้อ
+เอกสาร 1–4 เป็นแกนหลักที่ต้องมีครบเสมอ ส่วนเอกสาร 5–12 เป็น "เลือกบางข้อ
 มาส่ง" ตามขอบเขตที่ทีมเลือกทำ (ไม่จำเป็นต้องครอบคลุมทุก Feature) แต่ถ้ามี
 อยู่แล้วต้อง sync ให้ตรงกับเอกสารอื่นเสมอเช่นกัน
 
@@ -43,11 +58,12 @@ case/prototype:
 ไม่มี drift ระหว่างเอกสาร)
 
 ใช้งานหลักโดย agent `traceability-consistency-auditor` และถูกอ้างอิงโดย
-agent อีก 10 ตัว (`requirement-analyst`, `product-owner`,
+agent อีก 12 ตัว (`requirement-analyst`, `product-owner`,
 `feature-list-analyst`, `user-journey-designer`,
 `acceptance-criteria-writer`, `test-plan-writer`, `test-case-writer`,
-`design-system-creator`, `prototype-designer`, `architecture-designer`)
-เมื่อแก้ไขเอกสารของตนเสร็จ
+`design-system-creator`, `prototype-designer`, `architecture-designer`,
+`database-schema-designer`, `api-spec-designer`) เมื่อแก้ไขเอกสารของตน
+เสร็จ
 เพื่อ trigger การตรวจสอบผลกระทบข้ามเอกสาร รวมถึงถูกเรียกใช้โดย agent
 หัวหน้า `Shopplus` (ตาม skill `shopplus-orchestration`) หลังประสานงาน
 หลาย sub-agent ในคำขอเดียวกัน และถูกเรียกใช้ซ้ำ ๆ ระหว่างการรันแบบ
@@ -88,6 +104,8 @@ MVP หรือไม่, การตีความ Open Question ได้�
 | 7. Test Case (ถ้ามี) | `test-cases/<feature-slug>.md` | `TC-<เลข FT>-<ลำดับ>` เช่น `TC-005-01` | `AC-xxx` (แหล่งหลัก) / `FR-xxx` / `US-xxx` / `FT-xxx` / Journey step |
 | 8. Prototype (ถ้ามี) | Prototype Log | `PT-<เลข FT>-<ลำดับ>` เช่น `PT-005-01` | `FT-xxx` / `FR-xxx` / `US-xxx` / Journey step |
 | 9. Architecture (Conceptual, ถ้ามี) | `02-design/03-system-architecture.md` | ไม่มี ID เฉพาะ (อ้างอิง `FT-xxx` / Journey step โดยตรงในเนื้อหาของแต่ละ data flow) | `FT-xxx` / Journey step ที่เกี่ยวข้อง |
+| 10. Database Schema (Conceptual, ถ้ามี) | `02-design/05-database-schema.md` | ไม่มี ID เฉพาะ (อ้างอิงชื่อ entity ตรง ๆ) | Entity เดียวกันใน Architecture §6 / `FT-xxx` / Journey step |
+| 11. API Spec (Conceptual, ถ้ามี) | `02-design/06-api-spec.md` | ไม่มี ID เฉพาะ (อ้างอิงชื่อ operation ตรง ๆ) | Entity/attribute ใน Database Schema (เอกสาร 10, บล็อกเด็ดขาด) / `FT-xxx` / Journey step |
 
 Cross-cutting: **Open Question** (อ้างอิงตามลำดับข้อใน BRD §Open
 Questions) ใช้ร่วมกันใน Backlog (รายการ Blocked), Feature List (หมายเหตุ
@@ -137,7 +155,7 @@ Section B
 
 | การเปลี่ยนแปลง | ต้องตรวจสอบ/อัปเดต |
 |---|---|
-| สร้าง FT ใหม่ / จัดกลุ่ม FT ใหม่ (รวม/แยก) | User Journey: อัปเดต node label และตาราง Requirement Mapping ให้ตรงกับ FT-xxx ปัจจุบัน · Backlog/BRD: ตรวจว่า FT นั้นยัง trace กลับไปหา US/FR ที่มีอยู่จริง ถ้าไม่มีให้ใช้ Ambiguity Protocol · Acceptance Criteria/Test Case/Prototype (ถ้าอ้างอิง FT นี้): แก้ ID/label ให้ตรงกับ FT ที่จัดกลุ่มใหม่ · Test Plan: อัปเดตตาราง Scope ให้ตรงกับ FT ปัจจุบัน · Architecture (ถ้ามี): ตรวจว่า data flow ที่อ้าง FT นี้ยังตรงกับชื่อ/ขอบเขตปัจจุบันหรือไม่ |
+| สร้าง FT ใหม่ / จัดกลุ่ม FT ใหม่ (รวม/แยก) | User Journey: อัปเดต node label และตาราง Requirement Mapping ให้ตรงกับ FT-xxx ปัจจุบัน · Backlog/BRD: ตรวจว่า FT นั้นยัง trace กลับไปหา US/FR ที่มีอยู่จริง ถ้าไม่มีให้ใช้ Ambiguity Protocol · Acceptance Criteria/Test Case/Prototype (ถ้าอ้างอิง FT นี้): แก้ ID/label ให้ตรงกับ FT ที่จัดกลุ่มใหม่ · Test Plan: อัปเดตตาราง Scope ให้ตรงกับ FT ปัจจุบัน · Architecture (ถ้ามี): ตรวจว่า data flow ที่อ้าง FT นี้ยังตรงกับชื่อ/ขอบเขตปัจจุบันหรือไม่ · Database Schema/API Spec (ถ้ามี): ตรวจว่า entity/operation ที่อ้าง FT นี้ยังตรงกับชื่อ/ขอบเขตปัจจุบันหรือไม่ |
 | เปลี่ยน MoSCoW ของ FT | Backlog: ตรวจว่าไม่ขัดกับ priority เดิมโดยไม่มีคำอธิบาย (ถ้าขัดแย้งให้ใช้ Ambiguity Protocol) · Test Plan: ย้าย FT ระหว่างตาราง In Scope/Out of Scope ตาม MoSCoW ใหม่ |
 | FT ถูก mark Blocked/ปลด Blocked | User Journey §Open Items: ต้องตรงกัน · Acceptance Criteria/Test Case: ปลด/ตั้ง Blocked ของรายการที่เกี่ยวข้องให้ตรงกัน |
 
@@ -150,6 +168,7 @@ Section B
 | §Open Items ถูกแก้ (เพราะ Open Question ตอบแล้ว) | BRD: Open Question ต้องถูก mark ว่าตอบแล้วในเอกสารต้นทางด้วย · Backlog: ปลด Blocked ของ US ที่เกี่ยวข้อง |
 | Decision branch (node) ของ Feature ที่มี Acceptance Criteria/Test Case อยู่แล้วถูกแก้ไข/ลบ/เพิ่ม | Acceptance Criteria: ตรวจว่า AC ที่อ้าง journey step นั้นยังตรงกับ diagram ล่าสุดหรือไม่ · Test Case (ถ้ามีไฟล์ของ Feature นั้นแล้ว): ตรวจ Traceability Summary ว่า Journey Step ที่อ้างอิงยังตรงกัน — ถ้า diagram เปลี่ยนจนทำให้ AC/Test Case เดิมไม่ตรงกับ flow จริง ให้ถือเป็น ❓ ทันที ห้ามปล่อยผ่านว่าเป็นแค่รายละเอียด diagram |
 | Journey step/diagram เปลี่ยนจนกระทบ data flow ที่ Architecture เคยอธิบายไว้ | Architecture (ถ้ามี): ตรวจว่า section "Data Flow per User Journey" ยังตรงกับ diagram ล่าสุดหรือไม่ — ถ้าไม่ตรงให้ถือเป็น ❓ ทันที (ห้ามปล่อยให้ Architecture อธิบาย flow ที่ journey จริงไม่ได้ทำแบบนั้นแล้ว) |
+| Journey step เปลี่ยนจนกระทบ operation ที่ API Spec เคยอ้างเป็น Trigger | API Spec (ถ้ามี): ตรวจว่า operation ที่อ้าง journey step นี้เป็น Trigger ยังตรงกับ diagram ล่าสุดหรือไม่ — ถือเป็น ❓ ทันทีถ้าไม่ตรง |
 
 ### เมื่อ **Acceptance Criteria** เปลี่ยน (ถ้ามี)
 
@@ -203,6 +222,27 @@ Section B
 | เพิ่ม component/capability ใหม่ในเอกสารที่ Feature List ไม่ได้ระบุไว้ | Feature List/BRD: ตั้งข้อสังเกต "New — แนะนำให้เพิ่มเข้า BRD/Feature List" ตาม convention เดิม |
 | Section หลัก (layer/component/data flow) ถูกแก้ไขให้ระบุชื่อ technology/vendor เฉพาะเจาะจง นอกเหนือ section "Current Technical Direction (Non-Binding Reference)" | ถือเป็น ❓ ทันที — ละเมิดหลักการ conceptual/technology-agnostic ของเอกสารนี้ ต้องย้ายรายละเอียดนั้นไปไว้ใน section ที่ถูกต้อง |
 | "Current Technical Direction" ขัดกับทิศทางเทคนิคที่ระบุใน `CLAUDE.md` หมวด 6 | ถือเป็น ❓ ทันที — เป็นการเปลี่ยนแปลงระดับ technical direction ห้ามตัดสินใจแทนผู้ใช้ |
+| §6 "Key Conceptual Data Entities" เพิ่ม/แก้/ลบ entity | Database Schema (ถ้ามี): ตรวจว่า Entity Catalog ยังตรงกับ §6 ปัจจุบัน — entity ที่ถูกลบต้องตรวจว่า API Spec (ถ้ามี) ยังมี operation อ้างอิงอยู่หรือไม่ ถ้ามีให้ถือเป็น ❓ ทันที (ห้ามลบ entity ที่ยังมี operation ใช้งานอยู่โดยไม่แจ้งเตือน) |
+| §7 "Security & Access Control" เปลี่ยน role/สิทธิ์ | Database Schema (ถ้ามี): ตรวจว่า Access Control Matrix ยังตรงกัน — ถือเป็น ❓ ถ้าขัดแย้งกัน |
+
+### เมื่อ **Database Schema** (`02-design/05-database-schema.md`) เปลี่ยน (ถ้ามี)
+
+| การเปลี่ยนแปลง | ต้องตรวจสอบ/อัปเดต |
+|---|---|
+| เพิ่ม entity ที่ไม่มีที่มาจาก Architecture §6 | Architecture: ตั้งข้อสังเกต "New — แนะนำให้เพิ่มเข้า Architecture §6" ตาม convention เดิม (ห้ามปล่อยให้ Database Schema มี entity ที่ Architecture ไม่รู้จักอยู่เงียบ ๆ) |
+| แก้ไข/ลบ attribute ที่ API Spec เคยอ้างอิงใน Request/Response ของ operation ใด | API Spec (ถ้ามี): **ต้องตรวจสอบทันที** ว่า operation ที่อ้าง attribute นั้นยังสอดคล้องอยู่หรือไม่ — ถือเป็น ❓ ถ้า API Spec ยังอ้าง attribute เดิมที่ถูกลบ/เปลี่ยนความหมายไปแล้ว (บล็อกเด็ดขาดตาม skill `data-api-design-standard` Section B) |
+| เปลี่ยน PDPA Classification ของ attribute (เช่นจาก Public เป็น Personal Data) | API Spec (ถ้ามี): ตรวจว่า operation ที่คืนค่า attribute นั้นมี PDPA & Security Notes รองรับแล้วหรือยัง ถ้ายังไม่มีถือเป็น ❓ ทันที |
+| ลบ entity ที่ API Spec ยังมี operation อ้างอิงอยู่ | ถือเป็น ❓ ทันที ห้ามลบโดยไม่แจ้งเตือน — ต้องถามผู้ใช้ก่อนว่าจะอัปเดต/ลบ operation ที่เกี่ยวข้องใน API Spec ด้วยหรือไม่ |
+| Relationship ระหว่าง entity เปลี่ยน (1:1/1:N/N:M) | ตรวจว่า ER Diagram (Mermaid) ยังตรงกับตาราง Relationships ที่แก้ไข — 🔧 แก้ diagram ให้ตรงได้ทันทีถ้าไม่กำกวม |
+
+### เมื่อ **API Spec** (`02-design/06-api-spec.md`) เปลี่ยน (ถ้ามี)
+
+| การเปลี่ยนแปลง | ต้องตรวจสอบ/อัปเดต |
+|---|---|
+| operation ใหม่/แก้ไขที่อ้าง entity/attribute ที่ **ไม่มีอยู่จริง** ใน Database Schema ปัจจุบัน | ถือเป็น ❓ ทันที (ละเมิด dependency ของ skill `data-api-design-standard` Section B) — แนะนำให้เรียก `database-schema-designer` เพิ่ม entity/attribute ที่ขาด ไม่ใช่ปล่อยให้ operation อ้าง field ที่ไม่มีจริง |
+| operation ใหม่ที่อ้าง `FT-xxx`/journey step ที่ไม่มีอยู่จริง | ถือเป็น ❓ ทันที เช่นเดียวกับกรณีของ Architecture |
+| Section หลัก (Operation Catalog, Resource Mapping) ถูกแก้ไขให้ระบุ protocol/HTTP method/URL scheme เฉพาะเจาะจง นอกเหนือ section "Current Technical Direction (Non-Binding Reference)" | ถือเป็น ❓ ทันที — ละเมิดหลักการ conceptual/technology-agnostic |
+| operation ที่คืนค่า personal data ไม่มี PDPA & Security Notes | ถือเป็น ❓ ทันที — ละเมิด CLAUDE.md หมวด 10 |
 
 **หมายเหตุ:** สำหรับ Prototype โดยเฉพาะ ให้ใช้ **Prototype Consistency
 Checklist** ด้านล่างประกอบการตรวจทุกครั้ง เพื่อให้ครอบคลุมครบทั้ง 7
@@ -245,9 +285,10 @@ Checklist** ด้านล่างประกอบการตรวจท�
    ตามที่ผู้ใช้ระบุ)
 2. **อ่านเอกสารหลักทั้ง 4 ฉบับให้ครบ** ก่อนสรุปผลกระทบ ห้ามสรุปจาก
    เอกสารเดียว และ **อ่าน Acceptance Criteria/Test Plan/Test Case/
-   Prototype Log/`02-design/DESIGN.md`/`02-design/03-system-architecture.md`
-   ด้วยถ้ามีอยู่แล้ว** (และอ่าน `02-design/01-transaction-flow.md`
-   ประกอบถ้าผลกระทบเกี่ยวข้องกับ status lifecycle)
+   Prototype Log/`02-design/DESIGN.md`/`02-design/03-system-architecture.md`/
+   `02-design/05-database-schema.md`/`02-design/06-api-spec.md` ด้วยถ้ามี
+   อยู่แล้ว** (และอ่าน `02-design/01-transaction-flow.md` ประกอบถ้าผล
+   กระทบเกี่ยวข้องกับ status lifecycle)
 3. **สร้าง/อัปเดต traceability matrix ภายใน** (FR ↔ US ↔ FT ↔ Journey
    step ↔ AC ↔ TC ↔ Open Question) ใช้เป็น working reference ระหว่าง
    ตรวจสอบ ไม่จำเป็นต้องส่งมอบเป็นไฟล์แยกต่างหาก เว้นแต่ผู้ใช้ร้องขอ
@@ -272,8 +313,8 @@ Checklist** ด้านล่างประกอบการตรวจท�
 
 1. **Scope** — เอกสารที่เป็น trigger ของการตรวจสอบครั้งนี้ + รายชื่อ
    เอกสารหลักทั้ง 4 ฉบับ (และ Acceptance Criteria/Test Plan/Test Case/
-   Prototype Log/Design System/Architecture ถ้ามี) พร้อม version ที่อ่าน
-   ณ ขณะตรวจสอบ
+   Prototype Log/Design System/Architecture/Database Schema/API Spec
+   ถ้ามี) พร้อม version ที่อ่าน ณ ขณะตรวจสอบ
 2. **Findings Summary** — ตาราง: ลำดับ | เอกสารที่พบปัญหา | รายละเอียด |
    ประเภท (🔧 แก้แล้ว / ❓ รอ stakeholder) | FR/US/FT/AC/TC/Journey step
    ที่เกี่ยวข้อง
@@ -319,6 +360,23 @@ Checklist** ด้านล่างประกอบการตรวจท�
   section "Current Technical Direction (Non-Binding Reference)" ให้ถือ
   เป็น ❓ เสมอ (ละเมิดหลักการ conceptual/technology-agnostic ของ skill
   `architecture-design-standard`)
+- เมื่อพบว่า Database Schema (`02-design/05-database-schema.md`) มี
+  entity ที่ไม่มีที่มาจาก `02-design/03-system-architecture.md` §6 ให้
+  ถือเป็น 🔧 ได้ทันที (ตั้งข้อสังเกต "New — แนะนำให้เพิ่มเข้า
+  Architecture §6" แล้วบันทึกไว้ ไม่ต้องหยุดถามเพราะเป็นการเพิ่มข้อ
+  สังเกตใหม่ ไม่ใช่การลบ/เปลี่ยน business decision เดิม)
+- เมื่อพบว่า Database Schema มี attribute ที่ไม่มีการจัดประเภท PDPA
+  Classification ให้ถือเป็น ❓ เสมอ (ละเมิด CLAUDE.md หมวด 10 และ skill
+  `data-api-design-standard` Section A)
+- เมื่อพบว่า API Spec (`02-design/06-api-spec.md`) มี operation ที่อ้าง
+  entity/attribute ที่ **ไม่มีอยู่จริง** ใน `02-design/05-database-schema.md`
+  ให้ถือเป็น ❓ เสมอ (ละเมิด dependency บล็อกเด็ดขาดของ skill
+  `data-api-design-standard` Section B) — แนะนำให้เรียก
+  `database-schema-designer` เพิ่มส่วนที่ขาด ไม่ใช่ลบ operation นั้นทิ้งเอง
+- เมื่อพบว่า Database Schema หรือ API Spec ระบุชื่อ technology/vendor/
+  protocol เฉพาะเจาะจงนอกเหนือ section "Current Technical Direction
+  (Non-Binding Reference)" ให้ถือเป็น ❓ เสมอ (ละเมิดหลักการ conceptual/
+  technology-agnostic ของ skill `data-api-design-standard`)
 - เมื่อพบว่า Test Plan มี Risk หรือ Test Type ใหม่ที่ไม่มีที่มาจาก BRD §7/
   §8 ให้ถือเป็น 🔧 ได้ทันที (ตั้งข้อสังเกต "New — recommend adding to
   BRD" แล้วบันทึกไว้ ไม่ต้องหยุดถามเพราะไม่ใช่การลบ/เปลี่ยน business

@@ -1,6 +1,6 @@
 # ShopPlus Global — High-Level Architecture (Conceptual)
 
-**Version:** 2.0
+**Version:** 2.1
 
 **Last Updated:** 2026-08-23
 
@@ -16,6 +16,7 @@
 |---|---|---|---|
 | 1.0 | 2026-08-04 (ประมาณการจาก merge history) | Solution Architect (มนุษย์/ไม่ผ่าน agent) | เอกสารเริ่มต้น อธิบาย architecture โดยผูกกับ technology stack เฉพาะเจาะจง (Firebase, Firestore, Cloud Functions, Next.js, React) ตลอดทั้งเอกสาร |
 | 2.0 | 2026-08-23 | Architecture Designer Agent | ปรับทั้งฉบับให้เป็น **conceptual/technology-agnostic** ตามคำขอ: (1) แยก layer/component ออกจากชื่อ technology เฉพาะเจาะจง (2) ย้ายรายละเอียด Firebase/Next.js/Firestore เดิมไปไว้ใน §8 "Current Technical Direction (Non-Binding Reference)" (3) เพิ่ม §5 Data Flow per User Journey โดยอ้างอิง `FT-xxx`/journey step จริงจาก `02-design/04-user-journey.md` แทนการอธิบาย flow แบบลอย ๆ (4) เพิ่ม §9 Open Questions/Assumptions รวม gap ที่พบระหว่างจัดทำ |
+| 2.1 | 2026-08-23 | Traceability & Consistency Auditor (trigger: Database Schema Designer สร้าง `02-design/05-database-schema.md` v1.0) | เพิ่ม entity **"QR Transaction Token"** เข้า §6 Key Conceptual Data Entities — Database Schema Designer พบว่า FT-002 (Merchant QR Code Generation & Management) มี lifecycle ของโค้ดที่เกิดขึ้นก่อน Transaction Record จะถูกสร้าง (ออกโค้ด → รอสแกน → อาจหมดอายุ/ถูกยกเลิกโดยยังไม่มี transaction เกิดขึ้นเลย) ซึ่ง §6 เดิมไม่ได้ระบุไว้ — ผู้ใช้ยืนยันแนวทางนี้แล้วในขั้นตอน Plan Proposal ของ Database Schema Designer จึงถือเป็นการแก้ไข 🔧 (มีที่มาชัดเจนจาก FT-002 ที่มีอยู่แล้ว ไม่ใช่ capability ใหม่) |
 
 ---
 
@@ -34,8 +35,10 @@ Technical Direction (Non-Binding Reference)" เท่านั้น เพื�
 
 **เอกสารนี้ไม่ครอบคลุม:**
 
-- Field-level database schema (ดู `02-design/02-firestore-data-model.md`
-  ถ้ามีอยู่ สำหรับรายละเอียดเชิงเทคนิค)
+- Entity/table-level conceptual detail, attribute, PDPA classification,
+  และ ER Diagram (ดู `02-design/05-database-schema.md`)
+- Field-level database schema เชิงเทคนิค (ดู
+  `02-design/02-firestore-data-model.md` ถ้ามีอยู่)
 - API specification/endpoint design
 - Transaction status lifecycle แบบละเอียด (ดู
   `02-design/01-transaction-flow.md` สำหรับมุมมอง state machine)
@@ -290,7 +293,8 @@ Admin เปิด Audit Log และค้นหาด้วย transaction ID
 |---|---|---|
 | **User Identity** | บัญชีและ role ของ Customer/Merchant/Admin พร้อมสถานะ PDPA consent | เป็นเจ้าของ Merchant Profile (ถ้า role = Merchant), Reward Ledger Entry (ถ้า role = Customer) |
 | **Merchant Profile** | ข้อมูลร้านค้า (ชื่อ, ที่อยู่, ประเภท, เวลาเปิด-ปิด) | เชื่อมกับ User Identity (Merchant), เป็นเป้าหมายของ Transaction Record |
-| **Transaction Record** | หนึ่งรอบ QR-scan-ถึง-completion พร้อม status lifecycle (`PENDING_APPROVAL` → `APPROVED`/`REJECTED`/`CANCELLED` → `COMPLETED`) | เชื่อม Customer + Merchant, เมื่อ `COMPLETED` จะสร้าง Reward Ledger Entry + Marketing Fund Ledger Entry |
+| **QR Transaction Token** | โค้ดที่ merchant ออกให้ customer สแกน ผูกกับ transaction identifier เฉพาะ ใช้ได้ครั้งเดียว มีเวลาจำกัด (FT-002) — มี lifecycle ของตัวเองก่อนที่ Transaction Record จะถูกสร้าง (อาจหมดอายุ/ถูกยกเลิกโดยยังไม่มี transaction เกิดขึ้นเลย) | ออกโดย Merchant Profile, เมื่อถูกสแกนสำเร็จจะก่อให้เกิด Transaction Record 1 รายการ |
+| **Transaction Record** | หนึ่งรอบ QR-scan-ถึง-completion พร้อม status lifecycle (`PENDING_APPROVAL` → `APPROVED`/`REJECTED`/`CANCELLED` → `COMPLETED`) | เกิดจากการสแกน QR Transaction Token, เชื่อม Customer + Merchant, เมื่อ `COMPLETED` จะสร้าง Reward Ledger Entry + Marketing Fund Ledger Entry |
 | **Reward Ledger Entry** | บันทึก SP Point ที่ Customer ได้รับจาก Transaction ที่ completed | อ้างอิง Transaction Record ต้นทาง, เป็นที่มาของ SP Balance |
 | **Marketing Fund Ledger Entry** | บันทึกส่วนแบ่งของ marketing fund/platform จาก Transaction ที่ completed | อ้างอิง Transaction Record ต้นทาง |
 | **Redemption Reference** | คำขอแลก reward ของ Customer ที่รอการ fulfill ที่ร้าน | อ้างอิง Reward Ledger (ลด balance), ถูก fulfill โดย Merchant |
