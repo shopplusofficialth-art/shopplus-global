@@ -48,6 +48,7 @@ ShopPlus Global คือ Community Commerce Platform ที่เชื่อ�
 | `test-case-writer` | สร้าง/แก้ Test Case | `test-case-standard` |
 | `design-system-creator` | สร้าง/แก้ Design System (`DESIGN.md`) | `design-system-creation` |
 | `prototype-designer` | สร้าง/แก้ Prototype | `prototype-standard` |
+| `architecture-designer` | สร้าง/แก้ High-Level (Conceptual) Architecture | `architecture-design-standard` |
 | `pipeline-orchestrator` | รันทั้ง pipeline (Requirement→...→Test Case) ต่อเนื่องในคำขอเดียว | `pipeline-orchestration` |
 | `traceability-consistency-auditor` | ตรวจสอบความสอดคล้องข้ามเอกสาร | `traceability-consistency-check` |
 
@@ -72,7 +73,10 @@ ShopPlus Global คือ Community Commerce Platform ที่เชื่อ�
    เช่นเดียวกัน `test-case-writer` ต้องมี Acceptance Criteria ครบใน
    `04-testing/acceptance-criteria.md` ก่อนเสมอ ถ้ายังไม่มี/ไม่ครบ ให้
    เรียก `acceptance-criteria-writer` ก่อน แม้ผู้ใช้จะขอแค่ Test Case
-   ก็ตาม (ดู skill `shopplus-orchestration` Section B)
+   ก็ตาม — `architecture-designer` ต้องมี Feature List + User Journey
+   ครบก่อนเสมอเช่นกัน แต่**ไม่ได้ผนวกเข้า `pipeline-orchestrator`** ถูก
+   เรียกผ่าน `Shopplus` โดยตรงเท่านั้น (ดู skill `shopplus-orchestration`
+   Section B)
 3. สวมบทบาทเป็น sub-agent ที่เลือกไว้ ทำงานตาม Responsibilities, Output
    format, และ Rules ของไฟล์ agent + skill นั้นทุกข้อ ไม่ลัดขั้นตอน
 4. เมื่อสิ้นสุดทุกขั้นตอนที่ทำในคำขอนี้ ให้เรียกใช้

@@ -36,6 +36,7 @@ sub-agent — เมื่อ routing ไปยัง sub-agent ตัวใด 
 | สร้าง/แก้ Test Case, step-by-step test, QA scenario ต่อ Feature | `test-case-writer` | `test-case-standard` | `04-testing/test-cases/<feature-slug>.md` | 04-testing |
 | สร้าง/แก้ Design System, DESIGN.md, brand guideline, โทนสี/สไตล์ของ UI | `design-system-creator` | `design-system-creation` | `02-design/DESIGN.md` | 02-design |
 | สร้าง/แก้ Prototype, mockup, หน้าจอตัวอย่าง | `prototype-designer` | `prototype-standard` | `03-development/01-prototype-log.md` + `03-development/prototypes/v<N>/*.html` | 03-development |
+| สร้าง/แก้ High-Level Architecture, Conceptual/System Architecture, data flow ระดับระบบตาม user journey (ยังไม่ผูกกับ technical stack) | `architecture-designer` | `architecture-design-standard` | `02-design/03-system-architecture.md` | 02-design |
 | รันทั้ง pipeline ต่อเนื่องตั้งแต่ Requirement→Backlog→Feature List→User Journey→(Test Plan+Acceptance Criteria→Test Case) ในคำขอเดียว, "เริ่มโปรเจกต์ใหม่ทั้งหมด", "ทำ feature ใหม่ให้ครบตั้งแต่ requirement ถึง test" | `pipeline-orchestrator` | `pipeline-orchestration` | ไฟล์ตาม stage ที่รันจริง (ดู skill `pipeline-orchestration`) | Cross-cutting |
 | ตรวจสอบความสอดคล้อง/traceability ข้ามเอกสาร, "sync", "เช็คทั้งหมดให้หน่อย" | `traceability-consistency-auditor` | `traceability-consistency-check` | Consistency Check Report (+ แก้เอกสารที่กระทบ) | Cross-cutting |
 
@@ -97,6 +98,16 @@ List ทั้งที่ยังไม่มี BRD) ให้แจ้งผ
 Test Case — สร้าง/แก้ไขได้ทันทีที่ BRD + Backlog + Feature List มีอยู่
 (ขั้นตอน 1–3 ข้างบน)
 
+**Conditional dependency สำหรับ Architecture Designer:**
+`architecture-designer` ต้องมี `01-requirements/03-feature-list.md`
+(FT-xxx) และ `02-design/04-user-journey.md` ครบก่อนเริ่มงานเสมอ (เพราะ
+data flow ต้องอ้างอิงจาก user journey จริง ไม่ใช่สมมติขึ้นเอง) — ถ้ายังไม่
+มี/ไม่ครบ ให้แจ้งผู้ใช้และเสนอเริ่มจาก `feature-list-analyst`/
+`user-journey-designer` ก่อน แม้ผู้ใช้จะขอแค่ Architecture ก็ตาม —
+**agent นี้ไม่ได้ถูกผนวกเข้า `pipeline-orchestrator`** (ไม่อยู่ในลำดับ
+ขั้นตอน 1–6 ข้างบน) ถูกเรียกใช้ผ่าน `Shopplus` โดยตรงเท่านั้นเมื่อผู้ใช้
+ร้องขอ
+
 ---
 
 ## Section C: Quality Gate Checklist (รายการตรวจสอบก่อนส่งมอบงาน)
@@ -130,6 +141,12 @@ Test Case — สร้าง/แก้ไขได้ทันทีที่ B
       ครบใน `04-testing/acceptance-criteria.md`: ได้เรียก
       `acceptance-criteria-writer` ก่อนสร้าง test case แล้ว (ดู Section
       B ด้านบน) — ไม่มี test case ที่อ้าง AC ที่ไม่มีอยู่จริง
+- [ ] ถ้างานนี้คือ Architecture (`02-design/03-system-architecture.md`):
+      ได้ตรวจสอบว่ามี Feature List + User Journey ครบก่อนแล้ว (ดู Section
+      B ด้านบน), ได้เสนอแผนและรอการยืนยันจากผู้ใช้ก่อนเขียนไฟล์จริงแล้ว
+      (ดู skill `architecture-design-standard` Section B), และเนื้อหาไม่
+      ระบุชื่อ technology/vendor เฉพาะเจาะจงนอกเหนือ section "Current
+      Technical Direction (Non-Binding Reference)"
 - [ ] รูปแบบเอกสารสอดคล้องกับเอกสารอื่นในโปรเจกต์ (bilingual heading
       ไทย/อังกฤษ, ตาราง markdown, Revision History table)
 - [ ] ไม่มีการละเมิดกฎ PDPA/Security ของ CLAUDE.md (เช่น เปิดเผยข้อมูล
