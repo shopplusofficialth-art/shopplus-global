@@ -39,6 +39,7 @@ sub-agent — เมื่อ routing ไปยัง sub-agent ตัวใด 
 | สร้าง/แก้ High-Level Architecture, Conceptual/System Architecture, data flow ระดับระบบตาม user journey (ยังไม่ผูกกับ technical stack) | `architecture-designer` | `architecture-design-standard` | `02-design/03-system-architecture.md` | 02-design |
 | สร้าง/แก้ Database Schema, Data Model, ER Diagram, รายละเอียด table/entity ระดับ conceptual (ยังไม่ผูกกับ technical stack) | `database-schema-designer` | `data-api-design-standard` (Section A) | `02-design/05-database-schema.md` | 02-design |
 | สร้าง/แก้ API Specification, API Design, endpoint/operation ระดับ conceptual (ยังไม่ผูกกับ protocol/technical stack) | `api-spec-designer` | `data-api-design-standard` (Section B) | `02-design/06-api-spec.md` | 02-design |
+| สร้าง/แก้ Detailed Design, Sequence Flow, Sequence Diagram, interaction flow ระดับ conceptual ต่อ Feature/Scenario (ยังไม่ผูกกับ technical stack) | `detailed-design-writer` | `detailed-design-standard` | `02-design/07-detailed-design.md` | 02-design |
 | รันทั้ง pipeline ต่อเนื่องตั้งแต่ Requirement→Backlog→Feature List→User Journey→(Test Plan+Acceptance Criteria→Test Case) ในคำขอเดียว, "เริ่มโปรเจกต์ใหม่ทั้งหมด", "ทำ feature ใหม่ให้ครบตั้งแต่ requirement ถึง test" | `pipeline-orchestrator` | `pipeline-orchestration` | ไฟล์ตาม stage ที่รันจริง (ดู skill `pipeline-orchestration`) | Cross-cutting |
 | ตรวจสอบความสอดคล้อง/traceability ข้ามเอกสาร, "sync", "เช็คทั้งหมดให้หน่อย" | `traceability-consistency-auditor` | `traceability-consistency-check` | Consistency Check Report (+ แก้เอกสารที่กระทบ) | Cross-cutting |
 
@@ -133,6 +134,24 @@ API Spec ก็ตาม (เช่นเดียวกับที่ `prototy
 ครบเช่นเดียวกับ Database Schema Designer — **agent นี้ไม่ได้ถูกผนวกเข้า
 `pipeline-orchestrator`** ถูกเรียกใช้ผ่าน `Shopplus` โดยตรงเท่านั้น
 
+**Conditional dependency สำหรับ Detailed Design Writer (บล็อกเด็ดขาด
+ครบสายทั้ง 5 เอกสาร):** `detailed-design-writer` ต้องมี
+`01-requirements/03-feature-list.md` (`FT-xxx`),
+`02-design/04-user-journey.md`, `02-design/03-system-architecture.md`,
+`02-design/05-database-schema.md`, และ `02-design/06-api-spec.md` ครบและ
+ครอบคลุม scope ก่อนเริ่มงานเสมอ (ทุก sequence diagram ต้องอ้าง layer จริง
+จาก Architecture, entity จริงจาก Database Schema, และ operation จริงจาก
+API Spec — ไม่ใช่คิดขึ้นเอง) — ถ้ายังไม่มี/ไม่ครบ ให้แจ้งผู้ใช้และเสนอ
+เรียก agent ที่ขาดก่อนตามลำดับ `feature-list-analyst` →
+`user-journey-designer` → `architecture-designer` →
+`database-schema-designer` → `api-spec-designer` แม้ผู้ใช้จะขอแค่
+Detailed Design ก็ตาม — **agent นี้ไม่ได้ถูกผนวกเข้า
+`pipeline-orchestrator`** ถูกเรียกใช้ผ่าน `Shopplus` โดยตรงเท่านั้น
+เอกสารผลลัพธ์ (`02-design/07-detailed-design.md`) เป็น**เอกสารแยกอิสระ**
+จาก `02-design/01-transaction-flow.md` เดิม (ไม่แก้ไข ไม่ merge เนื้อหา
+อ้างอิงกันเฉย ๆ ตาม pattern เดียวกับ Database Schema Designer และ
+`02-firestore-data-model.md`)
+
 ---
 
 ## Section C: Quality Gate Checklist (รายการตรวจสอบก่อนส่งมอบงาน)
@@ -188,6 +207,14 @@ API Spec ก็ตาม (เช่นเดียวกับที่ `prototy
       personal data มี PDPA & Security Notes ครบ, และเนื้อหาไม่ระบุ
       protocol/HTTP method/URL scheme เฉพาะเจาะจงนอกเหนือ section
       "Current Technical Direction"
+- [ ] ถ้างานนี้คือ Detailed Design (`02-design/07-detailed-design.md`):
+      ได้ตรวจสอบว่ามี Feature List + User Journey + Architecture +
+      Database Schema + API Spec ครบก่อนแล้ว (ครบสายทั้ง 5 เอกสาร), ได้
+      เสนอแผนและรอการยืนยันจากผู้ใช้ก่อนเขียนไฟล์จริงแล้ว (ดู skill
+      `detailed-design-standard` Section B), ทุก scenario มี Sequence
+      Diagram (Mermaid `sequenceDiagram`) อย่างน้อย 1 diagram ที่อ้าง
+      layer/entity/operation จริง (ไม่มีชื่อที่คิดขึ้นเอง), และไม่ได้
+      แก้ไข `02-design/01-transaction-flow.md`
 - [ ] รูปแบบเอกสารสอดคล้องกับเอกสารอื่นในโปรเจกต์ (bilingual heading
       ไทย/อังกฤษ, ตาราง markdown, Revision History table)
 - [ ] ไม่มีการละเมิดกฎ PDPA/Security ของ CLAUDE.md (เช่น เปิดเผยข้อมูล
