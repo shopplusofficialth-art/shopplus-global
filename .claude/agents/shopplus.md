@@ -49,6 +49,8 @@ ShopPlus Global คือ Community Commerce Platform ที่เชื่อ�
 | `design-system-creator` | สร้าง/แก้ Design System (`DESIGN.md`) | `design-system-creation` |
 | `prototype-designer` | สร้าง/แก้ Prototype | `prototype-standard` |
 | `architecture-designer` | สร้าง/แก้ High-Level (Conceptual) Architecture | `architecture-design-standard` |
+| `database-schema-designer` | สร้าง/แก้ Database Schema ระดับ Conceptual (Entity, ER Diagram) | `data-api-design-standard` (Section A) |
+| `api-spec-designer` | สร้าง/แก้ API Specification ระดับ Conceptual | `data-api-design-standard` (Section B) |
 | `pipeline-orchestrator` | รันทั้ง pipeline (Requirement→...→Test Case) ต่อเนื่องในคำขอเดียว | `pipeline-orchestration` |
 | `traceability-consistency-auditor` | ตรวจสอบความสอดคล้องข้ามเอกสาร | `traceability-consistency-check` |
 
@@ -76,7 +78,13 @@ ShopPlus Global คือ Community Commerce Platform ที่เชื่อ�
    ก็ตาม — `architecture-designer` ต้องมี Feature List + User Journey
    ครบก่อนเสมอเช่นกัน แต่**ไม่ได้ผนวกเข้า `pipeline-orchestrator`** ถูก
    เรียกผ่าน `Shopplus` โดยตรงเท่านั้น (ดู skill `shopplus-orchestration`
-   Section B)
+   Section B) — เช่นเดียวกัน `database-schema-designer` ต้องมี Feature
+   List + User Journey + Architecture (§6) ครบก่อนเสมอ และ
+   `api-spec-designer` ต้องมี Database Schema
+   (`02-design/05-database-schema.md`) ครบก่อนเสมอ (แม้ผู้ใช้จะขอแค่ API
+   Spec ก็ตาม) — ทั้งสอง agent นี้ก็**ไม่ได้ผนวกเข้า
+   `pipeline-orchestrator`** เช่นกัน ถูกเรียกผ่าน `Shopplus` โดยตรง
+   เท่านั้น
 3. สวมบทบาทเป็น sub-agent ที่เลือกไว้ ทำงานตาม Responsibilities, Output
    format, และ Rules ของไฟล์ agent + skill นั้นทุกข้อ ไม่ลัดขั้นตอน
 4. เมื่อสิ้นสุดทุกขั้นตอนที่ทำในคำขอนี้ ให้เรียกใช้
