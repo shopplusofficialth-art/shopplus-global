@@ -1,6 +1,6 @@
 # ShopPlus Global — Detailed Design (Conceptual)
 
-**Version:** 1.1
+**Version:** 1.2
 
 **Last Updated:** 2026-08-24
 
@@ -16,6 +16,7 @@
 |---|---|---|---|
 | 1.0 | 2026-08-24 | Detailed Design Writer Agent | เอกสารเริ่มต้น ครอบคลุม FT-001–017 (ทุก Feature ที่มี Operation รองรับใน API Spec ปัจจุบัน) เป็น 19 scenario ใน 10 กลุ่ม (อิงตาม Architecture §5 Flow 1–10) พร้อม Sequence Diagram (Mermaid) บังคับทุก scenario, Traceability Map, และ Cross-Scenario Notes — ผู้ใช้ยืนยัน Plan Proposal แล้วก่อนเริ่มเขียน — ผ่าน `traceability-consistency-auditor` ก่อน finalize แล้ว 🔧 พบและแก้ไขจุดที่ Audit Entry หายไปใน Scenario 2.2, 3.1, 6.1 (`QR_TOKEN_CANCELLED`, `TRANSACTION_CREATED`, `REDEMPTION_ISSUED` — eventType ที่มีอยู่จริงใน Database Schema §2.8 แต่ไม่มี diagram สร้าง audit trail ให้ครบ) |
 | 1.1 | 2026-08-24 | Detailed Design Writer Agent | ปรับ §5 "Current Technical Direction" ให้ครบ 2 หัวข้อย่อยตาม skill `detailed-design-standard` Section C ข้อ 5 ที่ปรับปรุงใหม่: เพิ่ม §5.1 "Technical Mapping Table ต่อ Scenario" ครบทั้ง 19 scenario โดยอ้าง Operation→Cloud Function จาก `02-design/06-api-spec.md` §7.1 และ Entity→Firestore Collection จาก `02-design/05-database-schema.md` §8.1 เท่านั้น (ไม่คิด mapping ใหม่) และย้ายหมายเหตุ cross-reference เดิมเข้า §5.2 — ไม่มีการเปลี่ยนแปลง scenario/sequence diagram ระดับ conceptual ใน §1–§4 |
+| 1.2 | 2026-08-24 | Traceability & Consistency Auditor (sync จาก BRD v1.2 NFR Deep-Dive Review) | อัปเดต Scenario 8.4 (§Business Rules Invoked) และ §6 Open Questions ข้อ 3: BRD Open Question 6 ตอบแล้ว (FT-019 SLA = 48 ชั่วโมง, ปลด Blocked) — Scenario auto-cancel ใหม่ยังไม่ถูกเพิ่มในรอบนี้ เพราะยังไม่ได้ implement จริง (รอ product owner จัดเข้า sprint) |
 
 ---
 
@@ -677,7 +678,7 @@ sequenceDiagram
 
 - **Alternate/Error Flows:** รวมอยู่ใน diagram (`alt` block)
 - **Postconditions:** Transaction Record → `CANCELLED`; ไม่มี SP ถูกแบ่งสรร; Audit Entry ถูกสร้าง
-- **Business Rules Invoked:** ยกเลิกได้เฉพาะขณะ `PENDING_APPROVAL`; เป็นมาตรการชั่วคราวก่อนมี SLA อัตโนมัติ (FT-019 ยัง Blocked — ดู Open Questions)
+- **Business Rules Invoked:** ยกเลิกได้เฉพาะขณะ `PENDING_APPROVAL`; เป็นมาตรการชั่วคราวก่อนมี SLA อัตโนมัติ (FT-019 — SLA ตอบแล้ว 48 ชั่วโมง, ปลด Blocked แต่ยังไม่ implement — ดู Open Questions)
 - **References:** FT-014, FT-015 — Admin Journey ขั้นตอน 4–5; Operation: Admin — Cancel Transaction (Manual); Entity: Transaction Record, Audit Entry
 
 ---
@@ -842,9 +843,11 @@ Orchestration/API Layer ↔ Business Logic Layer ในทุก sequence diagra
 2. **Notification ระหว่างรออนุมัติ** (Architecture §9, BRD Open Question
    7) — ถ้ามีคำตอบว่าต้องมี notification จริง Scenario 4.1/4.2 อาจต้อง
    เพิ่มขั้นตอน "แจ้งเตือน Customer" ระหว่างรอผล
-3. **FT-019 SLA/Auto-Cancel ยัง Blocked** — Scenario 8.4 (Manual
-   Cancellation) เป็นเพียงเส้นทางชั่วคราว เมื่อ FT-019 ได้คำตอบแล้วต้อง
-   เพิ่ม Scenario ใหม่สำหรับ auto-cancel
+3. **FT-019 SLA/Auto-Cancel ตอบแล้ว (v1.2) แต่ยังไม่ implement** — BRD
+   Open Question 6 ตอบแล้ว (SLA = 48 ชั่วโมง, ปลด Blocked) Scenario 8.4
+   (Manual Cancellation) ยังคงเป็นเส้นทางเดียวที่มีอยู่ในเอกสารนี้ —
+   ต้องเพิ่ม Scenario ใหม่สำหรับ auto-cancel เมื่อ FT-019 ถูกจัดเข้า
+   sprint และ implement จริง
 4. **View Transaction Monitoring Aggregate (Scenario 8.3) ยังไม่มี filter
    ช่วงเวลาที่ชัดเจน** (สืบทอดจาก API Spec §8 ข้อ 2) — ยังไม่กระทบ
    sequence diagram ระดับแนวคิดในรอบนี้
