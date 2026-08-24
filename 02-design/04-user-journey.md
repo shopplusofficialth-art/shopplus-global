@@ -1,12 +1,12 @@
 # ShopPlus Global - User Journey
 
-**Version:** 1.0
+**Version:** 1.1
 
-**Last Updated:** 2026-08-17
+**Last Updated:** 2026-08-24
 
 **Document Owner:** User Journey Designer Agent (AI Native Development Workflow)
 
-**Source:** `01-requirements/01-business-requirement.md` (v1.1), `01-requirements/02-product-backlog.md` (v1.1), `01-requirements/03-feature-list.md` (v1.0)
+**Source:** `01-requirements/01-business-requirement.md` (v1.2), `01-requirements/02-product-backlog.md` (v1.2), `01-requirements/03-feature-list.md` (v1.1)
 
 ---
 
@@ -15,6 +15,7 @@
 | Version | Status | Change Summary |
 |---|---|---|
 | 1.0 | Draft — pending stakeholder review | สร้าง User Journey เริ่มต้นสำหรับ Customer, Merchant, และ Admin จาก BRD v1.1, Backlog v1.1, และ Feature List v1.0 |
+| 1.1 | Draft — pending stakeholder review | **Sync จาก BRD v1.2 / Feature List v1.1 (NFR Deep-Dive Review)** ตาม `traceability-consistency-check`: อัปเดต §5 Open Items — Open Question 6 (Admin manual-cancel ขั้นตอน) ตอบแล้ว (SLA = 48 ชั่วโมง, FT-019 ปลด Blocked) diagram/คำอธิบายยังคงแสดงเฉพาะเส้นทาง manual cancel เพราะ automatic timeout ยังไม่ถูก implement จริง |
 
 ---
 
@@ -188,8 +189,9 @@ flowchart TD
    สถานะ (`PENDING_APPROVAL` / `APPROVED` / `COMPLETED` / `REJECTED` /
    `CANCELLED`)
 4. **ตรวจพบ transaction ค้างอยู่ใน `PENDING_APPROVAL` นานเกินไป** —
-   admin ตัดสินใจว่าจะยกเลิกด้วยมือหรือไม่ (ยังไม่มี SLA อัตโนมัติ —
-   ดู FT-019 ซึ่งยัง Blocked)
+   admin ตัดสินใจว่าจะยกเลิกด้วยมือหรือไม่ (ยังไม่มี SLA อัตโนมัติ
+   implement จริง — SLA 48 ชั่วโมงถูกกำหนดแล้วใน BRD v1.2 แต่ FT-019
+   ยังรอ implement)
 5. **ยกเลิกด้วยมือ (ถ้าเลือก)** — transaction เปลี่ยนเป็น `CANCELLED`
    ไม่มี SP ถูกแบ่งสรร และมีการบันทึก audit log entry ของการยกเลิกนั้น
 6. **เปิด Audit Log และค้นหาด้วย transaction ID** — สำหรับการตรวจสอบ
@@ -218,9 +220,11 @@ skill `feature-list-and-user-journey.md`:
 
 - **Customer Journey ขั้นตอน "รอผลการอนุมัติ":** ยังไม่มีคำตอบว่า customer
   จะได้รับการแจ้งเตือนระหว่างรออนุมัติหรือไม่ (Open Question 7)
-- **Admin Journey ขั้นตอน "ยกเลิกด้วยมือ":** SLA/timeout อัตโนมัติ
-  (FT-019) ยัง Blocked จาก Open Question 6 — ตอนนี้ journey แสดงเฉพาะ
-  เส้นทางยกเลิกด้วยมือ (manual) เท่านั้น
+- **Admin Journey ขั้นตอน "ยกเลิกด้วยมือ":** Open Question 6 **ตอบแล้ว
+  (v1.2)** — SLA/timeout อัตโนมัติ = 48 ชั่วโมง, FT-019 ปลด Blocked แล้ว
+  แต่ยังไม่ถูก implement จริง — journey นี้จึงยังคงแสดงเฉพาะเส้นทางยกเลิก
+  ด้วยมือ (manual, FT-014) จนกว่า FT-019 จะถูกพัฒนาและเพิ่ม step
+  อัตโนมัติเข้ามาแทนที่/เสริม
 - **Customer Journey ขั้นตอน "แลก reward":** นโยบายวันหมดอายุของ SP
   Point (Open Question 5) และรูปแบบการแลก (เฉพาะ merchant หรือทั่ว
   แพลตฟอร์ม, Open Question 2) ยังไม่มีคำตอบ อาจกระทบรายละเอียดของ

@@ -1,6 +1,6 @@
 # ShopPlus Global — High-Level Architecture (Conceptual)
 
-**Version:** 2.2
+**Version:** 2.3
 
 **Last Updated:** 2026-08-24
 
@@ -18,6 +18,7 @@
 | 2.0 | 2026-08-23 | Architecture Designer Agent | ปรับทั้งฉบับให้เป็น **conceptual/technology-agnostic** ตามคำขอ: (1) แยก layer/component ออกจากชื่อ technology เฉพาะเจาะจง (2) ย้ายรายละเอียด Firebase/Next.js/Firestore เดิมไปไว้ใน §8 "Current Technical Direction (Non-Binding Reference)" (3) เพิ่ม §5 Data Flow per User Journey โดยอ้างอิง `FT-xxx`/journey step จริงจาก `02-design/04-user-journey.md` แทนการอธิบาย flow แบบลอย ๆ (4) เพิ่ม §9 Open Questions/Assumptions รวม gap ที่พบระหว่างจัดทำ |
 | 2.1 | 2026-08-23 | Traceability & Consistency Auditor (trigger: Database Schema Designer สร้าง `02-design/05-database-schema.md` v1.0) | เพิ่ม entity **"QR Transaction Token"** เข้า §6 Key Conceptual Data Entities — Database Schema Designer พบว่า FT-002 (Merchant QR Code Generation & Management) มี lifecycle ของโค้ดที่เกิดขึ้นก่อน Transaction Record จะถูกสร้าง (ออกโค้ด → รอสแกน → อาจหมดอายุ/ถูกยกเลิกโดยยังไม่มี transaction เกิดขึ้นเลย) ซึ่ง §6 เดิมไม่ได้ระบุไว้ — ผู้ใช้ยืนยันแนวทางนี้แล้วในขั้นตอน Plan Proposal ของ Database Schema Designer จึงถือเป็นการแก้ไข 🔧 (มีที่มาชัดเจนจาก FT-002 ที่มีอยู่แล้ว ไม่ใช่ capability ใหม่) |
 | 2.2 | 2026-08-24 | Architecture Designer Agent | ปรับ §8 "Current Technical Direction" ให้ครบ 3 หัวข้อย่อยตาม skill `architecture-design-standard` Section C ข้อ 8 ที่ปรับปรุงใหม่: จัดตาราง layer→technology เดิมเข้า §8.1, เพิ่ม §8.2 "Known Platform Constraints" (ข้อจำกัดของ Firestore/Cloud Functions ที่ทราบ), และย้าย cross-reference ไปยัง `02-firestore-data-model.md` เข้า §8.3 — ไม่มีการเปลี่ยนแปลง layer/data flow/entity ระดับ conceptual ใน §1–§7 |
+| 2.3 | 2026-08-24 | Traceability & Consistency Auditor (sync จาก BRD v1.2 NFR Deep-Dive Review) | อัปเดต §PDPA & Data Minimization และ §9 Open Questions: BRD Open Question 6 (FT-019 SLA) ตอบแล้ว (48 ชั่วโมง, ปลด Blocked — รอ implement) และ BRD Open Question 4 (FT-018 retention) ตอบบางส่วน (3 ปี, ยัง Blocked บางส่วนจาก consent flow) |
 
 ---
 
@@ -320,7 +321,9 @@ implementation):
 
 สอดคล้องกับ CLAUDE.md หมวด 10 — ต้องมี consent management (FT-016) ก่อน
 สร้างบัญชี, เปิดเผยเฉพาะข้อมูลที่จำเป็นต่อ feature นั้น ๆ (FT-017), และมี
-retention policy (FT-018 — ยัง **Blocked** จาก BRD Open Question 4)
+retention policy (FT-018 — ระยะเวลา retention ตอบแล้ว 3 ปี ตาม BRD §7
+v1.2, working decision — ยัง **Blocked บางส่วน** จาก consent flow
+โดยละเอียดที่ยังไม่มีคำตอบใน BRD Open Question 4)
 
 ### Auditability
 
@@ -397,12 +400,14 @@ Firestore Collection Mapping" สำหรับ mapping ระดับ entity 
   การแจ้งเตือนระหว่าง `PENDING_APPROVAL` หรือไม่ (BRD Open Question 7,
   อ้างอิงใน User Journey §5) — กระทบว่า Experience Layer/Orchestration
   ต้องมี notification channel เพิ่มหรือไม่
-- **FT-019 SLA/Auto-Cancel** — ยัง Blocked จาก BRD Open Question 6 —
-  Business Logic ปัจจุบันมีเฉพาะ manual cancellation โดย Admin
-  (FT-014) ยังไม่มี automated timeout ใน Transaction Lifecycle
-  Management
-- **FT-018 Data Retention Policy** — ยัง Blocked จาก BRD Open Question
-  4 — Data & Ledger Layer ยังไม่มีนโยบาย retention/archival ที่ชัดเจน
+- **FT-019 SLA/Auto-Cancel** — BRD Open Question 6 **ตอบแล้ว (v1.2)**:
+  SLA = 48 ชั่วโมง (working decision) — ปลด Blocked แล้ว แต่ Business
+  Logic ปัจจุบันยังมีเฉพาะ manual cancellation โดย Admin (FT-014) ยังไม่
+  มี automated timeout ใน Transaction Lifecycle Management จนกว่าจะ
+  implement จริง
+- **FT-018 Data Retention Policy** — BRD Open Question 4 **ตอบบางส่วน
+  (v1.2)**: retention period = 3 ปี (working decision) แต่ consent flow
+  โดยละเอียดยังไม่มีคำตอบ — Data & Ledger Layer จึงยัง Blocked บางส่วน
 - **SP redemption expiry และขอบเขตการแลก** (platform-wide หรือเฉพาะ
   merchant) — BRD Open Question 5 และ 2 — อาจกระทบการออกแบบ Redemption
   Reference ในอนาคต

@@ -1,6 +1,6 @@
 # ShopPlus Global — API Specification (Conceptual)
 
-**Version:** 1.1
+**Version:** 1.2
 
 **Last Updated:** 2026-08-24
 
@@ -16,6 +16,7 @@
 |---|---|---|---|
 | 1.0 | 2026-08-23 | API Spec Designer Agent | เอกสารเริ่มต้น กำหนด Operation Catalog ระดับ conceptual ครอบคลุม FT-001–FT-011, FT-013–FT-017 (ทุก Feature ที่มี entity/journey step รองรับใน Database Schema ปัจจุบัน) พร้อม Resource ↔ Entity Mapping, Interaction Diagram สำหรับ "Approve Transaction", และ Error Handling Convention — ผู้ใช้ยืนยัน Plan Proposal แล้วก่อนเริ่มเขียน (รวม FT-012 เป็น Operation แบบไม่อ้าง entity) |
 | 1.1 | 2026-08-24 | API Spec Designer Agent | ปรับ §7 "Current Technical Direction" ให้ครบ 4 หัวข้อย่อยตาม skill `data-api-design-standard` Section B ข้อ 7 ที่ปรับปรุงใหม่: เพิ่ม §7.1 "Operation → Cloud Function Mapping" ครบทุก operation ใน §3, §7.2 "Auth & Transport Notes", §7.3 "Error Mapping" ไปยัง `HttpsError` code, และ §7.4 Cross-Reference — ไม่มีการเปลี่ยนแปลง operation/request/response ระดับ conceptual ใน §1–§6 |
+| 1.2 | 2026-08-24 | Traceability & Consistency Auditor (sync จาก BRD v1.2 NFR Deep-Dive Review) | อัปเดต Open Item ข้อ 5: FT-019 ตอบแล้ว (SLA 48 ชั่วโมง, ปลด Blocked — รอ implement operation auto-cancel), FT-018 ยัง Blocked บางส่วน (retention period ตอบแล้ว 3 ปี, consent flow ยังไม่ตอบ) |
 
 ---
 
@@ -445,8 +446,11 @@ scheme ที่ชัดเจนในเอกสารต้นทางป�
 4. **SP redemption expiry และขอบเขตการแลก** (platform-wide หรือเฉพาะ
    merchant) — BRD Open Question 5 และ 2 (สืบทอดจาก Database Schema §9
    ข้อ 6) — อาจกระทบ Request Redemption/Fulfill Redemption ในอนาคต
-5. **FT-018, FT-019** ยัง Blocked — เมื่อได้คำตอบแล้วอาจต้องเพิ่ม operation
-   ใหม่ (เช่น auto-cancel timeout, data retention/purge)
+5. **FT-019** ตอบแล้ว (v1.2, SLA 48 ชั่วโมง — ปลด Blocked) แต่ยังไม่ได้
+   implement — อาจต้องเพิ่ม operation ใหม่ (auto-cancel timeout) เมื่อ
+   Feature นี้ถูกจัดเข้า sprint จริง **FT-018** ยัง Blocked บางส่วน (retention
+   period ตอบแล้ว 3 ปี แต่ consent flow ยังไม่ตอบ) — อาจต้องเพิ่ม operation
+   สำหรับ data retention/purge เมื่อได้คำตอบครบ
 
 ---
 

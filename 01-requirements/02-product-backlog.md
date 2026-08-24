@@ -3,9 +3,9 @@
 **Project:** ShopPlus Global — Community Commerce Platform
 **Document Type:** Product Backlog
 **Phase:** 01-requirements
-**Version:** 1.1
-**Status:** Revised after Product Backlog Review
-**Date:** 2026-08-04
+**Version:** 1.2
+**Status:** Revised after NFR Deep-Dive Sync
+**Date:** 2026-08-24
 **Prepared by:** Product Owner Agent (AI Native Development Workflow)
 **Source:** `01-requirements/01-business-requirement.md` (v1.1, Revised Draft after Requirement Review)
 
@@ -17,6 +17,7 @@
 |---|---|---|
 | 1.0 | Draft — pending stakeholder review | Backlog เริ่มต้นของ MVP ที่มาจาก BRD v1.1 |
 | 1.1 | Revised after Product Backlog Review | เพิ่ม user story ที่ขาดไป: QR Code Generation (US-023), Redemption Fulfillment (US-024), และมาตรการความปลอดภัย manual-cancel ของ Admin (US-025) แยก Sprint 2/3 เป็น transaction foundation กับ reward distribution เพิ่มหมายเหตุ "Backlog Priority Deviation from BRD" การอธิบาย NFR ด้าน Performance ข้อสมมติฐานเรื่อง Sprint capacity และจำกัดขอบเขต US-016 ให้เป็น view-only สำหรับ MVP |
+| 1.2 | Revised after NFR Deep-Dive Sync | **Sync จาก BRD v1.2** ตาม `traceability-consistency-check`: BRD Open Question 6 (Merchant Approval SLA) ได้รับคำตอบเป็น working decision — **48 ชั่วโมง** — ปลด Blocked ของ US-022 (§5) และปรับสถานะใน §6 Post-MVP table; BRD Open Question 4 ได้รับคำตอบบางส่วน (retention period = 3 ปี) แต่ consent flow รายละเอียดยังไม่ยืนยัน — US-021 (§4.9) ยังคง Blocked; เพิ่ม addendum ยืนยันว่า Performance Requirement Note ของ EPIC-04 (§4.4) ได้ถูกสะท้อนใน BRD §7 v1.2 แล้วตามที่ตั้งข้อสังเกตไว้เดิม |
 
 ---
 
@@ -231,6 +232,10 @@ transaction ที่ได้รับการอนุมัติแล้�
 > QR** เรื่องนี้ควรถูกสะท้อนใน BRD NFR ใน revision ถัดไป จนกว่าจะถึงเวลา
 > นั้น ให้ถือหมายเหตุนี้เป็นคำอธิบายที่ใช้อ้างอิงสำหรับ implementation และ
 > การทดสอบ
+>
+> **Resolved (v1.2):** สะท้อนแล้วใน BRD §7 (v1.2) — write/distribution
+> path (นับจากเวลา merchant อนุมัติ) มีเกณฑ์ ≤ 5 วินาที (p95) อย่างเป็น
+> รูปธรรม แทนข้อความ "ไม่กี่วินาที" เดิม
 
 | Story ID | User Story (summary) | Priority | Sprint |
 |---|---|---|---|
@@ -462,9 +467,12 @@ customer และ merchant (สร้าง/อัปเดต/ระงับ/
 - **Given** retention policy ถูกกำหนดโดย stakeholder ฝ่ายกฎหมาย/
   compliance แล้ว, **when** ข้อมูลถึงขีดจำกัดการเก็บรักษา, **then** ข้อมูล
   จะถูก archive หรือลบตามนโยบาย
-- **Blocked (ติดบล็อก):** ต้องรอการแก้ไข BRD Open Question 4 (consent
-  flow และระยะเวลาการเก็บรักษาข้อมูลตาม PDPA) ก่อนที่จะสามารถประมาณ
-  การ implementation ได้อย่างมั่นใจ
+- **Blocked (ติดบล็อก) — บางส่วน:** BRD Open Question 4 ได้รับคำตอบ
+  บางส่วนแล้วใน BRD v1.2 (retention period = **3 ปี** หลังบัญชีถูกปิด/
+  ไม่มีการใช้งาน เป็น working decision) แต่ **consent flow โดยละเอียด**
+  (ข้อความ, ช่องทางขอความยินยอม, การถอนความยินยอม) ยังไม่มีคำตอบ — ยัง
+  ไม่สามารถประมาณการ implementation ได้อย่างมั่นใจจนกว่าจะได้คำตอบส่วน
+  ที่เหลือ
 
 ---
 
@@ -474,18 +482,21 @@ customer และ merchant (สร้าง/อัปเดต/ระงับ/
 |---|---|---|---|
 | US-022 | ยกเลิก transaction ที่ค้างอยู่ใน Pending Approval โดยอัตโนมัติ | P2 | Post-MVP backlog (blocked) |
 
-**US-022 (Open Question 6)** — ในฐานะ **platform** ฉันต้องการ SLA/timeout
-สำหรับการอนุมัติของ merchant ที่ชัดเจน เพื่อไม่ให้ transaction ค้างอยู่ใน
-สถานะ `PENDING_APPROVAL` โดยไม่มีกำหนด
+**US-022 (Open Question 6 — Resolved v1.2)** — ในฐานะ **platform** ฉัน
+ต้องการ SLA/timeout สำหรับการอนุมัติของ merchant ที่ชัดเจน เพื่อไม่ให้
+transaction ค้างอยู่ในสถานะ `PENDING_APPROVAL` โดยไม่มีกำหนด
 
-- **Given** transaction ยังอยู่ใน `PENDING_APPROVAL` เกินกว่า SLA ที่
-  กำหนดไว้, **when** timeout หมดเวลา, **then** จะเปลี่ยนไปเป็น
+- **Given** transaction ยังอยู่ใน `PENDING_APPROVAL` เกินกว่า **48
+  ชั่วโมง**, **when** timeout หมดเวลา, **then** จะเปลี่ยนไปเป็น
   `CANCELLED` โดยอัตโนมัติ
-- **Blocked (ติดบล็อก):** ต้องรอการตัดสินใจจาก stakeholder เรื่องระยะเวลา
-  SLA (BRD Open Question 6) ก่อนที่จะ implement
+- **Unblocked (ปลดบล็อกแล้ว, v1.2):** BRD Open Question 6 ได้รับคำตอบ
+  เป็น working decision — SLA = **48 ชั่วโมง** (จุดสมดุลสำหรับร้านค้า
+  ชุมชนที่อาจปิดร้าน 1–2 วัน) พร้อม implement ได้ แต่ยังไม่ได้ถูกจัดเข้า
+  sprint ที่แน่นอน — รอ product owner ยืนยันจัดลำดับ (ดู §6 Post-MVP
+  Backlog)
 - **Interim mitigation (มาตรการชั่วคราว):** US-025 (Admin manual cancel,
-  Sprint 2) เป็นทางออกให้ปลดบล็อก transaction ที่ค้างด้วยมือ จนกว่า SLA
-  อัตโนมัตินี้จะถูกกำหนดและสร้างขึ้น
+  Sprint 2) ยังคงเป็นทางออกให้ปลดบล็อก transaction ที่ค้างด้วยมือ จนกว่า
+  US-022 จะถูก implement จริง
 
 ---
 
@@ -516,14 +527,14 @@ Feature รอง (ปรับลด priority ตาม "Backlog Priority Devia
 | US-012 (behavior insight) | P3 | Deferred |
 | US-013 (การค้นหาร้านค้า) | P2 | Deferred |
 | US-014 (โปรโมชัน) | P2 | Deferred |
-| US-021 (นโยบายการเก็บรักษาข้อมูล) | P1 | Blocked on BRD Open Question 4 |
-| US-022 (approval SLA/auto-cancel) | P2 | Blocked on BRD Open Question 6 |
+| US-021 (นโยบายการเก็บรักษาข้อมูล) | P1 | Blocked บางส่วน — retention period ตอบแล้ว (3 ปี), consent flow ยังรอ BRD Open Question 4 |
+| US-022 (approval SLA/auto-cancel) | P2 | Unblocked (v1.2) — SLA = 48 ชั่วโมง, รอจัดเข้า sprint |
 
-**Note (หมายเหตุ):** US-021 และ US-022 ถูก block เพื่อรอคำตอบจาก
-stakeholder สำหรับ BRD Open Question 4 และ 6 ตามลำดับ ควรได้รับการ
-แก้ไขระหว่าง Sprint 1–2 เพื่อไม่ให้การวางแผน Post-MVP ล่าช้าไปมากกว่านี้
-และเพื่อให้ US-022 สามารถจัดเข้า sprint ได้ทันทีเมื่อปลดบล็อกแล้ว (US-025
-ใน Sprint 2 คือมาตรการชั่วคราวในระหว่างนี้)
+**Note (หมายเหตุ):** BRD v1.2 ตอบ Open Question 6 แล้ว (US-022 ปลด
+Blocked, พร้อม implement เมื่อ product owner จัดเข้า sprint) และตอบ
+Open Question 4 บางส่วน (US-021 ยังคง Blocked จนกว่า consent flow
+รายละเอียดจะได้คำตอบ) US-025 ใน Sprint 2 ยังคงเป็นมาตรการชั่วคราวจนกว่า
+US-022 จะถูก implement จริง
 
 ---
 

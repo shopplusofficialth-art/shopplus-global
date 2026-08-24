@@ -4,11 +4,11 @@
 **Document Type:** Test Cases
 **Phase:** 04-testing
 **Feature:** FT-005 — Merchant Transaction Approval Workflow
-**Version:** 1.3
+**Version:** 1.4
 **Status:** Draft — pending stakeholder review
-**Date:** 2026-08-17
+**Date:** 2026-08-24
 **Prepared by:** Test Case Writer Agent (ผ่าน Shopplus Orchestrator, AI Native Development Workflow)
-**Source:** `04-testing/acceptance-criteria.md` (v1.1, AC-004-xx / AC-005-xx) + `01-requirements/02-product-backlog.md` (v1.1, US-004, US-005) + `02-design/04-user-journey.md` (v1.0, Merchant Journey §3) + `04-testing/test-plan.md` (v1.0, §Test Types สำหรับ NFR case) + `03-development/01-prototype-log.md` (v1.2, PT-005-01)
+**Source:** `04-testing/acceptance-criteria.md` (v1.1, AC-004-xx / AC-005-xx) + `01-requirements/02-product-backlog.md` (v1.1, US-004, US-005) + `02-design/04-user-journey.md` (v1.0, Merchant Journey §3) + `04-testing/test-plan.md` (v1.1, §Test Types สำหรับ NFR case) + `03-development/01-prototype-log.md` (v1.2, PT-005-01)
 
 ---
 
@@ -20,6 +20,7 @@
 | 1.1 | Draft — pending stakeholder review | Migrate เข้าโครงสร้างใหม่ตาม skill `test-case-standard`: ย้ายจาก `04-testing/01-test-spec.md` มาเป็น `04-testing/test-cases/ft-005-merchant-transaction-approval-workflow.md`, แปลง Given/When/Then narrative เป็น step-by-step (Test Step ลำดับขั้น), เพิ่มคอลัมน์ **Test Data** และ **Reference** (อ้าง AC-xxx จาก `acceptance-criteria.md`) ต่อรายการ — เนื้อหาการทดสอบไม่เปลี่ยนแปลงจากเดิม เอกสารเดิม `01-test-spec.md` ถูก retire |
 | 1.2 | Draft — pending stakeholder review | **แก้ drift ที่พบจาก Prototype Consistency Checklist** (skill `traceability-consistency-check`, จุดที่ 6 — Test Case): Test Data ของ TC-005-01/02/03 (จำนวนเงิน, รหัสลูกค้า, timestamp ของ `TX-10231`/`TX-10232`/`TX-10233`) ไม่ตรงกับ mock data จริงใน prototype `03-development/prototypes/v1/merchant-pending-queue.html` (PT-005-01) — แก้ให้ตรงกับ prototype ทุกค่า (฿180.00/`CUS-8823`, ฿65.00/`CUS-4410`, ฿320.00/`CUS-1027`) เพื่อให้ QA ที่ใช้ prototype คู่กับ test case เห็นข้อมูลตรงกัน |
 | 1.3 | Draft — pending stakeholder review | **Sync citation only** (housekeeping, ไม่มีการเปลี่ยน test case เนื้อหา) — แก้ Source citation ของ `acceptance-criteria.md` (v1.0→v1.1) และ `01-prototype-log.md` (v1.1→v1.2) ให้ตรงกับเวอร์ชันจริงปัจจุบัน พบจากการรัน Consistency Check ทั่วโปรเจกต์ตามคำขอผู้ใช้ |
+| 1.4 | Draft — pending stakeholder review | **Sync จาก BRD v1.2 (NFR Deep-Dive Review)**: อัปเดต TC-005-09 Expected Result ให้อ้างเกณฑ์ที่เป็นรูปธรรม (≤ 5 วินาที, p95) แทนข้อความ "หลักไม่กี่วินาที" เดิม ตาม BRD §7 Performance NFR ที่ปรับปรุงใหม่ |
 
 ---
 
@@ -171,7 +172,7 @@
 - **Test Step:**
   1. บันทึกเวลาเริ่มต้นทันทีที่ merchant กดอนุมัติ transaction `TX-10241`
   2. บันทึกเวลาที่สถานะเปลี่ยนเป็น `COMPLETED` และ SP balance ของลูกค้าอัปเดตจริง
-- **Expected Result:** ระยะเวลาจาก step 1 ถึง step 2 อยู่ในหลักไม่กี่วินาที (ไม่ใช่นับจากเวลาที่ลูกค้าสแกน QR ตาม Performance Requirement Note ของ Backlog EPIC-04)
+- **Expected Result:** ระยะเวลาจาก step 1 ถึง step 2 อยู่ภายใน ≤ 5 วินาที (p95) ตาม BRD §7 Performance NFR (v1.2) — นับจากเวลาที่ merchant อนุมัติ ไม่ใช่นับจากเวลาที่ลูกค้าสแกน QR ตาม Performance Requirement Note ของ Backlog EPIC-04
 - **Test Data:** `TX-10241`, จำนวนเงิน 300 บาท
 - **Priority:** Should have
 - **Reference:** AC-004-02 (derived — NFR Performance) · FR-016 · US-006

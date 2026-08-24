@@ -16,6 +16,7 @@
 | Version | Status | Change Summary |
 |---|---|---|
 | 1.0 | Draft — pending stakeholder review | สร้าง Test Plan ฉบับแรกของโปรเจกต์ ครอบคลุม Scope, Test Types, Test Environment, Risk Management, และ Entry/Exit Criteria ตาม skill `test-plan-standard` โดยอ้างอิง NFR ใน BRD §7, Risk ใน BRD §8, MoSCoW ใน Feature List, และ tech stack ใน System Architecture |
+| 1.1 | Draft — pending stakeholder review | **Sync จาก BRD v1.2 (NFR Deep-Dive Review)** ตาม `traceability-consistency-check`: อัปเดตแถว Performance/Availability ใน §3 ให้อ้างตัวเลขเกณฑ์ที่เป็นรูปธรรม (แทนข้อความ "หลักไม่กี่วินาที"/"ตลอดเวลาทำการ" เดิม), เพิ่ม Test Type ใหม่ 3 แถว (Observability/Monitoring, Compatibility, Disaster Recovery/Backup) ให้ครบตาม NFR category ใหม่ใน BRD §7, และอัปเดตเหตุผล Out of Scope ของ FT-018/FT-019 ให้สะท้อนว่า Open Question ที่เคยบล็อกได้รับคำตอบบางส่วน/ทั้งหมดแล้ว |
 
 ---
 
@@ -58,8 +59,8 @@ step-by-step ต่อ Feature)
 
 | FT | Feature | MoSCoW | เหตุผล |
 |---|---|---|---|
-| FT-018 | Data Retention Policy | Should have (Post-MVP, Blocked) | รอคำตอบ Open Question ด้าน PDPA retention policy |
-| FT-019 | Merchant Approval SLA / Auto-Cancel | Could have (Post-MVP, Blocked) | รอคำตอบ Open Question ด้าน SLA/timeout |
+| FT-018 | Data Retention Policy | Should have (Post-MVP, ยัง Blocked บางส่วน) | BRD v1.2: retention period กำหนดแล้ว (3 ปี) แต่ consent flow รายละเอียดยังไม่ยืนยัน (Open Question 4 ส่วนที่เหลือ) |
+| FT-019 | Merchant Approval SLA / Auto-Cancel | Could have (Post-MVP, ปลด Blocked) | BRD v1.2: SLA กำหนดแล้ว (48 ชั่วโมง, working decision) — Open Question 6 ตอบแล้ว, รอ product owner จัดเข้า sprint |
 | FT-020 | Merchant Campaigns & Promotions | Could have (Post-MVP) | นอกขอบเขต MVP |
 | FT-021 | Customer Behavior Insights | Won't have (this release) | นอกขอบเขต MVP โดยชัดเจน |
 | FT-022 | Shop Discovery & Search | Could have (Post-MVP) | นอกขอบเขต MVP |
@@ -79,11 +80,14 @@ Case ก่อนถือว่าผ่าน exit criteria ของ MVP" ไ
 | **Functional Testing** | (ฐานจาก Acceptance Criteria) | ทดสอบตาม Test Case ใน `test-cases/*.md` ที่ผ่านมาจาก `acceptance-criteria.md` — ครอบคลุม happy path + decision branch ทุกจุดใน User Journey |
 | **Security Testing** | Security | ตรวจว่า client ไม่สามารถกำหนดค่า SP/fee/สถานะได้เอง (server-side validation only), ตรวจ authentication/authorization ต่อ role (Customer/Merchant/Admin) |
 | **Privacy / PDPA Compliance Testing** | Privacy / PDPA | ตรวจว่าทุกหน้าจอที่เก็บข้อมูลส่วนบุคคลมี PDPA consent gate (FT-016), ตรวจ data minimization (FT-017) ว่าไม่เปิดเผยข้อมูลเกินจำเป็น |
-| **Performance Testing** | Performance | ตรวจเวลาการสแกน QR และการแบ่งสรร reward ให้เสร็จภายในหลักไม่กี่วินาที |
-| **Usability Testing** | Usability | ตรวจ friction ของ flow หลัก (สแกน QR, อนุมัติ transaction) โดยเฉพาะกับ merchant ที่ไม่มีความเชี่ยวชาญด้านเทคนิค — ควบคู่กับการตรวจ Design Token ใน `02-design/DESIGN.md` ถ้ามี Prototype |
+| **Performance Testing** | Performance | ตรวจ read path (สแกน QR/อ่าน balance) ให้เสร็จภายใน ≤ 1 วินาที (p95) และ write/distribution path (นับจาก merchant กดอนุมัติจนถึง SP แบ่งสรรครบและ balance อัปเดต) ให้เสร็จภายใน ≤ 5 วินาที (p95) ตาม BRD §7 v1.2 — ยังไม่เคย run load test จริง ตัวเลขเป็น working target |
+| **Usability Testing** | Usability | ตรวจ friction ของ flow หลัก (สแกน QR, อนุมัติ transaction) โดยเฉพาะกับ merchant ที่ไม่มีความเชี่ยวชาญด้านเทคนิค รวมถึงเกณฑ์ accessibility ขั้นต่ำ WCAG AA (contrast, touch target ≥ 44×44px) — ควบคู่กับการตรวจ Design Token ใน `02-design/DESIGN.md` ถ้ามี Prototype |
 | **Regression Testing** | Maintainability | รันซ้ำ Test Case ของ Feature ที่เกี่ยวข้องทุกครั้งที่ Backlog/Feature List มีการเปลี่ยนแปลงที่กระทบ Feature นั้น (ดู Change Propagation Matrix ใน skill `traceability-consistency-check`) |
 | **Auditability / Traceability Testing** | Auditability | ตรวจว่าทุกการแบ่งสรร SP สร้าง audit log entry ที่ไม่สามารถเปลี่ยนแปลงได้ และ Admin ดูย้อนหลังได้จริง |
-| **Availability Testing** | Availability | ตรวจ flow หลักของการสะสม/แลก reward ว่าพร้อมใช้งานตลอดเวลาทำการของ merchant (เมื่อมี environment จริงให้ทดสอบ) |
+| **Availability Testing** | Availability & Reliability | ตรวจ flow หลักของการสะสม/แลก reward ว่าพร้อมใช้งาน ≥ 99.5% ในเวลาทำการของ merchant (ค่าเริ่มต้น 24 ชม./วันจนกว่าจะมี feature ตั้งเวลาทำการเอง) และตรวจ atomicity/idempotency ของการแบ่งสรร SP เมื่อมี retry/concurrent approve (เมื่อมี environment จริงให้ทดสอบ) |
+| **Observability / Monitoring Testing** | Observability / Monitoring | ตรวจว่า logging/monitoring (Firebase/Cloud Logging & Monitoring) จับความล้มเหลวของ SP distribution และ error ของ Cloud Functions ได้จริง และ alert ไปถึง admin เมื่อเกิดความล้มเหลว (ต่อยอด FT-013) |
+| **Compatibility Testing** | Compatibility | ตรวจ Web app ตาม breakpoint ใน `02-design/DESIGN.md` §4.3 บนเบราว์เซอร์หลักที่อัปเดตภายใน 2 ปี และตรวจ Mobile app บน iOS/Android เวอร์ชันหลักที่ยังได้รับการสนับสนุน |
+| **Disaster Recovery / Backup Testing** | Disaster Recovery / Backup | ตรวจว่า scheduled Firestore export ทำงานจริงตามรอบที่กำหนด (RPO ≤ 24 ชม.) และซ้อมกู้คืนข้อมูลได้จริงภายใน RTO 4 ชั่วโมง |
 
 ---
 

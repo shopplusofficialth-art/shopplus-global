@@ -1,6 +1,6 @@
 # ShopPlus Global — Database Schema (Conceptual)
 
-**Version:** 1.1
+**Version:** 1.2
 
 **Last Updated:** 2026-08-24
 
@@ -16,6 +16,7 @@
 |---|---|---|---|
 | 1.0 | 2026-08-23 | Database Schema Designer Agent | เอกสารเริ่มต้น ขยาย 7 entity ใน `02-design/03-system-architecture.md` §6 ให้เป็น Entity Catalog ระดับ conceptual ครบ attribute, PDPA Classification, Relationships, และ ER Diagram พร้อมเพิ่ม entity ใหม่ **"QR Transaction Token"** (ยืนยันแนวทางจากผู้ใช้แล้ว — ดู §9 ข้อ 1) เพื่อรองรับ lifecycle ของ FT-002 ที่เกิดขึ้นก่อน Transaction Record จะถูกสร้าง |
 | 1.1 | 2026-08-24 | Database Schema Designer Agent | ปรับ §8 "Current Technical Direction" ให้ครบ 4 หัวข้อย่อยตาม skill `data-api-design-standard` Section A ข้อ 8 ที่ปรับปรุงใหม่: คง Entity→Collection mapping เดิมเป็น §8.1, เพิ่ม §8.2 "Attribute → Firestore Data Type Mapping" และ §8.3 "Indexing Direction" (อิง query pattern จริงจาก `02-design/06-api-spec.md` §3), ย้ายหมายเหตุ SP wallet cache เข้า §8.4 — ไม่มีการเปลี่ยนแปลง entity/attribute/relationship ระดับ conceptual ใน §1–§7 |
+| 1.2 | 2026-08-24 | Traceability & Consistency Auditor (sync จาก BRD v1.2 NFR Deep-Dive Review) | อัปเดต §5 แถว User Identity และ §9 ข้อ 6: retention period ของ Personal Data ตอบแล้ว (3 ปี หลัง `DEACTIVATED`, working decision) แทนข้อความ "ยังไม่มีคำตอบ" เดิม — แนวทาง anonymize ledger/audit โดยละเอียดยังเป็น Open Question เช่นเดิม (ไม่เปลี่ยน) |
 
 ---
 
@@ -334,7 +335,7 @@ erDiagram
 
 | Entity | แนวทาง Retention/Minimization เชิงแนวคิด |
 |---|---|
-| User Identity | เก็บระหว่างบัญชียัง `ACTIVE`; เมื่อ `DEACTIVATED` ให้เก็บต่อตามระยะเวลาที่กฎหมายกำหนดเท่านั้น (**ระยะเวลาที่ชัดเจนยังไม่มีคำตอบ — FT-018 ยัง Blocked จาก BRD Open Question 4**) จากนั้น anonymize/ลบ `displayName`, `email`, `phoneNumber` ตามสิทธิ์ที่ user ร้องขอ (PDPA) |
+| User Identity | เก็บระหว่างบัญชียัง `ACTIVE`; เมื่อ `DEACTIVATED` ให้เก็บต่อไม่เกิน **3 ปี** (working decision ตาม BRD §7 v1.2 — FT-018 ยัง Blocked บางส่วน เพราะ consent flow โดยละเอียดยังไม่มีคำตอบ) จากนั้น anonymize/ลบ `displayName`, `email`, `phoneNumber` ตามสิทธิ์ที่ user ร้องขอ (PDPA) |
 | pdpaConsentStatus / pdpaConsentTimestamp | เก็บถาวรเป็นหลักฐาน compliance แม้บัญชีจะถูกปิดแล้ว เว้นแต่กฎหมายกำหนดเป็นอื่น |
 | Merchant Profile | เก็บระหว่างร้านยัง `ACTIVE`; ระงับ (`SUSPENDED`) ไม่ใช่การลบ — การลบจริงต้องผ่านกระบวนการ admin แยกต่างหาก |
 | QR Transaction Token | ไม่ใช่ personal data — เก็บสั้น อาจ archive/purge หลังหมดอายุตามระยะเวลาดำเนินงาน (operational retention เท่านั้น ไม่ผูก PDPA) |
@@ -468,10 +469,11 @@ implementation ที่ไม่กระทบ conceptual model ใน §1–�
 5. **Redemption Reference ยังไม่มี technical mapping** ใน
    `02-design/02-firestore-data-model.md` เดิม — เป็นช่องว่างที่ควร
    อัปเดตเอกสารเทคนิคเมื่อ implement FT-007/FT-008 จริง (ดู §8)
-6. **Data retention period ที่ชัดเจนสำหรับ Personal Data ยังไม่มีคำตอบ**
-   (FT-018 ยัง Blocked จาก BRD Open Question 4) — §5 จึงเป็นหลักการเชิง
-   แนวคิดเท่านั้น ยังไม่มีตัวเลขระยะเวลาจริง รวมถึงแนวทาง anonymize
-   ledger/audit ที่ยังต้องรอคำตอบ
+6. **Data retention period สำหรับ Personal Data ตอบแล้วบางส่วน (v1.2):**
+   BRD §7 กำหนด working decision = 3 ปี หลัง `DEACTIVATED` (ดู §5 แถว
+   User Identity) แต่ **consent flow โดยละเอียด** (ส่วนที่เหลือของ BRD
+   Open Question 4) และ **แนวทาง anonymize ledger/audit ที่ชัดเจน**
+   ยังเป็น Open Question อยู่ — FT-018 จึงยัง Blocked บางส่วน
 7. **Cardinality ระหว่าง Merchant Profile กับ User Identity (staff)** —
    สมมติว่า 1 ร้านมีพนักงานได้หลายคน (1:N) ยังไม่มี FT ที่ยืนยันเรื่อง
    multi-staff อย่างชัดเจน เป็น assumption ที่ควร validate กับ
