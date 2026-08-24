@@ -155,9 +155,23 @@ scenario
 Section เดียวที่อนุญาตให้กล่าวถึงชื่อ technology/vendor ได้ — ต้องขึ้นต้น
 ด้วยข้อความชัดเจนว่า **"ส่วนนี้สะท้อนทิศทางเทคนิคปัจจุบันตาม CLAUDE.md
 หมวด 6 เท่านั้น ไม่ใช่ constraint ของ sequence ระดับแนวคิดข้างต้น และ
-เปลี่ยนแปลงได้โดยไม่กระทบลำดับขั้นตอนที่อธิบายไว้"** ตามด้วย
-cross-reference ไปยัง `02-design/01-transaction-flow.md` (ถ้ามีอยู่) พร้อม
-สรุปสั้น ๆ ว่า scenario แนวคิดใดใน §3 สอดคล้องกับส่วนใดของเอกสารนั้น
+เปลี่ยนแปลงได้โดยไม่กระทบลำดับขั้นตอนที่อธิบายไว้"** ตามด้วยหัวข้อย่อยครบ
+ทั้ง 2 ข้อนี้เสมอ (ไม่ใช่แค่ cross-reference ลอย ๆ แบบเดิม):
+
+  - **5.1 Technical Mapping Table ต่อ Scenario** — ต่อ 1 scenario ในข้อ 3
+    ให้สรุปตาราง: Sequence Step (อ้างจาก Main Sequence Flow) | Operation
+    → Cloud Function ที่ใช้จริง (อ้างจาก
+    `02-design/06-api-spec.md` §7.1 Operation → Cloud Function Mapping)
+    | Entity → Firestore Collection ที่ใช้จริง (อ้างจาก
+    `02-design/05-database-schema.md` §8.1 Entity → Firestore
+    Collection Mapping) — เพื่อให้เห็นว่าลำดับขั้นตอนเชิงแนวคิดแต่ละจุด
+    จะถูก implement ด้วย Cloud Function/Firestore collection ใดจริง ๆ
+    ตาม CLAUDE.md หมวด 6 — ถ้า Operation/Entity ที่เกี่ยวข้องยังไม่มี
+    Section 7/8 ที่อ้างถึง ให้ระบุ "ยังไม่กำหนด — รอเอกสารต้นทางปรับปรุง"
+    แทนการสมมติ
+  - **5.2 Cross-Reference เอกสารเทคนิคเดิม** — cross-reference ไปยัง
+    `02-design/01-transaction-flow.md` (ถ้ามีอยู่) พร้อมสรุปสั้น ๆ ว่า
+    scenario แนวคิดใดใน §3 สอดคล้องกับส่วนใดของเอกสารนั้น
 
 ### 6. Open Questions / Assumptions (ประเด็นที่ยังไม่ชัดเจน)
 

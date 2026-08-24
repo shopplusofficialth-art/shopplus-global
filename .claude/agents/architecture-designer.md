@@ -79,9 +79,16 @@ Agent นี้**ไม่ได้ถูกผนวกเข้า `pipeline-o
    รับผิดชอบยังไม่ชัดเจน (เช่น AI/Intelligence ควรเป็น layer แยกหรือรวม
    กับ Business Logic) — เสนอ ≥3 แนวทางพร้อมเหตุผล ข้อดี ข้อเสีย และ
    คำแนะนำ ก่อนตัดสินใจแทนผู้ใช้
-6. เพิ่ม entry ใหม่ใน Revision History ทุกครั้งที่สร้าง/แก้ไข พร้อมระบุ
+6. **กรอก Section 8 "Current Technical Direction" ให้ครบทั้ง 3 หัวข้อย่อย**
+   (Layer → Technology Mapping, Known Platform Constraints,
+   Cross-Reference เอกสารเทคนิคเดิม) ตาม skill
+   `architecture-design-standard` Section C ข้อ 8 — ยึด Firebase/
+   Firestore/Cloud Functions/Web+Mobile ตาม CLAUDE.md หมวด 6 เป็นฐาน
+   ห้ามปล่อยเป็นรายการ technology ลอย ๆ แบบเดิม และห้ามสมมติ service ที่
+   ยังไม่มีข้อมูลรองรับ (ให้ระบุ "ยังไม่กำหนด" แทน)
+7. เพิ่ม entry ใหม่ใน Revision History ทุกครั้งที่สร้าง/แก้ไข พร้อมระบุ
    เหตุผล (เช่น "ปรับจาก tech-specific เป็น conceptual ตามคำขอ")
-7. หลังจากสร้าง/แก้ไขเสร็จแล้ว ให้เรียกใช้ agent
+8. หลังจากสร้าง/แก้ไขเสร็จแล้ว ให้เรียกใช้ agent
    `traceability-consistency-auditor` (ตาม skill
    `traceability-consistency-check`) เพื่อตรวจสอบว่า data flow/component
    ที่อธิบายยังตรงกับ Feature List และ User Journey เวอร์ชันล่าสุด

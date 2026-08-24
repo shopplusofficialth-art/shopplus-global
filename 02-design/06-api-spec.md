@@ -1,12 +1,12 @@
 # ShopPlus Global — API Specification (Conceptual)
 
-**Version:** 1.0
+**Version:** 1.1
 
-**Last Updated:** 2026-08-23
+**Last Updated:** 2026-08-24
 
 **Document Owner:** API Spec Designer Agent (AI Native Development Workflow)
 
-**Source:** `01-requirements/03-feature-list.md` (v1.0), `02-design/04-user-journey.md` (v1.0), `02-design/03-system-architecture.md` (v2.1, §3 + §7), `02-design/05-database-schema.md` (v1.0)
+**Source:** `01-requirements/03-feature-list.md` (v1.0), `02-design/04-user-journey.md` (v1.0), `02-design/03-system-architecture.md` (v2.2, §3 + §7), `02-design/05-database-schema.md` (v1.1)
 
 ---
 
@@ -15,6 +15,7 @@
 | Version | Date | Author/Agent | Description of Change |
 |---|---|---|---|
 | 1.0 | 2026-08-23 | API Spec Designer Agent | เอกสารเริ่มต้น กำหนด Operation Catalog ระดับ conceptual ครอบคลุม FT-001–FT-011, FT-013–FT-017 (ทุก Feature ที่มี entity/journey step รองรับใน Database Schema ปัจจุบัน) พร้อม Resource ↔ Entity Mapping, Interaction Diagram สำหรับ "Approve Transaction", และ Error Handling Convention — ผู้ใช้ยืนยัน Plan Proposal แล้วก่อนเริ่มเขียน (รวม FT-012 เป็น Operation แบบไม่อ้าง entity) |
+| 1.1 | 2026-08-24 | API Spec Designer Agent | ปรับ §7 "Current Technical Direction" ให้ครบ 4 หัวข้อย่อยตาม skill `data-api-design-standard` Section B ข้อ 7 ที่ปรับปรุงใหม่: เพิ่ม §7.1 "Operation → Cloud Function Mapping" ครบทุก operation ใน §3, §7.2 "Auth & Transport Notes", §7.3 "Error Mapping" ไปยัง `HttpsError` code, และ §7.4 Cross-Reference — ไม่มีการเปลี่ยนแปลง operation/request/response ระดับ conceptual ใน §1–§6 |
 
 ---
 
@@ -358,13 +359,75 @@ sequenceDiagram
 > constraint ของ operation ระดับแนวคิดข้างต้น และเปลี่ยนแปลงได้โดยไม่
 > กระทบ Operation Catalog ที่อธิบายไว้
 
+### 7.1 Operation → Cloud Function Mapping
+
+ชื่อ Cloud Function เป็นแนวทางเริ่มต้น (convention: verbNoun) ยังไม่ใช่
+contract บังคับตายตัว — trigger type ส่วนใหญ่เป็น `HTTPS Callable`
+ยกเว้นที่ระบุไว้เป็นอย่างอื่น:
+
+| Operation (§3) | Trigger Type | ชื่อ Cloud Function ที่แนะนำ | หมายเหตุ |
+|---|---|---|---|
+| Register Customer Account | HTTPS Callable | `registerCustomerAccount` | |
+| Authenticate (Login) | Firebase Authentication (client SDK sign-in) + HTTPS Callable เสริม | `syncAuthClaims` | Sign-in เองผ่าน Firebase Auth SDK โดยตรง ไม่ผ่าน Cloud Function — `syncAuthClaims` เรียกหลัง sign-in สำเร็จเพื่อตรวจ `accountStatus = ACTIVE` และตั้ง custom claim (`role`) |
+| Submit PDPA Consent Decision | HTTPS Callable | `submitPdpaConsentDecision` | |
+| View/Update Own Profile | HTTPS Callable (2 function) | `getOwnProfile`, `updateOwnProfile` | แยก read/write เพื่อให้ error handling ชัดเจนกว่าการรวม action ไว้ function เดียว |
+| Admin — Manage Account Status | HTTPS Callable | `adminManageAccountStatus` | |
+| Create/Update Merchant Shop Profile | HTTPS Callable | `upsertMerchantProfile` | |
+| Generate QR Transaction Token | HTTPS Callable | `generateQrToken` | |
+| Cancel QR Transaction Token | HTTPS Callable | `cancelQrToken` | |
+| Create Transaction via QR Scan | HTTPS Callable | `createTransactionFromQrScan` | |
+| View Pending Transaction Queue | HTTPS Callable | `getPendingTransactionQueue` | ดู Indexing Direction ที่ `02-design/05-database-schema.md` §8.3 |
+| Approve Transaction | HTTPS Callable | `approveTransaction` | เรียก "Distribute SP & Marketing Fee" แบบ internal ภายใน function เดียวกัน (ดูแถวถัดไป) |
+| Reject Transaction | HTTPS Callable | `rejectTransaction` | |
+| Admin — Cancel Transaction (Manual) | HTTPS Callable | `adminCancelTransaction` | |
+| View Own Transaction History | HTTPS Callable | `getOwnTransactionHistory` | ดู Indexing Direction ที่ Database Schema §8.3 |
+| View Transaction Monitoring Aggregate | HTTPS Callable | `getTransactionMonitoringAggregate` | |
+| Distribute SP & Marketing Fee (System-Internal) | Internal function call (ไม่ expose เป็น Cloud Function แยก) | *(ไม่มี — เป็น helper ภายใน `approveTransaction`)* | ต้องอยู่ใน atomic operation เดียวกับ `approveTransaction` ตาม CLAUDE.md หมวด 4 "Approval-Gated Calculation" — ไม่เปิดให้ Experience Layer เรียกตรง |
+| View SP Balance & Reward Ledger | HTTPS Callable | `getSpBalanceAndLedger` | ดู Indexing Direction ที่ Database Schema §8.3 |
+| View Marketing Fee Reconciliation | HTTPS Callable | `getMarketingFeeReconciliation` | ดู Indexing Direction ที่ Database Schema §8.3 |
+| Request Redemption | HTTPS Callable | `requestRedemption` | |
+| Fulfill Redemption | HTTPS Callable | `fulfillRedemption` | |
+| Search Audit Log | HTTPS Callable | `searchAuditLog` | ดู Indexing Direction ที่ Database Schema §8.3 (gap เรื่อง subcollection) |
+| View Reward Rule Configuration | HTTPS Callable (หรือ static config ฝัง client เพราะเป็นค่าคงที่ read-only) | `getRewardRuleConfiguration` | ยังไม่กำหนดว่าจะ implement เป็น function จริงหรือ static config — ทั้งสองทางเลือกยังไม่ถูกตัดสินใจ |
+
+### 7.2 Auth & Transport Notes
+
+- **Callable Function ส่ง Firebase Auth ID token อัตโนมัติ** — Firebase
+  Client SDK แนบ token ให้ทุกครั้งที่เรียก `HTTPS Callable` โดยไม่ต้อง
+  จัดการ header เอง
+- **Operation ที่ต้องตรวจ custom claim `role = ADMIN`** — Admin — Manage
+  Account Status, Admin — Cancel Transaction (Manual), View Transaction
+  Monitoring Aggregate, Search Audit Log, View Reward Rule Configuration
+- **Operation ที่ต้องตรวจ custom claim `role = MERCHANT` + ตรวจ
+  `merchantId` ตรงกับผู้เรียก** — Create/Update Merchant Shop Profile,
+  Generate/Cancel QR Transaction Token, View Pending Transaction Queue,
+  Approve/Reject Transaction, View Marketing Fee Reconciliation, Fulfill
+  Redemption
+- **Operation ที่ต้องตรวจ custom claim `role = CUSTOMER` + ตรวจ
+  `customerId`/`identityId` ตรงกับผู้เรียก** — View Own Transaction
+  History, View SP Balance & Reward Ledger, Request Redemption
+- ยังไม่มีการระบุ URL scheme หรือ REST/gRPC endpoint จริงในเอกสารต้นทาง
+  ปัจจุบัน — operation ทั้งหมดถือว่าเรียกผ่าน Firebase Client SDK เป็นหลัก
+
+### 7.3 Error Mapping (แนวทาง map ไปยัง `functions.https.HttpsError`)
+
+แนวทางเริ่มต้น ไม่ใช่ contract บังคับตายตัว:
+
+| Error/Exception Condition (§3) | Suggested `HttpsError` code | หมายเหตุ |
+|---|---|---|
+| `Validation Error` | `invalid-argument` | |
+| `Authorization Error` | `permission-denied` | |
+| `Business Rule Violation` | `failed-precondition` | เช่น status transition ไม่ถูกต้อง, SP balance ไม่พอ |
+| `Not Found` | `not-found` | |
+| `Conflict/Idempotency Violation` | `already-exists` (หรือ `aborted` ถ้าเป็น concurrent write conflict) | เช่น อนุมัติ transaction ซ้ำ, fulfill redemption ซ้ำ |
+
+### 7.4 Cross-Reference เอกสารเทคนิคเดิม
+
 ตามทิศทางเทคนิคปัจจุบัน (Firebase/Firestore/Cloud Functions —
-`02-design/03-system-architecture.md` §8) operation ข้างต้นสอดคล้องกับ
-Firebase Cloud Functions (Callable Functions หรือ HTTPS Functions) —
-Authentication ผ่าน Firebase Authentication ยังไม่มีการระบุ protocol
-(REST/gRPC) หรือ URL/trigger scheme ที่ชัดเจนในเอกสารต้นทางปัจจุบัน — เมื่อ
-ตัดสินใจจริงให้เพิ่มรายละเอียด (ชื่อ function, trigger type, request/
-response schema จริง) ไว้ที่นี่
+`02-design/03-system-architecture.md` §8) operation ทั้งหมดข้างต้น
+สอดคล้องกับ Firebase Cloud Functions — ยังไม่มีการระบุ REST/gRPC endpoint
+scheme ที่ชัดเจนในเอกสารต้นทางปัจจุบัน เมื่อตัดสินใจจริงให้เพิ่มรายละเอียด
+(request/response schema จริง, versioning) ไว้ที่นี่
 
 ---
 

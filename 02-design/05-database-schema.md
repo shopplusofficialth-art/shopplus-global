@@ -1,12 +1,12 @@
 # ShopPlus Global — Database Schema (Conceptual)
 
-**Version:** 1.0
+**Version:** 1.1
 
-**Last Updated:** 2026-08-23
+**Last Updated:** 2026-08-24
 
 **Document Owner:** Database Schema Designer Agent (AI Native Development Workflow)
 
-**Source:** `01-requirements/03-feature-list.md` (v1.0), `02-design/04-user-journey.md` (v1.0), `02-design/03-system-architecture.md` (v2.0, §6 Key Conceptual Data Entities)
+**Source:** `01-requirements/03-feature-list.md` (v1.0), `02-design/04-user-journey.md` (v1.0), `02-design/03-system-architecture.md` (v2.2, §6 Key Conceptual Data Entities + §8.2 Known Platform Constraints)
 
 ---
 
@@ -15,6 +15,7 @@
 | Version | Date | Author/Agent | Description of Change |
 |---|---|---|---|
 | 1.0 | 2026-08-23 | Database Schema Designer Agent | เอกสารเริ่มต้น ขยาย 7 entity ใน `02-design/03-system-architecture.md` §6 ให้เป็น Entity Catalog ระดับ conceptual ครบ attribute, PDPA Classification, Relationships, และ ER Diagram พร้อมเพิ่ม entity ใหม่ **"QR Transaction Token"** (ยืนยันแนวทางจากผู้ใช้แล้ว — ดู §9 ข้อ 1) เพื่อรองรับ lifecycle ของ FT-002 ที่เกิดขึ้นก่อน Transaction Record จะถูกสร้าง |
+| 1.1 | 2026-08-24 | Database Schema Designer Agent | ปรับ §8 "Current Technical Direction" ให้ครบ 4 หัวข้อย่อยตาม skill `data-api-design-standard` Section A ข้อ 8 ที่ปรับปรุงใหม่: คง Entity→Collection mapping เดิมเป็น §8.1, เพิ่ม §8.2 "Attribute → Firestore Data Type Mapping" และ §8.3 "Indexing Direction" (อิง query pattern จริงจาก `02-design/06-api-spec.md` §3), ย้ายหมายเหตุ SP wallet cache เข้า §8.4 — ไม่มีการเปลี่ยนแปลง entity/attribute/relationship ระดับ conceptual ใน §1–§7 |
 
 ---
 
@@ -381,28 +382,63 @@ Control"
 
 ## 8. Current Technical Direction (Non-Binding Reference)
 
-ส่วนนี้สะท้อนทิศทางเทคนิคปัจจุบันตาม CLAUDE.md หมวด 6 เท่านั้น ไม่ใช่
-constraint ของ data model ระดับแนวคิดข้างต้น และเปลี่ยนแปลงได้โดยไม่
-กระทบโครงสร้าง entity/ความสัมพันธ์ที่อธิบายไว้
+> ส่วนนี้สะท้อนทิศทางเทคนิคปัจจุบันตาม CLAUDE.md หมวด 6 เท่านั้น ไม่ใช่
+> constraint ของ data model ระดับแนวคิดข้างต้น และเปลี่ยนแปลงได้โดยไม่
+> กระทบโครงสร้าง entity/ความสัมพันธ์ที่อธิบายไว้
+
+### 8.1 Entity → Firestore Collection Mapping
 
 รายละเอียด field-level schema จริงของทิศทาง Firestore ปัจจุบันอยู่ที่
 `02-design/02-firestore-data-model.md` (เอกสารแยกอิสระ ไม่ได้ถูกแก้ไข
 โดย agent นี้) สรุป mapping คร่าว ๆ ดังนี้:
 
-| Conceptual Entity (เอกสารนี้) | Firestore Collection ที่ใกล้เคียงที่สุด | หมายเหตุ |
-|---|---|---|
-| User Identity | `users` | ตรงกัน |
-| Merchant Profile | `merchants` | ตรงกัน |
-| QR Transaction Token | *(ไม่มี collection แยกในเอกสารเดิม — ปัจจุบันเป็นแค่ field `qrCodeId` ใน `transactions`)* | ช่องว่างทางเทคนิค — ถ้ารับแนวทาง entity ใหม่นี้ ควรอัปเดต `02-firestore-data-model.md` ให้มี collection รองรับ lifecycle ก่อนถูกสแกน |
-| Transaction Record | `transactions` | ตรงกัน — เอกสารเดิมมี status เพิ่มเติม (`PROCESSING`, `FAILED`, `EXPIRED`) ที่มาจาก `01-transaction-flow.md` ไม่ใช่จาก Architecture §6 (ดู §9 ข้อ 2) |
-| Reward Ledger Entry | `spLedger` (entry ที่ `type = CUSTOMER_REWARD`) | ตรงกันบางส่วน |
-| Marketing Fund Ledger Entry | `spLedger` (entry ที่ `type = MARKETING_FUND`/`SHOPPLUS_REVENUE`) + `marketingFunds` | ตรงกันบางส่วน |
-| Redemption Reference | *(ไม่มี collection รองรับในเอกสารเดิม)* | ช่องว่างทางเทคนิค — ต้องเพิ่มเมื่อ implement FT-007/FT-008 จริง |
-| Audit Entry | `transactions/{transactionId}/events` (`transactionEvents`) | ครอบคลุมเฉพาะเหตุการณ์ระดับ transaction — ยังไม่ครอบคลุม audit ของ entity อื่น (เช่น account suspension) |
+| Conceptual Entity (เอกสารนี้) | Firestore Collection ที่ใกล้เคียงที่สุด | Document ID Strategy | หมายเหตุ |
+|---|---|---|---|
+| User Identity | `users` (root collection) | Auto-generated ID | ตรงกัน |
+| Merchant Profile | `merchants` (root collection) | Auto-generated ID | ตรงกัน |
+| QR Transaction Token | *(ไม่มี collection แยกในเอกสารเดิม — ปัจจุบันเป็นแค่ field `qrCodeId` ใน `transactions`)* | — | ช่องว่างทางเทคนิค — ถ้ารับแนวทาง entity ใหม่นี้ ควรอัปเดต `02-firestore-data-model.md` ให้มี collection รองรับ lifecycle ก่อนถูกสแกน (เช่น root collection `qrTokens` ใช้ custom ID = token code) |
+| Transaction Record | `transactions` (root collection) | Auto-generated ID | ตรงกัน — เอกสารเดิมมี status เพิ่มเติม (`PROCESSING`, `FAILED`, `EXPIRED`) ที่มาจาก `01-transaction-flow.md` ไม่ใช่จาก Architecture §6 (ดู §9 ข้อ 2) |
+| Reward Ledger Entry | `spLedger` (entry ที่ `type = CUSTOMER_REWARD`) | Auto-generated ID | ตรงกันบางส่วน |
+| Marketing Fund Ledger Entry | `spLedger` (entry ที่ `type = MARKETING_FUND`/`SHOPPLUS_REVENUE`) + `marketingFunds` | Auto-generated ID | ตรงกันบางส่วน |
+| Redemption Reference | *(ไม่มี collection รองรับในเอกสารเดิม)* | — | ช่องว่างทางเทคนิค — ต้องเพิ่มเมื่อ implement FT-007/FT-008 จริง (เช่น root collection `redemptions` ใช้ auto-generated ID) |
+| Audit Entry | `transactions/{transactionId}/events` (`transactionEvents`, subcollection) | Auto-generated ID | denormalize ใต้ transaction — ครอบคลุมเฉพาะเหตุการณ์ระดับ transaction — ยังไม่ครอบคลุม audit ของ entity อื่น (เช่น account suspension) |
 
-SP Balance ปัจจุบัน (ผลรวมของ Reward Ledger Entry) ฝั่งเทคนิคปัจจุบัน
-cache ไว้ใน collection `spWallets` เพื่อประสิทธิภาพ — เป็นรายละเอียด
-implementation ที่ไม่กระทบ conceptual model ข้างต้น
+### 8.2 Attribute → Firestore Data Type Mapping
+
+Conceptual Type ที่ใช้ใน §2 ข้างต้น → Firestore data type ที่สอดคล้อง:
+
+| Conceptual Type (§2) | Firestore Data Type | หมายเหตุ |
+|---|---|---|
+| `Identifier` | Firestore Document ID (auto-generated) หรือ `string` field เมื่อถูกอ้างจาก document อื่น | ดู Document ID Strategy ใน §8.1 ต่อ entity |
+| `Text` | `string` | |
+| `Number` | `number` (integer) | เช่น `amountSP` |
+| `Boolean` | `boolean` | |
+| `Date/Time` | `Timestamp` | |
+| `Enum` | `string` พร้อม comment ระบุค่าที่เป็นไปได้ในโค้ด (Firestore ไม่มี native enum type) | เช่น `status`, `pdpaConsentStatus` |
+| `Reference` | `string` เก็บ ID ของ document ปลายทาง (แนวทางที่เอกสารเดิม `02-firestore-data-model.md` ส่วนใหญ่ใช้ เพื่อความง่ายในการ query) — ทางเลือกอื่นคือ `DocumentReference` แต่ยังไม่ถูกเลือกใช้จริง | ระบุเป็น "ยังไม่กำหนดเป็นทางเลือกสุดท้าย" ถ้าไม่มีหลักฐานจากเอกสารเดิม |
+| `Structured/JSON` | `Map` (nested object) | |
+
+### 8.3 Indexing Direction (แนวทาง Index เบื้องต้น)
+
+รายการ composite index ที่คาดว่าจำเป็น โดยอ้างอิงจาก query pattern ที่
+ระบุไว้ใน Operation Catalog ของ `02-design/06-api-spec.md` §3:
+
+| Query Pattern (Operation ต้นทาง) | Entity | Suggested Composite Index | หมายเหตุ |
+|---|---|---|---|
+| View Pending Transaction Queue (§3.4) | Transaction Record | `merchantId` ASC, `status` ASC | กรอง 2 field พร้อมกัน (merchant ตนเอง + `PENDING_APPROVAL`) |
+| View Own Transaction History (§3.4) | Transaction Record | `customerId` ASC, `createdAt` DESC | เรียงตามเวลาล่าสุดก่อน |
+| View Transaction Monitoring Aggregate (§3.4) | Transaction Record | ไม่ต้อง composite index — นับจำนวนแยกตาม `status` (single-field index เพียงพอ หรือใช้ aggregation query) | เป็น read-only aggregate ทั้งระบบ |
+| View SP Balance & Reward Ledger (§3.5) | Reward Ledger Entry | `customerId` ASC, `createdAt` DESC | |
+| View Marketing Fee Reconciliation (§3.5) | Transaction Record, Marketing Fund Ledger Entry | `merchantId` ASC, `createdAt` ASC/DESC (range filter ตามช่วงวันที่) | ต้องมี index แยกต่อ entity เพราะเป็นสอง collection คนละที่ (ไม่มี join ตรง — ดู Architecture §8.2) |
+| Search Audit Log (§3.7) | Audit Entry | `relatedEntityId` ASC, `createdAt` DESC | ขึ้นกับการแก้ gap ใน §8.1 (ปัจจุบันเป็น subcollection ใต้ transaction เท่านั้น จึง query ข้าม entity อื่นไม่ได้โดยตรง) |
+
+### 8.4 Cross-Reference เอกสารเทคนิคเดิม
+
+ดู `02-design/02-firestore-data-model.md` สำหรับ field-level schema จริง
+ทั้งหมด (เอกสารแยกอิสระ ไม่ได้ถูกแก้ไขหรือ merge เข้ากับเอกสารนี้) — SP
+Balance ปัจจุบัน (ผลรวมของ Reward Ledger Entry) ฝั่งเทคนิคปัจจุบัน cache
+ไว้ใน collection `spWallets` เพื่อประสิทธิภาพ เป็นรายละเอียด
+implementation ที่ไม่กระทบ conceptual model ใน §1–§7 ข้างต้น
 
 ---
 

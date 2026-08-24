@@ -211,33 +211,47 @@ Detailed Design Writer)
 - [ ] ถ้างานนี้คือ Architecture (`02-design/03-system-architecture.md`):
       ได้ตรวจสอบว่ามี Feature List + User Journey ครบก่อนแล้ว (ดู Section
       B ด้านบน), ได้เสนอแผนและรอการยืนยันจากผู้ใช้ก่อนเขียนไฟล์จริงแล้ว
-      (ดู skill `architecture-design-standard` Section B), และเนื้อหาไม่
+      (ดู skill `architecture-design-standard` Section B), เนื้อหาไม่
       ระบุชื่อ technology/vendor เฉพาะเจาะจงนอกเหนือ section "Current
-      Technical Direction (Non-Binding Reference)"
+      Technical Direction (Non-Binding Reference)", และ Section 8 นั้น
+      มีครบทั้ง 3 หัวข้อย่อย (8.1 Layer → Technology Mapping, 8.2 Known
+      Platform Constraints, 8.3 Cross-Reference) ตาม skill Section C
+      ข้อ 8 — ไม่ใช่รายการ technology ลอย ๆ
 - [ ] ถ้างานนี้คือ Database Schema (`02-design/05-database-schema.md`):
       ได้ตรวจสอบว่ามี Feature List + User Journey + Architecture §6
       ครบก่อนแล้ว, ได้เสนอแผนและรอการยืนยันจากผู้ใช้ก่อนเขียนไฟล์จริง
       แล้ว (ดู skill `data-api-design-standard` Section A), ทุก
       attribute มีการจัดประเภท PDPA Classification ครบ, มี ER Diagram
-      (Mermaid) อย่างน้อย 1 diagram, และเนื้อหาไม่ระบุชื่อ database
+      (Mermaid) อย่างน้อย 1 diagram, เนื้อหาไม่ระบุชื่อ database
       engine/ORM เฉพาะเจาะจงนอกเหนือ section "Current Technical
-      Direction" — และไม่ได้แก้ไข `02-design/02-firestore-data-model.md`
+      Direction", Section 8 นั้นมีครบทั้ง 4 หัวข้อย่อย (8.1 Entity →
+      Firestore Collection Mapping, 8.2 Attribute → Firestore Data Type
+      Mapping, 8.3 Indexing Direction, 8.4 Cross-Reference) ตาม skill
+      Section A ข้อ 8 — และไม่ได้แก้ไข
+      `02-design/02-firestore-data-model.md`
 - [ ] ถ้างานนี้คือ API Spec (`02-design/06-api-spec.md`): ได้ตรวจสอบว่า
       มี `02-design/05-database-schema.md` ครอบคลุม entity ที่ใช้แล้ว
       (ไม่มี operation ที่อ้าง entity/attribute ที่ไม่มีอยู่จริง), ได้
       เสนอแผนและรอการยืนยันจากผู้ใช้ก่อนเขียนไฟล์จริงแล้ว (ดู skill
       `data-api-design-standard` Section B), ทุก operation ที่คืนค่า
-      personal data มี PDPA & Security Notes ครบ, และเนื้อหาไม่ระบุ
+      personal data มี PDPA & Security Notes ครบ, เนื้อหาไม่ระบุ
       protocol/HTTP method/URL scheme เฉพาะเจาะจงนอกเหนือ section
-      "Current Technical Direction"
+      "Current Technical Direction", และ Section 7 นั้นมีครบทั้ง 4
+      หัวข้อย่อย (7.1 Operation → Cloud Function Mapping, 7.2 Auth &
+      Transport Notes, 7.3 Error Mapping, 7.4 Cross-Reference) ตาม
+      skill Section B ข้อ 7
 - [ ] ถ้างานนี้คือ Detailed Design (`02-design/07-detailed-design.md`):
       ได้ตรวจสอบว่ามี Feature List + User Journey + Architecture +
       Database Schema + API Spec ครบก่อนแล้ว (ครบสายทั้ง 5 เอกสาร), ได้
       เสนอแผนและรอการยืนยันจากผู้ใช้ก่อนเขียนไฟล์จริงแล้ว (ดู skill
       `detailed-design-standard` Section B), ทุก scenario มี Sequence
       Diagram (Mermaid `sequenceDiagram`) อย่างน้อย 1 diagram ที่อ้าง
-      layer/entity/operation จริง (ไม่มีชื่อที่คิดขึ้นเอง), และไม่ได้
-      แก้ไข `02-design/01-transaction-flow.md`
+      layer/entity/operation จริง (ไม่มีชื่อที่คิดขึ้นเอง), Section 5
+      นั้นมีครบทั้ง 2 หัวข้อย่อย (5.1 Technical Mapping Table ต่อ
+      Scenario ที่อ้าง Operation→Cloud Function จาก API Spec §7.1 และ
+      Entity→Firestore Collection จาก Database Schema §8.1 จริง, 5.2
+      Cross-Reference) ตาม skill Section C ข้อ 5, และไม่ได้แก้ไข
+      `02-design/01-transaction-flow.md`
 - [ ] ถ้างานนี้คือ Tech Stack (`02-design/08-tech-stack.md`): ได้ตรวจสอบ
       ว่ามี Feature List + User Journey + Architecture + Database Schema
       + API Spec ครบก่อนแล้ว, ได้ทำ Intensive Interview ตาม skill

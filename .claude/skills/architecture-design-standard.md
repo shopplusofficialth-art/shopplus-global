@@ -156,9 +156,41 @@ Section เดียวที่อนุญาตให้กล่าวถึ
 ด้วยข้อความชัดเจนว่า **"ส่วนนี้สะท้อนทิศทางเทคนิคปัจจุบันตาม CLAUDE.md
 หมวด 6 เท่านั้น ไม่ใช่ constraint ของ architecture ระดับแนวคิดข้างต้น
 และเปลี่ยนแปลงได้โดยไม่กระทบโครงสร้าง layer/data flow ที่อธิบายไว้"**
-ตามด้วยรายการ technology ปัจจุบัน (ถ้ามีรายละเอียดเดิมจากเอกสารก่อนหน้าที่
-มีคุณค่า เช่น รายชื่อ Firestore collection ระดับสูง ให้สรุปไว้ที่นี่และ
-ชี้ไปยังเอกสารเทคนิคแยกถ้ามี เช่น `02-design/02-firestore-data-model.md`)
+ตามด้วยหัวข้อย่อยครบทั้ง 3 ข้อนี้เสมอ (ไม่ใช่แค่รายการ technology ลอย ๆ
+เหมือนที่ผ่านมา — เพื่อให้เอกสารเทคนิคถัดไปในสาย 02-design [Database
+Schema, API Spec, Detailed Design] มีฐานอ้างอิงที่ละเอียดพอจะขยายต่อ):
+
+**8.1 Layer → Technology Mapping (การ map Layer แนวคิดกับเทคโนโลยีปัจจุบัน)**
+— ตาราง: Conceptual Layer (จากข้อ 3) | Firebase/GCP Service ที่ใช้จริง
+ตอนนี้ (ตาม CLAUDE.md หมวด 6) | หมายเหตุ — ครอบคลุมทุก layer ที่ปรากฏใน
+ข้อ 3 ของรอบนี้ แนว mapping เริ่มต้นที่ใช้ได้ทั่วไป (ปรับตามบริบทจริงของ
+feature ที่ทำ ไม่ใช่ตายตัว):
+  - Experience Layer → Web Application (Firebase Hosting) + Mobile
+    Application (ตาม CLAUDE.md หมวด 6 "Target: Web + Mobile")
+  - Orchestration / API Layer → Cloud Functions (HTTPS Callable / HTTP
+    Trigger)
+  - Business Logic Layer → Cloud Functions (ต้องอยู่ฝั่ง backend เท่านั้น
+    ตาม CLAUDE.md หมวด 6 "Development Principle")
+  - Data & Ledger Layer → Firestore
+  - Intelligence / Analytics Layer → Cloud Functions + บริการ AI/analytics
+    เพิ่มเติม (ถ้ามีการเลือกใช้แล้ว — ถ้ายังไม่มีข้อมูล ให้ระบุ "ยังไม่
+    กำหนด — รอ Tech Stack Selection" แทนการสมมติ)
+  - Cross-Cutting: Security, Audit & Compliance → Firebase Authentication
+    + Firestore Security Rules
+
+**8.2 Known Platform Constraints (ข้อจำกัดที่ทราบของทิศทางเทคนิคปัจจุบัน)**
+— สรุปข้อจำกัดเชิงเทคนิคของ Firebase/Firestore/Cloud Functions ที่อาจ
+กระทบการออกแบบเชิงเทคนิคในเอกสารถัดไป (เช่น Firestore ไม่รองรับ join
+ข้าม collection โดยตรง มักต้อง denormalize ข้อมูล, Cloud Functions มี
+cold start latency, Firestore มีขีดจำกัดเรื่อง composite query/index) —
+ระบุเป็นข้อมูลอ้างอิงให้ `database-schema-designer`/`api-spec-designer`/
+`detailed-design-writer` ใช้ประกอบการตัดสินใจ **ไม่ใช่** constraint ของ
+conceptual layer/data flow ในเอกสารนี้เอง
+
+**8.3 Cross-Reference เอกสารเทคนิคเดิม** — ถ้ามีรายละเอียดเดิมจากเอกสาร
+ก่อนหน้าที่มีคุณค่า เช่น รายชื่อ Firestore collection ระดับสูง ให้สรุปไว้
+ที่นี่และชี้ไปยังเอกสารเทคนิคแยกถ้ามี เช่น
+`02-design/02-firestore-data-model.md`
 
 ### 9. Open Questions / Assumptions (ประเด็นที่ยังไม่ชัดเจน)
 
