@@ -76,7 +76,24 @@ SP Point คือระบบ reward ภายใน
 
 มูลค่า reward ขั้นต่ำ 30 SP
 
-การคำนวณ reward ทั้งหมดต้องเป็นไปตามกฎนี้
+**Marketing Fee Allocation (การแบ่งสรร marketing fee ที่อนุมัติแล้ว):**
+
+30 SP ต่อ transaction ที่ merchant อนุมัติ ถูกแบ่งสรรเป็น:
+- 10 SP → Customer Reward
+- 10 SP → Marketing Fund
+- 10 SP → ShopPlus Global Platform
+
+**Approval-Gated Calculation (เงื่อนไขการคำนวณผูกกับการอนุมัติ):**
+
+การหักและแบ่งสรร marketing fee/reward เกิดขึ้น**เฉพาะหลังจาก merchant
+อนุมัติ transaction แล้วเท่านั้น** — ระหว่างที่ transaction อยู่ในสถานะ
+`PENDING_APPROVAL`, `REJECTED`, หรือ `CANCELLED` **ห้ามแบ่งสรร SP ใด ๆ**
+
+การคำนวณ reward ทั้งหมดต้องเป็นไปตามกฎนี้ รายละเอียดเต็ม (transaction
+status lifecycle, audit log requirement) อยู่ที่
+`01-requirements/01-business-requirement.md` — เป็น **single source of
+truth** ของกฎ SP Point ห้ามกำหนดอัตราแปลง/สัดส่วนแบ่งสรร/เงื่อนไขใหม่ที่
+ขัดหรือซ้ำซ้อนกับเอกสารนี้
 
 ---
 
@@ -111,6 +128,11 @@ SP Point คือระบบ reward ภายใน
 - Merchant Management
 - Reward Management
 - System Monitoring
+
+ด้านบนเป็นภาพรวมระดับสูงเพื่อสื่อสาร product direction เท่านั้น ขอบเขต
+feature ที่ละเอียดและเป็นปัจจุบันจริง (FT-xxx ทั้งหมด รวมถึง PDPA
+compliance, reconciliation, approval SLA ฯลฯ) อยู่ที่
+`01-requirements/03-feature-list.md` เสมอ — ถ้าขัดกัน ให้ยึดไฟล์นั้นเป็นหลัก
 
 ---
 
@@ -191,6 +213,7 @@ AI Agent ต้อง:
 **02-design**
 - User flow
 - Architecture
+- Data & API Design (Database Schema, API Spec, Detailed Design)
 - UI/UX
 - Design System (Brand Identity, Design Tokens — ดู `02-design/DESIGN.md`)
 
