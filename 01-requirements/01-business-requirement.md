@@ -3,9 +3,9 @@
 **Project:** ShopPlus Global — Community Commerce Platform
 **Document Type:** Business Requirement Document (BRD)
 **Phase:** 01-requirements
-**Version:** 1.1
-**Status:** Revised Draft after Requirement Review
-**Date:** 2026-08-04
+**Version:** 1.2
+**Status:** Revised Draft after NFR Deep-Dive Review
+**Date:** 2026-08-24
 **Prepared by:** Requirement Analyst Agent (AI Native Development Workflow)
 
 ---
@@ -16,6 +16,7 @@
 |---|---|---|
 | 1.0 | Draft — pending stakeholder review | ร่างเอกสาร Business Requirement ฉบับแรก |
 | 1.1 | Revised Draft after Requirement Review | เพิ่มรูปแบบการแบ่งสรร Marketing Fee ที่ได้รับการอนุมัติ (30 SP แบ่ง 10/10/10), Merchant Approval Workflow และ transaction status lifecycle, และข้อกำหนดด้าน Transaction Audit ปรับปรุง Functional Requirements และ Acceptance Criteria ที่เกี่ยวข้อง |
+| 1.2 | Revised Draft after NFR Deep-Dive Review | ปรับปรุง §7 Non-Functional Requirements ให้มีตัวเลข/เกณฑ์วัดผลที่ชัดเจนแทนข้อความเชิงคุณภาพเดิม (Performance, Availability), เพิ่ม 3 category ใหม่ (Observability/Monitoring, Compatibility, Disaster Recovery & Backup) วิเคราะห์จาก requirement/backlog/feature-list/test case/high-level design/detailed design ทั้งหมด; ตัดสินใจค่า SLA การอนุมัติ transaction (Open Question 6) และ PDPA data retention period (ส่วนหนึ่งของ Open Question 4) เป็นค่าเริ่มต้นที่ใช้งานได้ (working decision) โดยยังต้องยืนยันซ้ำกับฝ่ายกฎหมาย/compliance ก่อนเข้าสู่ production จริง |
 
 ---
 
@@ -275,16 +276,30 @@ Questions) และต้องให้ Admin สามารถดูได�
 
 ## 7. Non-Functional Requirements (ความต้องการที่ไม่ใช่ฟังก์ชัน)
 
+หมวดหมู่และเกณฑ์ด้านล่างวิเคราะห์และปรับปรุงจาก requirement, backlog,
+feature list, test case, high-level design และ detailed design ที่มีอยู่
+ทั้งหมด (v1.2) เพื่อให้มีเกณฑ์ที่วัดผลได้แทนข้อความเชิงคุณภาพล้วน ๆ ของ
+เวอร์ชันก่อนหน้า — ค่าตัวเลขที่ระบุเป็น **working target** สำหรับ MVP/pilot
+ยังไม่ได้ผ่านการทดสอบ load จริง (ยังไม่มี test execution report ในโปรเจกต์)
+และควรได้รับการทวนสอบซ้ำเมื่อเข้าสู่ `04-testing`/`05-release` จริง
+
 | Category | Requirement |
 |---|---|
-| **Security** | ต้องมี secure authentication และ authorization สำหรับทุก user role, ห้ามเชื่อถือค่าจากฝั่ง client สำหรับการคำนวณ reward หรือ fee, การดำเนินการที่ sensitive ต้องผ่านการตรวจสอบที่ฝั่ง server (Cloud Functions) |
-| **Privacy / PDPA** | ต้องปฏิบัติตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคลของประเทศไทย (PDPA), ต้องมีความยินยอมของผู้ใช้อย่างชัดแจ้งสำหรับการเก็บข้อมูล, การเก็บข้อมูลแบบ minimum ที่จำเป็น, ห้ามเปิดเผยข้อมูลส่วนบุคคล ข้อมูลผู้ใช้ที่ sensitive หรือ internal credentials |
-| **Performance** | การสแกน QR และการให้ reward ควรเสร็จสิ้นภายในไม่กี่วินาที เพื่อสนับสนุนการทำงาน point-of-sale ที่ราบรื่น |
-| **Scalability** | ต้องเป็น cloud-first architecture (Firebase / Firestore / Cloud Functions) เพื่อให้สามารถ scale จากร้านค้าชุมชนออฟไลน์ไปสู่การใช้งานด้านการค้าออนไลน์ในวงกว้างมากขึ้น |
-| **Availability** | flow หลักในการสะสมและแลก reward ควรพร้อมใช้งานตลอดเวลาทำการของ merchant, ต้องมีระบบเฝ้าติดตามเพื่อตรวจจับการหยุดทำงาน |
+| **Security** | ต้องมี secure authentication และ authorization สำหรับทุก user role, ห้ามเชื่อถือค่าจากฝั่ง client สำหรับการคำนวณ reward หรือ fee, การดำเนินการที่ sensitive ต้องผ่านการตรวจสอบที่ฝั่ง server (Cloud Functions) ตาม RBAC matrix ที่กำหนดไว้ (ดู `02-design/05-database-schema.md` §6, `02-design/06-api-spec.md` §6) |
+| **Privacy / PDPA** | ต้องปฏิบัติตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคลของประเทศไทย (PDPA), ต้องมีความยินยอมของผู้ใช้อย่างชัดแจ้งสำหรับการเก็บข้อมูล, การเก็บข้อมูลแบบ minimum ที่จำเป็น, ห้ามเปิดเผยข้อมูลส่วนบุคคล ข้อมูลผู้ใช้ที่ sensitive หรือ internal credentials — **Data Retention:** ข้อมูลผู้ใช้ (Personal Data/Sensitive Personal Data) และ audit log ที่เกี่ยวข้องจะถูกเก็บรักษาไม่เกิน **3 ปี** หลังบัญชีถูกปิดหรือไม่มีการใช้งาน จากนั้นต้อง anonymize หรือลบตามความเหมาะสมของแต่ละ entity (ดู `02-design/05-database-schema.md` §5) ค่านี้เป็น working decision เบื้องต้น **ยังต้องได้รับการยืนยันซ้ำจากฝ่ายกฎหมาย/compliance ก่อนเข้าสู่ production จริง** |
+| **Performance** | Read path (สแกน QR, อ่าน SP balance/ประวัติ) ต้องเสร็จภายใน **≤ 1 วินาที (p95)**; write/distribution path (นับจาก merchant กดอนุมัติ transaction จนถึง SP ถูกแบ่งสรรครบและ balance ของลูกค้าอัปเดตสำเร็จ) ต้องเสร็จภายใน **≤ 5 วินาที (p95)** โดยตัวเลขนี้เผื่อผลกระทบของ Cloud Functions cold-start ที่ถูกระบุไว้แล้วว่าเป็นความเสี่ยงต่อ flow นี้ (ดู `02-design/03-system-architecture.md` §8.2) |
+| **Scalability** | ต้องเป็น cloud-first architecture (Firebase / Firestore / Cloud Functions) เพื่อให้สามารถ scale จากร้านค้าชุมชนออฟไลน์ไปสู่การใช้งานด้านการค้าออนไลน์ในวงกว้างมากขึ้น โดยไม่ต้อง redesign business logic layer (ดู `02-design/03-system-architecture.md` §7) |
+| **Availability & Reliability** | Flow หลักของการสะสม/แลก reward ต้องพร้อมใช้งาน **≥ 99.5%** ในช่วงเวลาทำการของ merchant (ค่าเริ่มต้นตอนนี้: 24 ชั่วโมง/วัน จนกว่าจะมี feature ให้ merchant กำหนดเวลาทำการเองในระบบ — ดู Open Questions ข้อใหม่ด้านล่าง); ทุกการแบ่งสรร SP ต้องเป็น **atomic และ idempotent** เพื่อป้องกันการแบ่งสรรซ้ำเมื่อมีการ retry หรือ concurrent approve (ดู `02-design/02-firestore-data-model.md` §13) |
 | **Maintainability** | ต้องแยกส่วนความรับผิดชอบอย่างชัดเจน — client จัดการเฉพาะ UI/interaction, backend เป็นผู้ดูแล business logic, การตรวจสอบความปลอดภัย และการคำนวณ reward |
-| **Usability** | UX ต้องเรียบง่ายและมี friction น้อย เหมาะสำหรับ merchant ชุมชนที่ไม่มีความเชี่ยวชาญด้านเทคนิค และลูกค้าในกลุ่มประชากรที่หลากหลาย |
+| **Usability** | UX ต้องเรียบง่ายและมี friction น้อย เหมาะสำหรับ merchant ชุมชนที่ไม่มีความเชี่ยวชาญด้านเทคนิค และลูกค้าในกลุ่มประชากรที่หลากหลาย ต้องเป็นไปตามเกณฑ์ accessibility ขั้นต่ำ WCAG AA (contrast ≥ 4.5:1 ตัวอักษรเนื้อหา, touch target ≥ 44×44px) ตามที่กำหนดไว้ใน `02-design/DESIGN.md` §6.3 |
 | **Auditability** | บันทึก transaction และ reward ต้องสามารถตรวจสอบย้อนกลับได้สำหรับการตรวจสอบยอด marketing fee ของ merchant และการกำกับดูแลของ admin, ทุกการแบ่งสรร SP (ส่วนของ Customer Reward, Marketing Fund, Platform) ต้องสร้าง audit log entry ที่ไม่สามารถเปลี่ยนแปลงได้ ผูกกับ transaction ID (ดู §6.6) |
+| **Observability / Monitoring** | ระบบต้องมี logging และ monitoring (Firebase / Cloud Logging & Monitoring) ครอบคลุมความล้มเหลวของ SP distribution, ข้อผิดพลาดของ Cloud Functions, และสถานะ transaction ที่ผิดปกติ พร้อม alert ไปยัง admin เมื่อเกิดความล้มเหลวของการแบ่งสรร SP เพื่อให้ตรวจพบและแก้ไขก่อนกระทบผู้ใช้จำนวนมาก (ต่อยอดจาก FR-015/System Monitoring Dashboard) |
+| **Compatibility** | Web application ต้องใช้งานได้ตาม breakpoint ที่กำหนดใน `02-design/DESIGN.md` §4.3 (Mobile < 640px / Tablet 640–1024px / Desktop > 1024px) บนเบราว์เซอร์หลักที่อัปเดตภายใน 2 ปีที่ผ่านมา (Chrome, Safari, Edge, Firefox); Mobile application ต้องรองรับ iOS และ Android เวอร์ชันหลักที่ยังได้รับการสนับสนุนจากผู้ผลิตระบบปฏิบัติการ ณ เวลาที่พัฒนาแต่ละ release |
+| **Disaster Recovery / Backup** | ต้อง export ข้อมูล Firestore แบบ scheduled อย่างน้อย**วันละ 1 ครั้ง** (Recovery Point Objective ≤ 24 ชั่วโมง) และสามารถกู้คืนระบบให้กลับมาใช้งานได้ภายใน **4 ชั่วโมง** (Recovery Time Objective) กรณีเกิดความเสียหายของข้อมูลจาก logic error หรือเหตุขัดข้องร้ายแรง — เพิ่มเติมจากความน่าเชื่อถือพื้นฐานที่ Firebase/Firestore ให้ในฐานะ managed service |
+
+*Cost/Resource Efficiency ยังไม่ถูกยกเป็น NFR category formal ในรอบนี้
+(partial scope ตาม CLAUDE.md §7.7) เนื่องจากยังไม่มีสัญญาณความจำเป็นทาง
+ธุรกิจที่ชัดเจน สามารถเพิ่มในรอบถัดไปได้หากมีการร้องขอ*
 
 ---
 
@@ -332,12 +347,28 @@ Questions) และต้องให้ Admin สามารถดูได�
    (เช่น การตรวจสอบการจดทะเบียนธุรกิจ)?
 4. Consent flow และระยะเวลาการเก็บรักษาข้อมูล (data retention) ตาม PDPA
    แบบใดที่ฝ่ายกฎหมาย/compliance ต้องการโดยเฉพาะเจาะจง?
+   **Resolved (v1.2) — บางส่วน:** กำหนด retention period เป็น **3 ปี** หลัง
+   บัญชีถูกปิด/ไม่มีการใช้งาน เป็น working decision สำหรับ §7 (ดู
+   Non-Functional Requirements) แต่รูปแบบ **consent flow** โดยละเอียด
+   (ข้อความ, ช่องทางขอความยินยอม, การถอนความยินยอม) ยังคงเป็น open
+   question ที่ต้องยืนยันจากฝ่ายกฎหมาย/compliance ก่อนเข้าสู่ production จริง
 5. SP Point จะมีวันหมดอายุหรือไม่ และถ้ามี จะใช้นโยบายแบบใด?
 6. SLA/timeout สำหรับการอนุมัติ transaction ที่อยู่ในสถานะ
    `PENDING_APPROVAL` ของ merchant ก่อนที่จะเปลี่ยนไปเป็น `CANCELLED`
    โดยอัตโนมัติ คือเท่าใด?
+   **Resolved (v1.2):** กำหนดเป็น **48 ชั่วโมง** เป็น working decision
+   (จุดสมดุลสำหรับร้านค้าชุมชนที่อาจปิดร้าน 1–2 วัน) — ยังไม่ได้ปรับ
+   FT-019/US-022 (Merchant Approval SLA/Auto-Cancel, ปัจจุบัน Blocked/
+   Post-MVP) ให้สะท้อนค่านี้ ต้องดำเนินการเมื่อ Feature List/Backlog
+   ถูกแก้ไขในรอบถัดไป
 7. ลูกค้าจะได้เห็นหรือได้รับการแจ้งเตือนหรือไม่ ในระหว่างที่ transaction
    กำลังรอการอนุมัติจาก merchant (`PENDING_APPROVAL`)?
+8. **(ใหม่ v1.2)** Merchant ควรมี feature กำหนดเวลาทำการของร้านตัวเองใน
+   ระบบหรือไม่ (ใช้เป็นฐานคำนวณ Availability NFR ตามเวลาทำการจริงแทนค่า
+   เริ่มต้น 24 ชั่วโมง/วันที่ใช้อยู่ใน §7 ตอนนี้)?
+9. **(ใหม่ v1.2)** งบประมาณ/เครื่องมือสำหรับ Observability (Cloud Logging &
+   Monitoring) และ Disaster Recovery (scheduled Firestore export) ที่ระบุ
+   ใน §7 อยู่ในขอบเขตที่อนุมัติสำหรับ MVP/pilot หรือไม่?
 
 ---
 

@@ -3,9 +3,9 @@
 **Project:** ShopPlus Global — Community Commerce Platform
 **Document Type:** Feature List (MoSCoW)
 **Phase:** 01-requirements
-**Version:** 1.0
+**Version:** 1.1
 **Status:** Draft — pending stakeholder review
-**Date:** 2026-08-17
+**Date:** 2026-08-24
 **Prepared by:** Feature List Analyst Agent (AI Native Development Workflow)
 **Source:** `01-business-requirement.md` (v1.1) + `02-product-backlog.md` (v1.1)
 
@@ -16,6 +16,7 @@
 | Version | Status | Change Summary |
 |---|---|---|
 | 1.0 | Draft — pending stakeholder review | รวบรวม Feature ทั้งหมดจาก BRD v1.1 และ Product Backlog v1.1 เป็น Feature List เดียว จัดลำดับความสำคัญด้วย MoSCoW |
+| 1.1 | Draft — pending stakeholder review | **Sync จาก BRD v1.2 / Product Backlog v1.2 (NFR Deep-Dive Review)** ตาม `traceability-consistency-check`: FT-019 ปลด Blocked (BRD Open Question 6 ตอบแล้ว — SLA 48 ชั่วโมง), FT-018 ยัง Blocked บางส่วน (retention period ตอบแล้ว = 3 ปี แต่ consent flow ยังไม่ตอบ) — MoSCoW ของทั้งสอง Feature ไม่เปลี่ยนแปลง (คงเป็น Should have/Could have ตามเดิม รอ product owner ทบทวนอีกครั้งถ้าต้องการ) |
 
 ---
 
@@ -67,8 +68,8 @@ User Journey
 | FT-015 | Immutable Transaction Audit Log | Transaction Audit & Traceability | Must have | FR-020, FR-022 | US-018 | Sprint 3 |
 | FT-016 | PDPA Consent Management | PDPA Compliance & Data Security | Must have | — | US-019 | Sprint 1 |
 | FT-017 | Data Minimization & Secure Access Control | PDPA Compliance & Data Security | Must have | — | US-020 | Sprint 1 |
-| FT-018 | Data Retention Policy | PDPA Compliance & Data Security | Should have | — | US-021 | Post-MVP (Blocked) |
-| FT-019 | Merchant Approval SLA / Auto-Cancel | Core Reward Logic (Cross-cutting) | Could have | — | US-022 | Post-MVP (Blocked) |
+| FT-018 | Data Retention Policy | PDPA Compliance & Data Security | Should have | — | US-021 | Post-MVP (Blocked บางส่วน) |
+| FT-019 | Merchant Approval SLA / Auto-Cancel | Core Reward Logic (Cross-cutting) | Could have | — | US-022 | Post-MVP (Unblocked, รอจัดเข้า sprint) |
 | FT-020 | Merchant Campaigns & Promotions | Merchant Application (Post-MVP) | Could have | FR-008 | US-011 | Post-MVP |
 | FT-021 | Customer Behavior Insights | Merchant Application (Post-MVP) | Won't have (this release) | FR-011 | US-012 | Post-MVP |
 | FT-022 | Shop Discovery & Search | Customer Application (Post-MVP) | Could have | FR-005 | US-013 | Post-MVP |
@@ -296,11 +297,13 @@ US-020
 **Description:** นโยบายการเก็บรักษาและ archive/ลบข้อมูลส่วนบุคคลและ
 audit log ตามที่ PDPA กำหนด
 
-**MoSCoW:** Should have — สำคัญด้าน compliance ระยะยาว แต่ **ยัง
-Blocked** เพราะรอคำตอบจาก BRD Open Question 4 (consent flow และ
-retention period) ยังประมาณการ implementation ไม่ได้จนกว่าจะได้คำตอบ
+**MoSCoW:** Should have — สำคัญด้าน compliance ระยะยาว **ยัง Blocked
+บางส่วน**: BRD v1.2 ตอบ retention period แล้ว (3 ปี หลังบัญชีถูกปิด/ไม่มี
+การใช้งาน เป็น working decision) แต่ **consent flow โดยละเอียด** ยังไม่มี
+คำตอบจาก BRD Open Question 4 — ยังประมาณการ implementation ไม่ได้อย่าง
+มั่นใจจนกว่าจะได้คำตอบส่วนที่เหลือ
 
-**Related FR/US:** ไม่มี FR เฉพาะ (Open Question 4) / US-021
+**Related FR/US:** ไม่มี FR เฉพาะ (Open Question 4 — ตอบบางส่วน) / US-021
 
 ---
 
@@ -310,10 +313,12 @@ retention period) ยังประมาณการ implementation ไม่�
 ไม่ให้ transaction ค้างอยู่ใน `PENDING_APPROVAL` โดยไม่มีกำหนด
 
 **MoSCoW:** Could have — มี FT-014 (manual cancel) เป็นมาตรการชั่วคราว
-รองรับอยู่แล้ว ไม่ block MVP แต่ **ยัง Blocked** เพราะรอคำตอบจาก BRD
-Open Question 6 (ระยะเวลา SLA)
+รองรับอยู่แล้ว ไม่ block MVP **ปลด Blocked แล้ว (v1.2)**: BRD Open
+Question 6 ตอบแล้ว — SLA = 48 ชั่วโมง เป็น working decision พร้อม
+implement ได้ทันที รอ product owner จัดเข้า sprint (MoSCoW คงเป็น Could
+have ตามเดิม เว้นแต่ product owner ต้องการทบทวนใหม่)
 
-**Related FR/US:** ไม่มี FR เฉพาะ (Open Question 6) / US-022
+**Related FR/US:** ไม่มี FR เฉพาะ (Open Question 6 — ตอบแล้ว) / US-022
 
 ---
 
@@ -371,11 +376,13 @@ core loop ของ QR → approval → SP distribution (deprioritize จาก 
   capability ที่ Product Backlog Review ระบุว่าควรเพิ่มเข้า BRD ใน
   revision ถัดไป (FT-002, FT-008, FT-014) — สอดคล้องกับหมายเหตุเดิมใน
   `02-product-backlog.md`
-- FT-018 และ FT-019 ยัง **Blocked** จาก BRD Open Question 4 และ 6
-  ตามลำดับ — MoSCoW ระดับ Should/Could ที่ให้ไว้ในเอกสารนี้ยังไม่
-  เปลี่ยนจนกว่าจะมีคำตอบจาก stakeholder ตาราง summary ควรถูก
-  re-validate ทุกครั้งที่ BRD/Backlog มี revision ใหม่ (ดู "Keeping in
-  Sync" ใน skill `feature-list-and-user-journey.md`)
+- **(v1.1)** FT-019 ปลด Blocked แล้ว — BRD v1.2 ตอบ Open Question 6
+  (SLA = 48 ชั่วโมง) MoSCoW คงเป็น Could have ตามเดิม รอ product owner
+  จัดเข้า sprint จริง FT-018 ยัง **Blocked บางส่วน** — BRD v1.2 ตอบ
+  retention period แล้ว (3 ปี) แต่ consent flow โดยละเอียด (ส่วนที่เหลือ
+  ของ Open Question 4) ยังไม่มีคำตอบ ตาราง summary ควรถูก re-validate
+  ทุกครั้งที่ BRD/Backlog มี revision ใหม่ (ดู "Keeping in Sync" ใน skill
+  `feature-list-and-user-journey.md`)
 
 ---
 
