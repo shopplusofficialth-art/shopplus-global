@@ -40,6 +40,7 @@ sub-agent — เมื่อ routing ไปยัง sub-agent ตัวใด 
 | สร้าง/แก้ Database Schema, Data Model, ER Diagram, รายละเอียด table/entity ระดับ conceptual (ยังไม่ผูกกับ technical stack) | `database-schema-designer` | `data-api-design-standard` (Section A) | `02-design/05-database-schema.md` | 02-design |
 | สร้าง/แก้ API Specification, API Design, endpoint/operation ระดับ conceptual (ยังไม่ผูกกับ protocol/technical stack) | `api-spec-designer` | `data-api-design-standard` (Section B) | `02-design/06-api-spec.md` | 02-design |
 | สร้าง/แก้ Detailed Design, Sequence Flow, Sequence Diagram, interaction flow ระดับ conceptual ต่อ Feature/Scenario (ยังไม่ผูกกับ technical stack) | `detailed-design-writer` | `detailed-design-standard` | `02-design/07-detailed-design.md` | 02-design |
+| สร้าง/แก้ Tech Stack, เลือก/แนะนำ technology stack, framework, library, tool ที่เหมาะสมกับโครงการ | `tech-stack-selector` | `tech-stack-selection-standard` | `02-design/08-tech-stack.md` | 02-design |
 | รันทั้ง pipeline ต่อเนื่องตั้งแต่ Requirement→Backlog→Feature List→User Journey→(Test Plan+Acceptance Criteria→Test Case) ในคำขอเดียว, "เริ่มโปรเจกต์ใหม่ทั้งหมด", "ทำ feature ใหม่ให้ครบตั้งแต่ requirement ถึง test" | `pipeline-orchestrator` | `pipeline-orchestration` | ไฟล์ตาม stage ที่รันจริง (ดู skill `pipeline-orchestration`) | Cross-cutting |
 | ตรวจสอบความสอดคล้อง/traceability ข้ามเอกสาร, "sync", "เช็คทั้งหมดให้หน่อย" | `traceability-consistency-auditor` | `traceability-consistency-check` | Consistency Check Report (+ แก้เอกสารที่กระทบ) | Cross-cutting |
 
@@ -152,6 +153,28 @@ Detailed Design ก็ตาม — **agent นี้ไม่ได้ถูก
 อ้างอิงกันเฉย ๆ ตาม pattern เดียวกับ Database Schema Designer และ
 `02-firestore-data-model.md`)
 
+**Conditional dependency สำหรับ Tech Stack Selector (บล็อกเด็ดขาด):**
+`tech-stack-selector` ต้องมี `01-requirements/03-feature-list.md`
+(`FT-xxx`), `02-design/04-user-journey.md`,
+`02-design/03-system-architecture.md`, `02-design/05-database-schema.md`,
+และ `02-design/06-api-spec.md` ครบก่อนเริ่มงานเสมอ (Decision Matrix ต้อง
+ให้เหตุผลจากขนาด/ความซับซ้อนของระบบจริง ไม่ใช่คิดขึ้นเอง) — ถ้ายังไม่มี/
+ไม่ครบ ให้แจ้งผู้ใช้และเสนอเรียก agent ที่ขาดก่อนตามลำดับ
+`feature-list-analyst` → `user-journey-designer` →
+`architecture-designer` → `database-schema-designer` →
+`api-spec-designer` แม้ผู้ใช้จะขอแค่ Tech Stack ก็ตาม — **agent นี้ไม่ได้
+ถูกผนวกเข้า `pipeline-orchestrator`** ถูกเรียกใช้ผ่าน `Shopplus` โดยตรง
+เท่านั้น `tech-stack-selector` ต้อง**สัมภาษณ์ผู้ใช้แบบเข้มข้น** (ตาม skill
+`tech-stack-selection-standard` Section B) ก่อนเสนอ Decision Matrix เสมอ
+และยึด Firebase/Firestore/Cloud Functions/Web+Mobile target ตาม
+CLAUDE.md หมวด 6 เป็น fixed constraint — ห้ามเสนอให้เปลี่ยนสิ่งเหล่านี้
+เองโดยไม่มีคำขอชัดเจนจากผู้ใช้ เอกสารผลลัพธ์
+(`02-design/08-tech-stack.md`) เป็น**เอกสารแยกอิสระ**จาก
+`02-design/01-transaction-flow.md` และ
+`02-design/02-firestore-data-model.md` เดิม (ไม่แก้ไข ไม่ merge เนื้อหา
+อ้างอิงกันเฉย ๆ ตาม pattern เดียวกับ Database Schema Designer และ
+Detailed Design Writer)
+
 ---
 
 ## Section C: Quality Gate Checklist (รายการตรวจสอบก่อนส่งมอบงาน)
@@ -215,6 +238,18 @@ Detailed Design ก็ตาม — **agent นี้ไม่ได้ถูก
       Diagram (Mermaid `sequenceDiagram`) อย่างน้อย 1 diagram ที่อ้าง
       layer/entity/operation จริง (ไม่มีชื่อที่คิดขึ้นเอง), และไม่ได้
       แก้ไข `02-design/01-transaction-flow.md`
+- [ ] ถ้างานนี้คือ Tech Stack (`02-design/08-tech-stack.md`): ได้ตรวจสอบ
+      ว่ามี Feature List + User Journey + Architecture + Database Schema
+      + API Spec ครบก่อนแล้ว, ได้ทำ Intensive Interview ตาม skill
+      `tech-stack-selection-standard` Section B ครบทุกหมวดที่เกี่ยวข้อง
+      (หมวดที่ไม่ตอบถูกบันทึกใน Open Questions ไม่ใช่สมมติแทน), ได้เสนอ
+      แผนและรอการยืนยันจากผู้ใช้ก่อนเขียนไฟล์จริงแล้ว (Section C), ทุก
+      Decision Point ใน Decision Matrix มีตัวเลือก ≥3 แบบพร้อมเหตุผล/
+      ข้อดี/ข้อเสีย/คำแนะนำ, Final Decision ไม่ถูกสมมติจาก Recommended
+      Option โดยไม่มีการยืนยันจริง, Firebase/Firestore/Cloud
+      Functions/Web+Mobile target ไม่ถูกเปลี่ยนโดยไม่มีคำขอชัดเจนจาก
+      ผู้ใช้ และไม่ได้แก้ไข `02-design/01-transaction-flow.md` หรือ
+      `02-design/02-firestore-data-model.md`
 - [ ] รูปแบบเอกสารสอดคล้องกับเอกสารอื่นในโปรเจกต์ (bilingual heading
       ไทย/อังกฤษ, ตาราง markdown, Revision History table)
 - [ ] ไม่มีการละเมิดกฎ PDPA/Security ของ CLAUDE.md (เช่น เปิดเผยข้อมูล
