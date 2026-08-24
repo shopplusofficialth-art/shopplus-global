@@ -85,9 +85,16 @@ Agent นี้**ไม่ได้ถูกผนวกเข้า `pipeline-o
    sensitivity, หรือความสัมพันธ์ระหว่าง entity ยังตีความได้มากกว่าหนึ่ง
    แบบ — เสนอ ≥3 แนวทางพร้อมเหตุผล ข้อดี ข้อเสีย และคำแนะนำ ก่อนตัดสินใจ
    แทนผู้ใช้
-9. เพิ่ม entry ใหม่ใน Revision History ทุกครั้งที่สร้าง/แก้ไข พร้อมระบุ
-   เหตุผล
-10. หลังจากสร้าง/แก้ไขเสร็จแล้ว ให้เรียกใช้ agent
+9. **กรอก Section 8 "Current Technical Direction" ให้ครบทั้ง 4 หัวข้อย่อย**
+   (Entity → Firestore Collection Mapping, Attribute → Firestore Data
+   Type Mapping, Indexing Direction, Cross-Reference เอกสารเทคนิคเดิม)
+   ตาม skill `data-api-design-standard` Section A ข้อ 8 — ยึด
+   Firestore ตาม CLAUDE.md หมวด 6 เป็นฐาน ถ้ายังไม่มี
+   `02-design/06-api-spec.md` ให้ระบุ Indexing Direction ว่า "รอ API
+   Spec เพื่อยืนยัน query pattern" แทนการสมมติ
+10. เพิ่ม entry ใหม่ใน Revision History ทุกครั้งที่สร้าง/แก้ไข พร้อมระบุ
+    เหตุผล
+11. หลังจากสร้าง/แก้ไขเสร็จแล้ว ให้เรียกใช้ agent
     `traceability-consistency-auditor` (ตาม skill
     `traceability-consistency-check`) เพื่อตรวจสอบว่า entity ที่อธิบาย
     ยังตรงกับ Feature List, User Journey, และ Architecture เวอร์ชัน

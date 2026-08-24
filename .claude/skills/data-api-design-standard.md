@@ -141,9 +141,32 @@ Architecture §6 และ `FT-xxx`/journey step ที่เกี่ยวข�
 เดียวที่อนุญาตให้กล่าวถึงชื่อ technology ได้ ต้องขึ้นต้นด้วยข้อความ
 ชัดเจนแบบเดียวกับที่ `architecture-design-standard` กำหนด (**"ส่วนนี้
 สะท้อนทิศทางเทคนิคปัจจุบันตาม CLAUDE.md หมวด 6 เท่านั้น ไม่ใช่ constraint
-ของ data model ระดับแนวคิดข้างต้น"**) ตามด้วยลิงก์ไปยัง
-`02-design/02-firestore-data-model.md` ถ้ามีอยู่ พร้อมสรุปสั้น ๆ ว่า
-entity แนวคิดใดใน §2 ถูก map ไปเป็น collection ใดบ้างในเอกสารนั้น
+ของ data model ระดับแนวคิดข้างต้น"**) ตามด้วยหัวข้อย่อยครบทั้ง 4 ข้อนี้
+เสมอ (ไม่ใช่แค่ลิงก์ + สรุปสั้น ๆ แบบเดิม):
+
+  - **8.1 Entity → Firestore Collection Mapping** — ตาราง: Entity Name
+    (ตรงกับข้อ 2) | Firestore Collection Path (root collection หรือ
+    subcollection พร้อมเหตุผลถ้าเลือก subcollection) | Document ID
+    Strategy (auto-generated ID / custom ID เช่น ใช้ transaction code) |
+    หมายเหตุการ denormalize (ถ้ามี ระบุว่า field ใดถูกทำซ้ำข้าม
+    collection เพื่อลด join ตาม Known Platform Constraints ใน
+    `02-design/03-system-architecture.md` §8.2)
+  - **8.2 Attribute → Firestore Data Type Mapping** — ตาราง: Conceptual
+    Type (จากข้อ 2) | Firestore Data Type ที่สอดคล้อง (`Text`→`string`,
+    `Number`→`number`, `Decimal`→`number`, `Boolean`→`boolean`,
+    `Date/Time`→`Timestamp`, `Enum`→`string` พร้อม comment ค่าที่เป็นไปได้,
+    `Reference`→`DocumentReference` หรือ ID string ระบุแนวทางที่เลือก,
+    `Structured/JSON`→`Map`) | หมายเหตุ
+  - **8.3 Indexing Direction (แนวทาง Index เบื้องต้น)** — รายการ
+    composite index ที่คาดว่าจำเป็น โดยอ้างอิงจาก query pattern ที่ระบุไว้
+    ใน Operation Catalog ของ `02-design/06-api-spec.md` (ถ้ายังไม่มี API
+    Spec ในรอบนี้ ให้ระบุ "รอ API Spec เพื่อยืนยัน query pattern" แทนการ
+    สมมติ)
+  - **8.4 Cross-Reference เอกสารเทคนิคเดิม** — ลิงก์ไปยัง
+    `02-design/02-firestore-data-model.md` ถ้ามีอยู่ พร้อมสรุปสั้น ๆ ว่า
+    entity แนวคิดใดใน §2 ถูก map ไปเป็น collection ใดบ้างในเอกสารนั้น
+    (ถ้าขัดกับ 8.1 ที่เพิ่งกำหนดใหม่ ให้ flag ความขัดแย้งไว้ใน Open
+    Questions ข้อ 9 แทนการเลือกฝั่งใดฝั่งหนึ่งเงียบ ๆ)
 
 **9. Open Questions / Assumptions**
 
@@ -237,7 +260,28 @@ authN/authZ ระดับแนวคิด (ต้องสอดคล้อ
 
 **7. Current Technical Direction (Non-Binding Reference)** — Section
 เดียวที่อนุญาตให้ระบุ protocol/HTTP method/URL scheme จริงได้ ต้องขึ้นต้น
-ด้วยข้อความชัดเจนแบบเดียวกับ Section A ข้อ 8
+ด้วยข้อความชัดเจนแบบเดียวกับ Section A ข้อ 8 ตามด้วยหัวข้อย่อยครบทั้ง 4
+ข้อนี้เสมอ (ไม่ใช่แค่ประกาศ protocol ลอย ๆ แบบเดิม):
+
+  - **7.1 Operation → Cloud Function Mapping** — ตาราง: Operation Name
+    (ตรงกับข้อ 3) | Trigger Type (`HTTPS Callable` / `onRequest HTTP
+    Trigger` / `Firestore Trigger` (onCreate/onUpdate/onDelete) /
+    `Scheduled Function`) | ชื่อ Cloud Function ที่แนะนำ (convention:
+    verbNoun เช่น `approveTransaction`) | หมายเหตุ
+  - **7.2 Auth & Transport Notes** — อธิบายว่า operation ส่วนใหญ่เรียก
+    ผ่าน Firebase Client SDK (Callable Function ส่ง Firebase Auth ID
+    token อัตโนมัติ) หรือกรณีใดที่ต้องใช้ `onRequest` HTTP endpoint จริง
+    (ระบุ HTTP method ณ ที่นี้เท่านั้น) พร้อมระบุว่า operation ใดต้อง
+    ตรวจสอบ Firebase Auth token/custom claims ก่อนประมวลผล (สอดคล้องกับ
+    §6 Security & PDPA Considerations ข้างต้น)
+  - **7.3 Error Mapping (แนวทาง map ไปยัง `functions.https.HttpsError`)**
+    — ตาราง: Error/Exception Condition เชิงแนวคิด (จากข้อ 3) | Suggested
+    `HttpsError` code (เช่น `invalid-argument`, `permission-denied`,
+    `failed-precondition`, `not-found`, `already-exists`) | หมายเหตุ —
+    ระบุชัดว่าเป็นแนวทางเริ่มต้น ไม่ใช่ contract บังคับตายตัว
+  - **7.4 Cross-Reference เอกสารเทคนิคเดิม** — ถ้ามีรายละเอียด
+    protocol/endpoint เดิมจากเอกสารก่อนหน้าที่มีคุณค่า ให้สรุปไว้ที่นี่
+    และชี้ไปยังเอกสารเทคนิคแยกถ้ามี
 
 **8. Open Questions / Assumptions**
 

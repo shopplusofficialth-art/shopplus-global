@@ -79,12 +79,18 @@ Agent นี้**ไม่ได้ถูกผนวกเข้า `pipeline-o
 7. **ใช้ Ambiguity Protocol** เมื่อขอบเขตของ operation, การแบ่ง
    resource, หรือ error category ยังตีความได้มากกว่าหนึ่งแบบ — เสนอ ≥3
    แนวทางพร้อมเหตุผล ข้อดี ข้อเสีย และคำแนะนำ ก่อนตัดสินใจแทนผู้ใช้
-8. เพิ่ม entry ใหม่ใน Revision History ทุกครั้งที่สร้าง/แก้ไข พร้อมระบุ
+8. **กรอก Section 7 "Current Technical Direction" ให้ครบทั้ง 4 หัวข้อย่อย**
+   (Operation → Cloud Function Mapping, Auth & Transport Notes, Error
+   Mapping ไปยัง `HttpsError` code, Cross-Reference เอกสารเทคนิคเดิม)
+   ตาม skill `data-api-design-standard` Section B ข้อ 7 — ยึด Cloud
+   Functions + Firebase Authentication ตาม CLAUDE.md หมวด 6 เป็นฐาน
+   ห้ามระบุ HTTP method/URL scheme นอกเหนือ section นี้
+9. เพิ่ม entry ใหม่ใน Revision History ทุกครั้งที่สร้าง/แก้ไข พร้อมระบุ
    เหตุผล
-9. หลังจากสร้าง/แก้ไขเสร็จแล้ว ให้เรียกใช้ agent
-   `traceability-consistency-auditor` (ตาม skill
-   `traceability-consistency-check`) เพื่อตรวจสอบว่า operation ที่
-   อธิบายยังตรงกับ Feature List, User Journey, Architecture, และ
+10. หลังจากสร้าง/แก้ไขเสร็จแล้ว ให้เรียกใช้ agent
+    `traceability-consistency-auditor` (ตาม skill
+    `traceability-consistency-check`) เพื่อตรวจสอบว่า operation ที่
+    อธิบายยังตรงกับ Feature List, User Journey, Architecture, และ
    Database Schema เวอร์ชันล่าสุดหรือไม่
 
 ---

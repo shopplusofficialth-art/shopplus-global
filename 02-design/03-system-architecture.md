@@ -1,8 +1,8 @@
 # ShopPlus Global — High-Level Architecture (Conceptual)
 
-**Version:** 2.1
+**Version:** 2.2
 
-**Last Updated:** 2026-08-23
+**Last Updated:** 2026-08-24
 
 **Document Owner:** Architecture Designer Agent (AI Native Development Workflow)
 
@@ -17,6 +17,7 @@
 | 1.0 | 2026-08-04 (ประมาณการจาก merge history) | Solution Architect (มนุษย์/ไม่ผ่าน agent) | เอกสารเริ่มต้น อธิบาย architecture โดยผูกกับ technology stack เฉพาะเจาะจง (Firebase, Firestore, Cloud Functions, Next.js, React) ตลอดทั้งเอกสาร |
 | 2.0 | 2026-08-23 | Architecture Designer Agent | ปรับทั้งฉบับให้เป็น **conceptual/technology-agnostic** ตามคำขอ: (1) แยก layer/component ออกจากชื่อ technology เฉพาะเจาะจง (2) ย้ายรายละเอียด Firebase/Next.js/Firestore เดิมไปไว้ใน §8 "Current Technical Direction (Non-Binding Reference)" (3) เพิ่ม §5 Data Flow per User Journey โดยอ้างอิง `FT-xxx`/journey step จริงจาก `02-design/04-user-journey.md` แทนการอธิบาย flow แบบลอย ๆ (4) เพิ่ม §9 Open Questions/Assumptions รวม gap ที่พบระหว่างจัดทำ |
 | 2.1 | 2026-08-23 | Traceability & Consistency Auditor (trigger: Database Schema Designer สร้าง `02-design/05-database-schema.md` v1.0) | เพิ่ม entity **"QR Transaction Token"** เข้า §6 Key Conceptual Data Entities — Database Schema Designer พบว่า FT-002 (Merchant QR Code Generation & Management) มี lifecycle ของโค้ดที่เกิดขึ้นก่อน Transaction Record จะถูกสร้าง (ออกโค้ด → รอสแกน → อาจหมดอายุ/ถูกยกเลิกโดยยังไม่มี transaction เกิดขึ้นเลย) ซึ่ง §6 เดิมไม่ได้ระบุไว้ — ผู้ใช้ยืนยันแนวทางนี้แล้วในขั้นตอน Plan Proposal ของ Database Schema Designer จึงถือเป็นการแก้ไข 🔧 (มีที่มาชัดเจนจาก FT-002 ที่มีอยู่แล้ว ไม่ใช่ capability ใหม่) |
+| 2.2 | 2026-08-24 | Architecture Designer Agent | ปรับ §8 "Current Technical Direction" ให้ครบ 3 หัวข้อย่อยตาม skill `architecture-design-standard` Section C ข้อ 8 ที่ปรับปรุงใหม่: จัดตาราง layer→technology เดิมเข้า §8.1, เพิ่ม §8.2 "Known Platform Constraints" (ข้อจำกัดของ Firestore/Cloud Functions ที่ทราบ), และย้าย cross-reference ไปยัง `02-firestore-data-model.md` เข้า §8.3 — ไม่มีการเปลี่ยนแปลง layer/data flow/entity ระดับ conceptual ใน §1–§7 |
 
 ---
 
@@ -340,17 +341,53 @@ only (FT-015) — ไม่มีช่องทางแก้ไขหรื�
 
 > ส่วนนี้สะท้อนทิศทางเทคนิคปัจจุบันตาม `CLAUDE.md` หมวด 6 เท่านั้น
 > **ไม่ใช่ constraint ของ architecture ระดับแนวคิดใน §1–§7 ข้างต้น** และ
-> เปลี่ยนแปลงได้โดยไม่กระทบโครงสร้าง layer/data flow ที่อธิบายไว้ —
-> รายละเอียดด้านล่างสรุปมาจากฉบับ v1.0 ของเอกสารนี้ เพื่อรักษาข้อมูลที่
-> ยังมีประโยชน์ไว้อ้างอิง
+> เปลี่ยนแปลงได้โดยไม่กระทบโครงสร้าง layer/data flow ที่อธิบายไว้
 
-| Conceptual Layer/Entity | แนวทางเทคนิคปัจจุบัน (ไม่ผูกมัด) |
-|---|---|
-| Experience Layer | Web Application + Mobile Application (เดิมระบุ Next.js/React + Firebase SDK สำหรับ web) |
-| Orchestration / API Layer + Business Logic Layer | Firebase Cloud Functions |
-| Data & Ledger Layer | Firebase Firestore — collection ระดับสูงที่เคยระบุไว้: `users`, `merchants`, `transactions`, `rewards`, `marketingFunds`, `auditLogs` (ดูรายละเอียด schema จริงที่ `02-design/02-firestore-data-model.md` ถ้ามีอยู่) |
-| Authentication (Cross-Cutting) | Firebase Authentication |
-| Deployment | Firebase Hosting, Cloud Functions, Firestore, Cloud Storage — deploy ผ่าน GitHub Repository → CI/CD Process → Production Environment |
+### 8.1 Layer → Technology Mapping (การ map Layer แนวคิดกับเทคโนโลยีปัจจุบัน)
+
+| Conceptual Layer (§3) | Firebase/GCP Service ที่ใช้จริงตอนนี้ | หมายเหตุ |
+|---|---|---|
+| Experience Layer | Web Application (Firebase Hosting) + Mobile Application | เดิมระบุ Next.js/React + Firebase SDK สำหรับ web (ตาม CLAUDE.md หมวด 6 "Target: Web + Mobile") |
+| Orchestration / API Layer | Firebase Cloud Functions (HTTPS Callable / HTTP Trigger) | รับคำขอจาก Experience Layer แล้วส่งต่อ Business Logic Layer |
+| Business Logic Layer | Firebase Cloud Functions | ต้องอยู่ฝั่ง backend เท่านั้น ตาม CLAUDE.md หมวด 6 "Development Principle" — Client ไม่คำนวณ/กำหนดผลลัพธ์เอง |
+| Data & Ledger Layer | Firebase Firestore — collection ระดับสูงที่เคยระบุไว้: `users`, `merchants`, `transactions`, `rewards`, `marketingFunds`, `auditLogs` (ดูรายละเอียด schema จริงที่ `02-design/02-firestore-data-model.md` ถ้ามีอยู่) | ดู §8.3 สำหรับ gap ที่พบระหว่าง entity แนวคิดกับ collection จริง |
+| Intelligence / Analytics Layer | ยังไม่กำหนด — รอ Tech Stack Selection | ยังไม่มี Feature ระดับ Must/Should have ที่ต้องใช้ layer นี้ (ดู §3.5) จึงยังไม่ระบุบริการเทคนิคจริง |
+| Cross-Cutting: Security, Audit & Compliance | Firebase Authentication | ยืนยันตัวตนและสิทธิ์ตาม role — กลไก authorization/security rule ระดับละเอียดยังไม่ระบุ |
+| Deployment | Firebase Hosting, Cloud Functions, Firestore, Cloud Storage — deploy ผ่าน GitHub Repository → CI/CD Process → Production Environment | |
+
+### 8.2 Known Platform Constraints (ข้อจำกัดที่ทราบของทิศทางเทคนิคปัจจุบัน)
+
+ข้อจำกัดเชิงเทคนิคของ Firebase/Firestore/Cloud Functions ที่อาจกระทบการ
+ออกแบบเชิงเทคนิคในเอกสารถัดไปของสาย 02-design (ไม่ใช่ constraint ของ
+conceptual layer/data flow ข้างต้น — เป็นข้อมูลอ้างอิงให้
+`database-schema-designer`/`api-spec-designer`/`detailed-design-writer`
+ใช้ประกอบการตัดสินใจ):
+
+- **ไม่มี join ข้าม collection โดยตรง** — Firestore เป็น document database
+  การอ่านข้อมูลที่ต้องรวมจากหลาย entity (เช่น Flow 8 "Merchant Fee &
+  Transaction Reconciliation" ที่รวม Transaction Record + Marketing Fund
+  Ledger Entry) มักต้อง denormalize field บางส่วนซ้ำข้าม collection หรือ
+  query แยกแล้วรวมผลที่ Business Logic Layer
+- **Cloud Functions มี cold start latency** — operation ที่ต้อง
+  response เร็ว (เช่น Flow 4 "Transaction Creation via QR Scan" ที่
+  customer รอผลทันทีหลังสแกน) ควรพิจารณาผลกระทบนี้เมื่อออกแบบ API Spec
+- **ขีดจำกัดเรื่อง composite query/index ของ Firestore** — query ที่กรอง
+  มากกว่า 1 field พร้อมกัน (เช่น Flow 5 "View Pending Transaction Queue"
+  ที่กรองด้วย merchantId + status) ต้องสร้าง composite index ล่วงหน้า —
+  ดูรายละเอียดที่ `02-design/05-database-schema.md` §8.3 "Indexing
+  Direction"
+- **Transaction/Batch write มีขีดจำกัดจำนวนเอกสารต่อครั้ง** — เกี่ยวข้อง
+  กับ Flow 5 ที่ต้องบันทึก Reward Ledger Entry + Marketing Fund Ledger
+  Entry + เปลี่ยนสถานะ Transaction แบบ atomic (CLAUDE.md หมวด 4
+  "Approval-Gated Calculation")
+
+### 8.3 Cross-Reference เอกสารเทคนิคเดิม
+
+รายละเอียด field-level schema จริงของทิศทาง Firestore ปัจจุบันอยู่ที่
+`02-design/02-firestore-data-model.md` (เอกสารแยกอิสระ ไม่ได้ถูกแก้ไขโดย
+agent นี้) — ดู `02-design/05-database-schema.md` §8.1 "Entity →
+Firestore Collection Mapping" สำหรับ mapping ระดับ entity ที่ละเอียดกว่า
+ตารางใน §8.1 ข้างต้น
 
 ---
 

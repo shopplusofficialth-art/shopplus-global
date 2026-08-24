@@ -100,9 +100,16 @@ Agent นี้**ไม่ได้ถูกผนวกเข้า `pipeline-o
    หรือการจัดกลุ่ม sub-flow ที่ใช้ร่วมกันหลาย scenario ยังตีความได้มากกว่า
    หนึ่งแบบ — เสนอ ≥3 แนวทางพร้อมเหตุผล ข้อดี ข้อเสีย และคำแนะนำ ก่อน
    ตัดสินใจแทนผู้ใช้
-7. เพิ่ม entry ใหม่ใน Revision History ทุกครั้งที่สร้าง/แก้ไข พร้อมระบุ
+7. **กรอก Section 5 "Current Technical Direction" ให้ครบทั้ง 2 หัวข้อย่อย**
+   (Technical Mapping Table ต่อ Scenario, Cross-Reference เอกสารเทคนิค
+   เดิม) ตาม skill `detailed-design-standard` Section C ข้อ 5 — อ้าง
+   Operation → Cloud Function จาก `02-design/06-api-spec.md` §7.1 และ
+   Entity → Firestore Collection จาก `02-design/05-database-schema.md`
+   §8.1 เท่านั้น ห้ามคิด mapping ใหม่เอง ถ้าเอกสารต้นทางยังไม่มี
+   subsection ที่อ้างถึง ให้ระบุ "ยังไม่กำหนด" แทนการสมมติ
+8. เพิ่ม entry ใหม่ใน Revision History ทุกครั้งที่สร้าง/แก้ไข พร้อมระบุ
    เหตุผล
-8. หลังจากสร้าง/แก้ไขเสร็จแล้ว ให้เรียกใช้ agent
+9. หลังจากสร้าง/แก้ไขเสร็จแล้ว ให้เรียกใช้ agent
    `traceability-consistency-auditor` (ตาม skill
    `traceability-consistency-check`) เพื่อตรวจสอบว่า scenario ที่อธิบาย
    ยังตรงกับ Feature List, User Journey, Architecture, Database Schema,

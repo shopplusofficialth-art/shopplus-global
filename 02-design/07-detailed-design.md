@@ -1,12 +1,12 @@
 # ShopPlus Global — Detailed Design (Conceptual)
 
-**Version:** 1.0
+**Version:** 1.1
 
 **Last Updated:** 2026-08-24
 
 **Document Owner:** Detailed Design Writer Agent (AI Native Development Workflow)
 
-**Source:** `01-requirements/03-feature-list.md` (v1.0), `02-design/04-user-journey.md` (v1.0), `02-design/03-system-architecture.md` (v2.1), `02-design/05-database-schema.md` (v1.0), `02-design/06-api-spec.md` (v1.0)
+**Source:** `01-requirements/03-feature-list.md` (v1.0), `02-design/04-user-journey.md` (v1.0), `02-design/03-system-architecture.md` (v2.2), `02-design/05-database-schema.md` (v1.1), `02-design/06-api-spec.md` (v1.1)
 
 ---
 
@@ -15,6 +15,7 @@
 | Version | Date | Author/Agent | Description of Change |
 |---|---|---|---|
 | 1.0 | 2026-08-24 | Detailed Design Writer Agent | เอกสารเริ่มต้น ครอบคลุม FT-001–017 (ทุก Feature ที่มี Operation รองรับใน API Spec ปัจจุบัน) เป็น 19 scenario ใน 10 กลุ่ม (อิงตาม Architecture §5 Flow 1–10) พร้อม Sequence Diagram (Mermaid) บังคับทุก scenario, Traceability Map, และ Cross-Scenario Notes — ผู้ใช้ยืนยัน Plan Proposal แล้วก่อนเริ่มเขียน — ผ่าน `traceability-consistency-auditor` ก่อน finalize แล้ว 🔧 พบและแก้ไขจุดที่ Audit Entry หายไปใน Scenario 2.2, 3.1, 6.1 (`QR_TOKEN_CANCELLED`, `TRANSACTION_CREATED`, `REDEMPTION_ISSUED` — eventType ที่มีอยู่จริงใน Database Schema §2.8 แต่ไม่มี diagram สร้าง audit trail ให้ครบ) |
+| 1.1 | 2026-08-24 | Detailed Design Writer Agent | ปรับ §5 "Current Technical Direction" ให้ครบ 2 หัวข้อย่อยตาม skill `detailed-design-standard` Section C ข้อ 5 ที่ปรับปรุงใหม่: เพิ่ม §5.1 "Technical Mapping Table ต่อ Scenario" ครบทั้ง 19 scenario โดยอ้าง Operation→Cloud Function จาก `02-design/06-api-spec.md` §7.1 และ Entity→Firestore Collection จาก `02-design/05-database-schema.md` §8.1 เท่านั้น (ไม่คิด mapping ใหม่) และย้ายหมายเหตุ cross-reference เดิมเข้า §5.2 — ไม่มีการเปลี่ยนแปลง scenario/sequence diagram ระดับ conceptual ใน §1–§4 |
 
 ---
 
@@ -781,6 +782,39 @@ Orchestration/API Layer ก่อนเสมอ ตาม Scenario 1.2 — ไ�
 > constraint ของ sequence ระดับแนวคิดข้างต้น และเปลี่ยนแปลงได้โดยไม่
 > กระทบลำดับขั้นตอนที่อธิบายไว้
 
+### 5.1 Technical Mapping Table ต่อ Scenario
+
+ต่อ 1 scenario ในข้อ 3 — Operation อ้างจาก
+`02-design/06-api-spec.md` §7.1 "Operation → Cloud Function Mapping"
+และ Entity อ้างจาก `02-design/05-database-schema.md` §8.1 "Entity →
+Firestore Collection Mapping" เท่านั้น (ไม่คิด mapping ใหม่) — ช่องที่
+เอกสารต้นทางระบุเป็น gap (ยังไม่มี collection รองรับ) จะระบุว่า "ยังไม่
+กำหนด (gap)" แทนการสมมติ:
+
+| Scenario | Operation → Cloud Function | Entity → Firestore Collection |
+|---|---|---|
+| 1.1 Registration & Consent Granted | `registerCustomerAccount`, `submitPdpaConsentDecision` | `users` |
+| 1.2 Consent Withheld or Withdrawn | `submitPdpaConsentDecision` | `users` |
+| 2.1 Generate QR Successfully | `upsertMerchantProfile`, `generateQrToken` | `merchants`; QR Transaction Token → ยังไม่กำหนด (gap) |
+| 2.2 Cancel QR Before Scan | `cancelQrToken` | QR Transaction Token → ยังไม่กำหนด (gap); Audit Entry → ยังไม่กำหนด (gap — ยังไม่มี Transaction Record ให้ nest `events` subcollection) |
+| 3.1 Valid Scan Creates Transaction | `createTransactionFromQrScan` | `transactions`; QR Transaction Token → ยังไม่กำหนด (gap); Audit Entry → `transactions/{transactionId}/events` |
+| 3.2 Invalid/Expired/Reused QR Rejected | `createTransactionFromQrScan` | QR Transaction Token → ยังไม่กำหนด (gap) |
+| 4.1 Approve → Distribute SP | `getPendingTransactionQueue`, `approveTransaction` (เรียก Distribute SP & Marketing Fee แบบ internal ภายในฟังก์ชันเดียวกัน) | `transactions`, `spLedger` (`CUSTOMER_REWARD`), `marketingFunds`/`spLedger` (`MARKETING_FUND`/`SHOPPLUS_REVENUE`), `transactions/{transactionId}/events` |
+| 4.2 Reject Transaction | `rejectTransaction` | `transactions`, `transactions/{transactionId}/events` |
+| 5.1 View Balance & Transaction History | `getSpBalanceAndLedger`, `getOwnTransactionHistory` | `spLedger`, `transactions` |
+| 6.1 Successful Redemption & Fulfillment | `requestRedemption`, `fulfillRedemption` | `spLedger`; Redemption Reference → ยังไม่กำหนด (gap); Audit Entry → ยังไม่กำหนด (gap — redemption ไม่ nest ใต้ `transactions`) |
+| 6.2 Insufficient SP Balance | `requestRedemption` | `spLedger` |
+| 6.3 Fulfill Already-Fulfilled Redemption | `fulfillRedemption` | Redemption Reference → ยังไม่กำหนด (gap) |
+| 7.1 View Reconciliation | `getMarketingFeeReconciliation` | `transactions`, `marketingFunds`/`spLedger` |
+| 8.1 Manage Account Status | `adminManageAccountStatus` | `users`, `merchants`; Audit Entry → ยังไม่กำหนด (gap — ไม่ใช่ transaction-scoped) |
+| 8.2 View Reward Rule Configuration | `getRewardRuleConfiguration` | *(ไม่มี — ค่าคงที่ที่กำหนดใน Cloud Function configuration ไม่ใช่ Firestore document ตาม Traceability Map §2)* |
+| 8.3 System Monitoring Dashboard | `getTransactionMonitoringAggregate` | `transactions` |
+| 8.4 Manual Transaction Cancellation | `adminCancelTransaction` | `transactions`, `transactions/{transactionId}/events` |
+| 9.1 Search Audit Log | `searchAuditLog` | `transactions/{transactionId}/events` (จำกัดเฉพาะเหตุการณ์ระดับ transaction — ดู gap เดียวกันใน Database Schema §8.1) |
+| 10.1 View/Update Own Profile | `getOwnProfile`, `updateOwnProfile` | `users` |
+
+### 5.2 Cross-Reference เอกสารเทคนิคเดิม
+
 `02-design/01-transaction-flow.md` (เอกสารเดิม, pre-agent) อธิบาย
 transaction lifecycle แบบผูกกับ Firebase Authentication/Cloud
 Functions/Firestore อยู่แล้ว — เอกสารนั้น**เป็นเอกสารแยกอิสระ** ไม่ได้ถูก
@@ -793,9 +827,8 @@ Lifecycle" ของเอกสารนั้น ยกเว้นสถา�
 
 ตามทิศทางปัจจุบัน (Firebase Cloud Functions) แต่ละ message ระหว่าง
 Orchestration/API Layer ↔ Business Logic Layer ในทุก sequence diagram
-ข้างต้นสอดคล้องกับการเรียก Cloud Function 1 ครั้งต่อ 1 Operation — ยังไม่
-มีการระบุ trigger type/protocol ที่ชัดเจน (ดู `02-design/06-api-spec.md`
-§7)
+ข้างต้นสอดคล้องกับการเรียก Cloud Function 1 ครั้งต่อ 1 Operation ตาม §5.1
+ข้างต้น
 
 ---
 
