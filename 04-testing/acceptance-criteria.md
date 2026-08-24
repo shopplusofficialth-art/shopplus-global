@@ -3,11 +3,11 @@
 **Project:** ShopPlus Global — Community Commerce Platform
 **Document Type:** Acceptance Criteria
 **Phase:** 04-testing
-**Version:** 1.1
+**Version:** 1.2
 **Status:** Draft — pending stakeholder review
-**Date:** 2026-08-17
+**Date:** 2026-08-24
 **Prepared by:** Acceptance Criteria Writer Agent (ผ่าน Shopplus Orchestrator, AI Native Development Workflow)
-**Source:** `01-requirements/02-product-backlog.md` (v1.1, EPIC-03: US-004, US-005) + `01-requirements/03-feature-list.md` (v1.0, FT-005) + `03-development/01-prototype-log.md` (v1.2, PT-005-01)
+**Source:** `01-requirements/02-product-backlog.md` (v1.2, EPIC-03: US-004, US-005; Cross-Cutting: US-022) + `01-requirements/03-feature-list.md` (v1.1, FT-005, FT-019) + `03-development/01-prototype-log.md` (v1.2, PT-005-01)
 
 ---
 
@@ -17,6 +17,7 @@
 |---|---|---|
 | 1.0 | Draft — pending stakeholder review | สร้างเอกสารแรก — migrate Acceptance Criteria ของ US-004/US-005 (EPIC-03, ผูกกับ FT-005) จาก `01-requirements/02-product-backlog.md` เข้าโครงสร้าง `acceptance-criteria.md` ตาม skill `acceptance-criteria-standard` (แทนที่การเก็บ AC แบบฝังในเนื้อ Backlog อย่างเดียว) พร้อมเพิ่ม AC-005-03 ที่เคย flag เป็น "New" ไว้ใน `04-testing/01-test-spec.md` เดิม (TC-005-06, ยืนยันด้วย Prototype PT-005-01) |
 | 1.1 | Draft — pending stakeholder review | **Sync citation only** (housekeeping, ไม่มีการเปลี่ยน AC เนื้อหา) — แก้ Source citation ของ `03-development/01-prototype-log.md` จาก v1.1 เป็น v1.2 ให้ตรงกับเวอร์ชันจริงปัจจุบัน พบจากการรัน Consistency Check ทั่วโปรเจกต์ตามคำขอผู้ใช้ |
+| 1.2 | Draft — pending stakeholder review | **เพิ่มขอบเขตใหม่ (ผู้ใช้เลือกหลังจาก BRD v1.2 NFR Deep-Dive Review):** เพิ่ม US-022 (Merchant Approval SLA/Auto-Cancel, FT-019) — ปลด Blocked แล้วเพราะ BRD Open Question 6 ตอบแล้ว (SLA = 48 ชั่วโมง) ดึง Given/When/Then เดียวที่มีอยู่จริงใน Product Backlog v1.2 มาเป็น AC-022-01 ไม่มีการแต่ง AC ใหม่ที่ไม่มีที่มา |
 
 ---
 
@@ -63,7 +64,18 @@ section ใหม่ต่อท้าย ไม่สร้างไฟล์�
 
 ---
 
-## 4. Notes (หมายเหตุ)
+## 4. US-022 — ยกเลิก transaction ที่ค้างอยู่ใน Pending Approval โดยอัตโนมัติ
+
+**Related FT:** FT-019 (Merchant Approval SLA / Auto-Cancel — Could have, Post-MVP, ปลด Blocked v1.2)
+**Related FR:** — (ไม่มี FR เฉพาะใน BRD — มาจาก BRD Open Question 6 ซึ่งตอบแล้วใน BRD v1.2)
+
+| AC ID | Given | When | Then | Source | หมายเหตุ |
+|---|---|---|---|---|---|
+| AC-022-01 | transaction ยังอยู่ใน `PENDING_APPROVAL` เกินกว่า **48 ชั่วโมง** (SLA ตาม BRD §7 v1.2, working decision) | timeout หมดเวลา | transaction จะเปลี่ยนไปเป็น `CANCELLED` โดยอัตโนมัติ และไม่มีการแบ่งสรร SP ใด ๆ สอดคล้องกับกฎ status lifecycle เดียวกับ AC-005-01 | Backlog US-022 | ยังไม่ถูก implement จริง — FT-019 ปลด Blocked แล้วแต่ยังไม่ถูกจัดเข้า sprint (ดู Product Backlog §6) จนกว่าจะ implement ให้ใช้ FT-014 (Admin Manual Cancellation) เป็นมาตรการชั่วคราว |
+
+---
+
+## 5. Notes (หมายเหตุ)
 
 - Backlog Item อื่น ๆ (เช่น US-001, US-002, US-006 ...) มี Given/When/Then
   อยู่แล้วใน `01-requirements/02-product-backlog.md` เช่นกัน แต่ยังไม่ถูก
@@ -71,9 +83,14 @@ section ใหม่ต่อท้าย ไม่สร้างไฟล์�
   ต้องการเขียน Test Case ของ Feature อื่น (ตามกฎ "เลือกบางข้อมาส่ง")
 - AC-005-03 ควรถูกนำเสนอต่อ stakeholder เพื่อเพิ่มเป็น Acceptance
   Criteria อย่างเป็นทางการใน BRD/Backlog — ตอนนี้ยังคงสถานะ "New" ไว้ก่อน
+- AC-022-01 มี Given/When/Then เดียวที่ระบุไว้ใน Backlog US-022 —
+  ไม่มีการเพิ่ม edge case อื่นเพราะไม่มีที่มาจริง (เช่น กรณี merchant
+  อนุมัติก่อนครบ 48 ชั่วโมงพอดี ถือเป็น flow ปกติที่ AC-004-02 ครอบคลุม
+  อยู่แล้ว ไม่ใช่ edge case ใหม่ของ US-022) — ยังไม่มี Test Case รองรับ
+  AC-022-01 นี้ (ต้องเรียก `test-case-writer` แยกถ้าต้องการเพิ่ม)
 
 ---
 
 *เอกสารนี้ควรได้รับการ review ร่วมกับ QA/business stakeholder และปรับปรุง
 เมื่อ Product Backlog หรือ Feature List มี revision ใหม่ที่กระทบ US-004/
-US-005*
+US-005/US-022*
