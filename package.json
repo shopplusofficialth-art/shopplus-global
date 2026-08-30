@@ -1,0 +1,12 @@
+{
+  "name": "shopplus-global-hw2-seed",
+  "private": true,
+  "type": "module",
+  "description": "Utility scripts for ShopPlus Global Module 2 homework (Firestore seeding, etc.)",
+  "scripts": {
+    "seed": "node scripts/seed-firestore.js"
+  },
+  "dependencies": {
+    "firebase": "^11.0.0"
+  }
+}

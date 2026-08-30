@@ -1,0 +1,284 @@
+<!--
+  Module 2 homework — "live" version of the Pending Queue prototype.
+  ShopPlus Global — Merchant App
+
+  Based on: PT-005-01 (merchant-pending-queue.html) — same Feature/FR/US/
+  Journey traceability (FT-005, FR-019/FR-021, US-004/US-005), same Design
+  Token intent — but connects to a REAL Firestore project instead of
+  hardcoded mock data.
+
+  Scope decision reference: see `SCOPE.md` at the repo root.
+
+  What changed vs. the static prototype:
+  - Reads `transactions` where status == "PENDING_APPROVAL" from Firestore
+    on page load (real data, not embedded mock data)
+  - Shows real fields seeded by `scripts/seed-firestore.js`: customerName,
+    merchantName, purchaseAmount, minimumPurchaseAmount
+  - Approve/Reject buttons still only simulate UI feedback (no write-back
+    to Firestore yet) — same limitation as the original static prototype,
+    kept intentionally out of scope for this pass
+
+  This file is a homework artifact for Module 2 (RAISE2) and is NOT
+  registered in `03-development/01-prototype-log.md` under a new PT-xxx ID
+  — it intentionally sits outside the project's formal traceability chain,
+  same as `SCOPE.md`.
+-->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ShopPlus Merchant — Pending Queue (Live Firestore)</title>
+<style>
+  :root {
+    --sp-green: #0f7a5c;
+    --sp-green-dark: #0b5c45;
+    --sp-bg: #f4f7f6;
+    --sp-card: #ffffff;
+    --sp-border: #e1e6e4;
+    --sp-text: #1c2622;
+    --sp-muted: #6b7a75;
+    --sp-danger: #c0392b;
+    --sp-danger-bg: #fdecea;
+    --sp-approved-bg: #e8f6f0;
+    --sp-warning-bg: #e6f0ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif;
+    background: var(--sp-bg);
+    color: var(--sp-text);
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+  }
+  .device {
+    width: 100%;
+    max-width: 430px;
+    background: var(--sp-card);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  header.app-bar {
+    background: var(--sp-green);
+    color: white;
+    padding: 18px 16px 14px;
+  }
+  header.app-bar .shop-name {
+    font-size: 13px;
+    opacity: 0.85;
+    margin: 0 0 2px;
+  }
+  header.app-bar h1 {
+    font-size: 19px;
+    margin: 0;
+  }
+  .prototype-banner {
+    background: var(--sp-warning-bg);
+    color: #14406b;
+    font-size: 11px;
+    text-align: center;
+    padding: 6px 10px;
+    border-bottom: 1px solid #c3d9f5;
+  }
+  .queue-summary {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--sp-muted);
+    border-bottom: 1px solid var(--sp-border);
+  }
+  .queue-summary strong { color: var(--sp-text); }
+  ul.tx-list { list-style: none; margin: 0; padding: 0; }
+  li.tx-card {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--sp-border);
+    transition: background 0.2s ease;
+  }
+  li.tx-card.state-approved { background: var(--sp-approved-bg); }
+  li.tx-card.state-rejected { background: var(--sp-danger-bg); opacity: 0.7; }
+  li.tx-loading, li.tx-empty, li.tx-error {
+    padding: 20px 16px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--sp-muted);
+  }
+  li.tx-error { color: var(--sp-danger); }
+  .tx-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 2px;
+  }
+  .tx-ref { font-weight: 600; font-size: 14px; }
+  .tx-amount { font-weight: 700; font-size: 15px; color: var(--sp-green-dark); }
+  .tx-meta { font-size: 12px; color: var(--sp-muted); margin-bottom: 10px; }
+  .tx-actions { display: flex; gap: 8px; }
+  button.btn {
+    flex: 1;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button.btn-approve { background: var(--sp-green); color: white; }
+  button.btn-approve:hover { background: var(--sp-green-dark); }
+  button.btn-reject { background: #f5eceb; color: var(--sp-danger); }
+  button.btn-reject:hover { background: #f0d9d6; }
+  .tx-status-line {
+    font-size: 13px;
+    font-weight: 600;
+    padding-top: 4px;
+  }
+  .tx-status-line.approved { color: var(--sp-green-dark); }
+  .tx-status-line.rejected { color: var(--sp-danger); }
+  .tx-status-line small {
+    display: block;
+    font-weight: 400;
+    color: var(--sp-muted);
+    margin-top: 2px;
+  }
+  footer.note {
+    padding: 12px 16px 16px;
+    font-size: 11px;
+    color: var(--sp-muted);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+  <div class="device">
+    <div class="prototype-banner">
+      🔴 LIVE — อ่านข้อมูลจริงจาก Firestore (project: shopplus-global)
+    </div>
+    <header class="app-bar">
+      <p class="shop-name">ShopPlus Merchant · Live Data</p>
+      <h1>Pending Queue</h1>
+    </header>
+
+    <div class="queue-summary">
+      <span>รายการรอดำเนินการ</span>
+      <strong id="pending-count">กำลังโหลด...</strong>
+    </div>
+
+    <ul class="tx-list" id="tx-list">
+      <li class="tx-loading">กำลังโหลดข้อมูลจาก Firestore...</li>
+    </ul>
+
+    <footer class="note">
+      FT-005 · FR-019 / FR-021 · US-004 / US-005 — Live Firestore version, Module 2 homework
+    </footer>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    query,
+    where,
+    getDocs,
+  } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+  // Public web app config (safe to embed client-side — see scripts/seed-firestore.js)
+  const firebaseConfig = {
+    apiKey: "AIzaSyBgESaDmkujsYGu4KxakuMT7AG1PPYlcJo",
+    authDomain: "shopplus-global.firebaseapp.com",
+    projectId: "shopplus-global",
+    storageBucket: "shopplus-global.firebasestorage.app",
+    messagingSenderId: "974209651946",
+    appId: "1:974209651946:web:8a49acd6b819346238b393",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const listEl = document.getElementById("tx-list");
+  const countEl = document.getElementById("pending-count");
+
+  function renderTransaction(id, tx) {
+    const li = document.createElement("li");
+    li.className = "tx-card";
+    li.dataset.id = id;
+
+    const customerLabel = tx.customerName || tx.customerId || "(ไม่ทราบชื่อ)";
+    const merchantLabel = tx.merchantName || tx.merchantId || "(ไม่ทราบร้าน)";
+    const amount = typeof tx.purchaseAmount === "number" ? tx.purchaseAmount.toFixed(2) : "-";
+    const minAmount = typeof tx.minimumPurchaseAmount === "number" ? tx.minimumPurchaseAmount : "-";
+
+    li.innerHTML =
+      '<div class="tx-top">' +
+        '<span class="tx-ref">' + customerLabel + " → " + merchantLabel + "</span>" +
+        '<span class="tx-amount">฿ ' + amount + "</span>" +
+      "</div>" +
+      '<div class="tx-meta">ยอดซื้อขั้นต่ำร้าน: ฿ ' + minAmount + " · รหัส: " + id + "</div>" +
+      '<div class="tx-actions">' +
+        '<button class="btn btn-reject" onclick="decide(\'' + id + "','rejected')\">ปฏิเสธ</button>" +
+        '<button class="btn btn-approve" onclick="decide(\'' + id + "','approved')\">อนุมัติ</button>" +
+      "</div>";
+
+    return li;
+  }
+
+  async function loadPendingQueue() {
+    try {
+      const q = query(collection(db, "transactions"), where("status", "==", "PENDING_APPROVAL"));
+      const snapshot = await getDocs(q);
+
+      listEl.innerHTML = "";
+
+      if (snapshot.empty) {
+        listEl.innerHTML = '<li class="tx-empty">ไม่มีรายการรอดำเนินการ</li>';
+        countEl.textContent = "0 รายการ";
+        return;
+      }
+
+      snapshot.forEach((docSnap) => {
+        listEl.appendChild(renderTransaction(docSnap.id, docSnap.data()));
+      });
+
+      countEl.textContent = snapshot.size + " รายการ";
+    } catch (err) {
+      console.error("Failed to load transactions:", err);
+      listEl.innerHTML = '<li class="tx-error">โหลดข้อมูลไม่สำเร็จ — เช็ค Firestore Rules (ต้องเป็น test mode) และ console (F12) สำหรับรายละเอียด</li>';
+      countEl.textContent = "-";
+    }
+  }
+
+  // จำลอง UI feedback เท่านั้น — ยังไม่เขียนกลับ Firestore จริงในรอบนี้
+  // (ค่า "30 SP (10/10/10)" เป็นข้อความคงที่ตามกฎที่กำหนดไว้ใน CLAUDE.md)
+  window.decide = function (txId, outcome) {
+    var card = document.querySelector('li[data-id="' + txId + '"]');
+    if (!card || card.classList.contains("state-approved") || card.classList.contains("state-rejected")) {
+      return;
+    }
+    var actions = card.querySelector(".tx-actions");
+    var statusLine = document.createElement("div");
+
+    if (outcome === "approved") {
+      card.classList.add("state-approved");
+      statusLine.className = "tx-status-line approved";
+      statusLine.innerHTML =
+        "อนุมัติแล้ว (จำลอง UI เท่านั้น — ยังไม่เขียนกลับ Firestore)" +
+        "<small>(จำลอง) แบ่งสรร 30 SP ตามกฎคงที่ 10/10/10 — คำนวณจริงที่ server เท่านั้น</small>";
+    } else {
+      card.classList.add("state-rejected");
+      statusLine.className = "tx-status-line rejected";
+      statusLine.innerHTML =
+        "ปฏิเสธแล้ว (จำลอง UI เท่านั้น — ยังไม่เขียนกลับ Firestore)" +
+        "<small>(จำลอง) ไม่มีการแบ่งสรร SP</small>";
+    }
+
+    actions.replaceWith(statusLine);
+  };
+
+  loadPendingQueue();
+</script>
+</body>
+</html>
