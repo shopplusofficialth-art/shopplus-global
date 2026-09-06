@@ -13,3 +13,10 @@ firebase-debug.log
 .DS_Store
 
 .obsidian/
+
+# Firebase service-account / admin credentials — ห้ามขึ้น GitHub เด็ดขาด
+*serviceAccountKey*.json
+*-firebase-adminsdk-*.json
+*.pem
+.firebase/
+.firebaserc.local
