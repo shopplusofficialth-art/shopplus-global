@@ -1,0 +1,221 @@
+<!--
+  ShopPlus Global — Login / Signup (Module 2 Homework, Part C)
+
+  ทำครบ 5 ข้อของ Part C:
+  1. สมัคร (createUserWithEmailAndPassword + สร้าง users/{uid} เริ่มต้น role CUSTOMER)
+  2. เข้า (signInWithEmailAndPassword)
+  3. ออก — ปุ่ม logout อยู่ที่หน้า index.html/new-transaction.html (auth-guard.js)
+  4. ไม่ล็อกอินเด้งมาหน้านี้ — ทำใน auth-guard.js (requireLogin)
+  5. รายการใหม่บันทึก uid ของคนที่ล็อกอิน — ทำใน new-transaction.html
+
+  role เริ่มต้นของบัญชีใหม่ทุกบัญชีคือ CUSTOMER เสมอ — การจะเป็น MERCHANT
+  ต้องให้ผู้ดูแลระบบ (หรือผู้สอนตอนทดสอบ ACL) ไปแก้ field `role` ใน
+  Firestore Console เอง (`users/{uid}` → role) ตามที่ระบุไว้ใน ACL.md —
+  ไม่มีปุ่ม "สมัครเป็นร้านค้า" ในฟอร์มนี้โดยตั้งใจ (ป้องกันคนสมัครมาเป็น
+  merchant เองโดยพลการ)
+-->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ShopPlus — เข้าสู่ระบบ</title>
+<style>
+  :root {
+    --sp-green: #0f7a5c;
+    --sp-green-dark: #0b5c45;
+    --sp-bg: #f4f7f6;
+    --sp-card: #ffffff;
+    --sp-border: #e1e6e4;
+    --sp-text: #1c2622;
+    --sp-muted: #6b7a75;
+    --sp-danger: #c0392b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif;
+    background: var(--sp-bg);
+    color: var(--sp-text);
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+  }
+  .device {
+    width: 100%;
+    max-width: 430px;
+    background: var(--sp-card);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  header.app-bar {
+    background: var(--sp-green);
+    color: white;
+    padding: 18px 16px 14px;
+  }
+  header.app-bar .shop-name { font-size: 13px; opacity: 0.85; margin: 0 0 2px; }
+  header.app-bar h1 { font-size: 19px; margin: 0; }
+  form { padding: 16px; }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 14px 0 6px;
+  }
+  label:first-of-type { margin-top: 0; }
+  input[type="email"], input[type="password"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--sp-border);
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--sp-text);
+    background: white;
+  }
+  .btn-row { display: flex; gap: 8px; margin-top: 20px; }
+  button {
+    flex: 1;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 0;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button.btn-login { background: var(--sp-green); color: white; }
+  button.btn-login:hover { background: var(--sp-green-dark); }
+  button.btn-signup { background: var(--sp-bg); color: var(--sp-text); border: 1px solid var(--sp-border); }
+  button.btn-signup:hover { background: #ebeeed; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .form-msg { font-size: 13px; margin-top: 12px; text-align: center; min-height: 16px; }
+  .form-msg.error { color: var(--sp-danger); }
+  .form-msg.ok { color: var(--sp-green-dark); }
+  footer.note {
+    padding: 0 16px 16px;
+    font-size: 11px;
+    color: var(--sp-muted);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+  <div class="device">
+    <header class="app-bar">
+      <p class="shop-name">ShopPlus Global</p>
+      <h1>เข้าสู่ระบบ</h1>
+    </header>
+
+    <form id="auth-form">
+      <label for="email-input">อีเมล</label>
+      <input type="email" id="email-input" autocomplete="username" required />
+
+      <label for="password-input">รหัสผ่าน</label>
+      <input type="password" id="password-input" autocomplete="current-password" required minlength="6" />
+
+      <div class="btn-row">
+        <button type="submit" class="btn-login" id="login-btn">เข้าสู่ระบบ</button>
+        <button type="button" class="btn-signup" id="signup-btn">สมัครสมาชิก</button>
+      </div>
+
+      <p class="form-msg" id="form-msg"></p>
+    </form>
+
+    <footer class="note">
+      Module 2 homework (Part C) — กฎขั้นต่ำ: ต้องล็อกอินก่อนจึงใช้ระบบได้
+    </footer>
+  </div>
+
+<script type="module">
+  import { auth, db } from "./firebase-init.js";
+  import {
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+  } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+  import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+  const formEl = document.getElementById("auth-form");
+  const emailEl = document.getElementById("email-input");
+  const passwordEl = document.getElementById("password-input");
+  const loginBtn = document.getElementById("login-btn");
+  const signupBtn = document.getElementById("signup-btn");
+  const msgEl = document.getElementById("form-msg");
+
+  // ถ้าล็อกอินอยู่แล้วและมาเปิดหน้านี้ซ้ำ ให้เด้งกลับหน้ารายการเลย
+  // (ใช้ authActionInProgress กันไม่ให้ listener นี้แย่งเด้งหน้าก่อนที่
+  // ปุ่ม login/signup ด้านล่างจะเขียน Firestore เสร็จ — เคยเป็นบั๊กจริง:
+  // สมัครสมาชิกเสร็จแล้ว auth state เปลี่ยนทันที ทำให้ listener นี้เด้ง
+  // ไปหน้ารายการ "แซง" ก่อน setDoc สร้างโปรไฟล์ role จะเขียนเสร็จ)
+  let authActionInProgress = false;
+  onAuthStateChanged(auth, (user) => {
+    if (user && !authActionInProgress) window.location.href = "index.html";
+  });
+
+  function setBusy(busy) {
+    loginBtn.disabled = busy;
+    signupBtn.disabled = busy;
+  }
+
+  function showError(err) {
+    console.error(err);
+    let text = err.message || String(err);
+    if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password") {
+      text = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
+    } else if (err.code === "auth/email-already-in-use") {
+      text = "อีเมลนี้มีบัญชีอยู่แล้ว — ลองเข้าสู่ระบบแทน";
+    } else if (err.code === "auth/weak-password") {
+      text = "รหัสผ่านสั้นเกินไป (ต้องอย่างน้อย 6 ตัวอักษร)";
+    }
+    msgEl.textContent = text;
+    msgEl.className = "form-msg error";
+  }
+
+  formEl.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    msgEl.textContent = "";
+    setBusy(true);
+    authActionInProgress = true;
+    try {
+      await signInWithEmailAndPassword(auth, emailEl.value, passwordEl.value);
+      window.location.href = "index.html";
+    } catch (err) {
+      authActionInProgress = false;
+      showError(err);
+      setBusy(false);
+    }
+  });
+
+  signupBtn.addEventListener("click", async () => {
+    msgEl.textContent = "";
+    if (!emailEl.value || !passwordEl.value) {
+      msgEl.textContent = "กรุณากรอกอีเมลและรหัสผ่านก่อนสมัคร";
+      msgEl.className = "form-msg error";
+      return;
+    }
+    setBusy(true);
+    authActionInProgress = true;
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, emailEl.value, passwordEl.value);
+
+      // สร้างโปรไฟล์เริ่มต้น — role เริ่มต้นเสมอคือ CUSTOMER (ดู ACL.md)
+      // ต้องเขียนให้เสร็จก่อน redirect เสมอ (ดูหมายเหตุที่ authActionInProgress ด้านบน)
+      await setDoc(doc(db, "users", cred.user.uid), {
+        displayName: emailEl.value.split("@")[0],
+        email: emailEl.value,
+        role: "CUSTOMER",
+        createdAt: serverTimestamp(),
+      });
+
+      window.location.href = "index.html";
+    } catch (err) {
+      authActionInProgress = false;
+      showError(err);
+      setBusy(false);
+    }
+  });
+</script>
+</body>
+</html>
