@@ -336,3 +336,54 @@ AI Native + Agile + Cloud First
 **Repository (ที่เก็บ source code):**
 
 GitHub Version Control
+
+---
+
+# 14. Firestore Collections & Status Reference — Module 2 Homework (โฟลเดอร์ Firestore และสถานะที่ใช้จริง)
+
+หมวดนี้บันทึกสิ่งที่**ถูก implement จริง**สำหรับขอบเขตการบ้าน Module 2
+(RAISE2) ตามที่ตัดสินใจไว้ใน `SCOPE.md` — เป็นข้อมูลอ้างอิงระดับ
+implementation เสริมจาก Section 4 (SP Point Rules) และ Section 6
+(Technical Direction) ด้านบน **ไม่ได้แก้ไขหรือขัดแย้ง**กับกฎ SP Point ใน
+Section 4 หรือเอกสาร `02-design/02-firestore-data-model.md` เดิม — ถ้า
+ขัดกัน ให้ยึด `SCOPE.md` และเอกสารทางการ (`01-requirements/01-business-requirement.md`,
+`02-design/02-firestore-data-model.md`) เป็นหลักเสมอ
+
+## Firestore Collections (โฟลเดอร์ที่ใช้จริง)
+
+| Collection | ความหมาย | สร้าง/แก้ไขโดย |
+|---|---|---|
+| `users` | บัญชีผู้ใช้ (customer/merchant) — เชื่อมกับ Firebase Auth `uid` | ระบบ, ตอนสมัครสมาชิก |
+| `merchants` | ร้านค้าที่ลูกค้าเลือกได้ตอนสร้าง transaction (denormalize `shopName`, `minimumPurchaseAmount`) | Merchant/Admin |
+| `transactions` | รายการทำธุรกรรมหลัก — เอกสารหลักของขอบเขตการบ้านนี้ | Customer (สร้าง), Merchant (เปลี่ยนสถานะ) |
+| `transactions/{id}/events` | subcollection — audit log ของแต่ละ transaction (ใครทำอะไรเมื่อไร) | ระบบ, ทุกครั้งที่สถานะเปลี่ยน |
+
+## Status ทั้งหมดของ `transactions.status`
+
+| Status | ความหมาย | ใครเปลี่ยนได้ |
+|---|---|---|
+| `PENDING_APPROVAL` | สถานะเริ่มต้นตอนลูกค้าสร้างรายการ | ระบบ (ตั้งอัตโนมัติตอนสร้าง) |
+| `APPROVED` | ร้านค้าอนุมัติแล้ว — กระตุ้นการแบ่งสรร SP ตาม Section 4 | Merchant เท่านั้น |
+| `REJECTED` | ร้านค้าปฏิเสธ — ต้องมี `rejectionReason` เสมอ | Merchant เท่านั้น |
+
+`CANCELLED` (ตาม Section 4) **ยังไม่ implement** ในขอบเขตการบ้านนี้ —
+ดู `SCOPE.md` หัวข้อ "สิ่งที่ไม่ทำในรอบนี้"
+
+## ข้อห้ามสำหรับนักพัฒนา (Implementation Prohibitions)
+
+- ห้าม commit ไฟล์ credential ใด ๆ ขึ้น GitHub เด็ดขาด — Firebase Web SDK
+  `apiKey` (ใน `firebaseConfig`) เป็นค่า public ที่ตั้งใจฝัง client-side
+  ได้ (ไม่ใช่ secret) แต่ **service-account key** (`*serviceAccountKey*.json`,
+  `*-firebase-adminsdk-*.json`), `.env`, `.env.local` ห้ามขึ้น GitHub
+  เด็ดขาด — ต้องอยู่ใน `.gitignore` เสมอ
+- ห้ามคำนวณหรือเขียนค่า SP Point/marketing fee ฝั่ง client — ต้องผ่าน
+  server-side (Cloud Functions/Security Rules) เท่านั้น ตาม Section 6
+  Development Principle
+- ห้ามเขียน/แก้ Firestore ได้โดยไม่ล็อกอิน — กฎขั้นต่ำ "ต้องล็อกอินก่อน"
+  ต้องบังคับด้วย Firestore Security Rules เสมอ (ไม่ใช่แค่ตรวจฝั่ง UI)
+- ห้ามใส่ข้อมูลจริงของบุคคลอื่น (ชื่อจริง เบอร์โทรจริง ฯลฯ) ลง Firestore
+  จนกว่าจะมี Security Rules ระดับ role-based ที่ผ่านสัปดาห์ 8 แล้ว — ใช้
+  ข้อมูลสมมติเท่านั้น (ตามที่ `scripts/seed-firestore.js` ทำอยู่)
+- ห้าม deploy ขึ้น Firebase Hosting โดยไม่มี Firestore Security Rules
+  ขั้นต่ำ ("ต้องล็อกอินก่อนจึงอ่าน/เขียนได้") ติดไปด้วยในรอบ deploy
+  เดียวกันเสมอ

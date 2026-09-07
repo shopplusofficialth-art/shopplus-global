@@ -1,5 +1,7 @@
 # ShopPlus Global
 
+🌐 **Live App:** https://shopplus-global.web.app
+
 AI Native Agile Project
 
 ## About (เกี่ยวกับโปรเจกต์)

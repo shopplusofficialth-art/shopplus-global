@@ -1,0 +1,29 @@
+// ShopPlus Global — Firestore Security Rules (Module 2 Homework, Part C5)
+//
+// กฎขั้นต่ำข้อเดียวตามที่ใบงานกำหนด: "ต้องล็อกอินก่อนจึงจะอ่านหรือเขียนได้"
+// — ไม่มีข้อยกเว้น ครอบคลุมทุก collection ในฐานข้อมูล
+//
+// ⚠️ ข้อจำกัดที่รู้อยู่แล้ว (ตรงกับที่ระบุไว้ใน ACL.md และใบงาน):
+// กฎนี้ตรวจแค่ "ล็อกอินหรือยัง" ไม่ได้ตรวจ role หรือ ownership เลย —
+// ผู้ใช้ที่ล็อกอินคนใดก็ตาม (ไม่ว่า role อะไร) ยังสามารถอ่าน/เขียนข้อมูล
+// ของคนอื่นได้ผ่าน Firestore SDK/REST โดยตรง (ข้าม UI ทั้งหมดที่กรองไว้
+// ใน public/index.html) การจำกัดสิทธิ์ตาม role/ownership แบบเข้มงวดจริง
+// (เช่น "Customer อ่านได้เฉพาะ transaction ของตัวเอง", "Merchant เท่านั้น
+// ที่แก้ status ได้") ยังไม่ทำในรอบนี้ — เป็นแผนของสัปดาห์ที่ 8
+//
+// เพราะฉะนั้น: ห้ามใส่ข้อมูลจริงของบุคคลอื่นลงระบบนี้จนกว่าจะมี Security
+// Rules ระดับ role-based ที่ผ่านสัปดาห์ 8 แล้ว (ตาม CLAUDE.md Section 14
+// และ ACL.md)
+//
+// ยังไม่ deploy — ไฟล์นี้รอการตรวจสอบจากผู้ใช้ก่อนเสมอ (ดู Part C5 ของ
+// การบ้านนี้: "เขียนไฟล์มาให้ผมอ่านก่อน อย่าเพิ่ง deploy")
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

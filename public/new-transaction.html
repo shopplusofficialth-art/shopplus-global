@@ -1,0 +1,275 @@
+<!--
+  ShopPlus Global — Customer App — New Transaction Form (Module 2 Homework, Part B)
+
+  Same traceability as public/index.html: FT-005, FR-019/FR-021,
+  US-004/US-005 (see SCOPE.md at repo root — customer creates a
+  transaction after scanning a merchant's QR code).
+
+  What this page does now (Part B — real CRUD, no auth yet):
+  - Loads the list of merchants from Firestore (real data, seeded by
+    scripts/seed-firestore.js)
+  - Customer picks a merchant + enters purchase amount
+  - Client-side check: purchaseAmount must reach the merchant's
+    minimumPurchaseAmount (UX convenience only — this is NOT the real
+    security boundary; that comes from Firestore Security Rules / a
+    future Cloud Function, out of scope per SCOPE.md)
+  - On submit: writes a new document to `transactions` with
+    status = "PENDING_APPROVAL" (the first status in this system's
+    lifecycle), then navigates back to the list page (index.html)
+
+  customerId is a TEMPORARY placeholder until Part C wires real Firebase
+  Auth — see CLAUDE.md Section 14 and Part C of this homework.
+-->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ShopPlus Customer — สร้างรายการใหม่</title>
+<style>
+  :root {
+    --sp-green: #0f7a5c;
+    --sp-green-dark: #0b5c45;
+    --sp-bg: #f4f7f6;
+    --sp-card: #ffffff;
+    --sp-border: #e1e6e4;
+    --sp-text: #1c2622;
+    --sp-muted: #6b7a75;
+    --sp-danger: #c0392b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif;
+    background: var(--sp-bg);
+    color: var(--sp-text);
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+  }
+  .device {
+    width: 100%;
+    max-width: 430px;
+    background: var(--sp-card);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  header.app-bar {
+    background: var(--sp-green);
+    color: white;
+    padding: 18px 16px 14px;
+  }
+  header.app-bar .shop-name { font-size: 13px; opacity: 0.85; margin: 0 0 2px; }
+  header.app-bar h1 { font-size: 19px; margin: 0; }
+  form { padding: 16px; }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 14px 0 6px;
+  }
+  label:first-of-type { margin-top: 0; }
+  select, input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--sp-border);
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--sp-text);
+    background: white;
+  }
+  .hint { font-size: 12px; color: var(--sp-muted); margin-top: 4px; }
+  .hint.warn { color: var(--sp-danger); }
+  button.btn-submit {
+    width: 100%;
+    margin-top: 20px;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: white;
+    background: var(--sp-green);
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button.btn-submit:hover { background: var(--sp-green-dark); }
+  button.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  a.btn-back {
+    display: block;
+    text-align: center;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--sp-muted);
+    text-decoration: none;
+  }
+  a.btn-back:hover { text-decoration: underline; }
+  .form-msg { font-size: 13px; margin-top: 10px; text-align: center; }
+  .form-msg.error { color: var(--sp-danger); }
+  footer.note {
+    padding: 0 16px 16px;
+    font-size: 11px;
+    color: var(--sp-muted);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+  <div class="device">
+    <header class="app-bar">
+      <p class="shop-name">ShopPlus Customer</p>
+      <h1>สร้างรายการใหม่</h1>
+    </header>
+
+    <form id="tx-form">
+      <label for="merchant-select">เลือกร้านค้า</label>
+      <select id="merchant-select" required>
+        <option value="" disabled selected>กำลังโหลดรายชื่อร้าน...</option>
+      </select>
+      <p class="hint" id="min-amount-hint"></p>
+
+      <label for="amount-input">ยอดซื้อ (บาท)</label>
+      <input type="number" id="amount-input" min="0" step="1" placeholder="เช่น 80" required />
+
+      <p class="form-msg" id="form-msg"></p>
+
+      <button type="submit" class="btn-submit" id="submit-btn">บันทึกรายการ</button>
+      <a class="btn-back" href="index.html">← กลับไปหน้ารายการ</a>
+    </form>
+
+    <footer class="note">
+      FT-005 · FR-019 / FR-021 · US-004 / US-005 — Module 2 homework (Part B: real CRUD)
+    </footer>
+  </div>
+
+<script type="module">
+  import { db } from "./firebase-init.js";
+  import { requireLogin } from "./auth-guard.js";
+  import {
+    collection,
+    getDocs,
+    addDoc,
+    serverTimestamp,
+  } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+  let currentUser = null;
+  let currentProfile = null;
+
+  const selectEl = document.getElementById("merchant-select");
+  const minHintEl = document.getElementById("min-amount-hint");
+  const amountEl = document.getElementById("amount-input");
+  const formEl = document.getElementById("tx-form");
+  const submitBtn = document.getElementById("submit-btn");
+  const msgEl = document.getElementById("form-msg");
+
+  let merchantsById = {};
+
+  async function loadMerchants() {
+    try {
+      const snapshot = await getDocs(collection(db, "merchants"));
+      merchantsById = {};
+      selectEl.innerHTML = '<option value="" disabled selected>เลือกร้านค้า...</option>';
+
+      snapshot.forEach((docSnap) => {
+        const m = docSnap.data();
+        merchantsById[docSnap.id] = m;
+        const opt = document.createElement("option");
+        opt.value = docSnap.id;
+        opt.textContent = m.shopName || docSnap.id;
+        selectEl.appendChild(opt);
+      });
+
+      if (snapshot.empty) {
+        selectEl.innerHTML = '<option value="" disabled selected>ไม่พบร้านค้าในระบบ</option>';
+      }
+    } catch (err) {
+      console.error("Failed to load merchants:", err);
+      selectEl.innerHTML = '<option value="" disabled selected>โหลดรายชื่อร้านไม่สำเร็จ</option>';
+    }
+  }
+
+  selectEl.addEventListener("change", () => {
+    const m = merchantsById[selectEl.value];
+    if (m && typeof m.minimumPurchaseAmount === "number") {
+      minHintEl.textContent = "ยอดซื้อขั้นต่ำของร้านนี้: ฿ " + m.minimumPurchaseAmount;
+      minHintEl.className = "hint";
+    } else {
+      minHintEl.textContent = "";
+    }
+  });
+
+  formEl.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    msgEl.textContent = "";
+    msgEl.className = "form-msg";
+
+    const merchantId = selectEl.value;
+    const merchant = merchantsById[merchantId];
+    const purchaseAmount = Number(amountEl.value);
+
+    if (!merchantId || !merchant) {
+      msgEl.textContent = "กรุณาเลือกร้านค้า";
+      msgEl.className = "form-msg error";
+      return;
+    }
+    if (!purchaseAmount || purchaseAmount <= 0) {
+      msgEl.textContent = "กรุณากรอกยอดซื้อให้ถูกต้อง";
+      msgEl.className = "form-msg error";
+      return;
+    }
+    if (typeof merchant.minimumPurchaseAmount === "number" && purchaseAmount < merchant.minimumPurchaseAmount) {
+      msgEl.textContent = "ยอดซื้อต้องถึงขั้นต่ำ ฿ " + merchant.minimumPurchaseAmount + " ของร้านนี้";
+      msgEl.className = "form-msg error";
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "กำลังบันทึก...";
+
+    try {
+      const txRef = await addDoc(collection(db, "transactions"), {
+        customerId: currentUser.uid, // uid จริงของคนที่ล็อกอิน (Part C)
+        customerName: currentProfile?.displayName || currentUser.email,
+        merchantId: merchantId,
+        merchantName: merchant.shopName || merchantId,
+        minimumPurchaseAmount: merchant.minimumPurchaseAmount ?? null,
+        purchaseAmount: purchaseAmount,
+        status: "PENDING_APPROVAL", // สถานะเริ่มต้นเสมอ ตาม CLAUDE.md Section 14
+        createdAt: serverTimestamp(),
+      });
+
+      await addDoc(collection(db, "transactions", txRef.id, "events"), {
+        eventType: "CREATED",
+        actorId: currentUser.uid,
+        actorRole: currentProfile?.role || "CUSTOMER",
+        timestamp: serverTimestamp(),
+      });
+
+      window.location.href = "index.html";
+    } catch (err) {
+      console.error("Create transaction failed:", err);
+      msgEl.textContent = "บันทึกไม่สำเร็จ: " + err.message;
+      msgEl.className = "form-msg error";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "บันทึกรายการ";
+    }
+  });
+
+  // กฎขั้นต่ำ: ต้องล็อกอินก่อนถึงจะสร้างรายการได้ — ไม่ล็อกอินเด้งไป login.html
+  // ACL: สร้างรายการเป็นสิทธิ์ของ CUSTOMER เท่านั้น (ดู ACL.md) —
+  // MERCHANT ที่หลุดเข้ามาหน้านี้ (เช่น พิมพ์ URL ตรง) จะถูกเด้งกลับ
+  requireLogin((user, profile) => {
+    if (profile?.role === "MERCHANT") {
+      alert("บัญชี Merchant ไม่มีสิทธิ์สร้างรายการทำธุรกรรม");
+      window.location.href = "index.html";
+      return;
+    }
+    currentUser = user;
+    currentProfile = profile;
+    loadMerchants();
+  });
+</script>
+</body>
+</html>
