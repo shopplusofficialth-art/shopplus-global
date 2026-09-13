@@ -24,6 +24,34 @@
     the "actorId" of write-back events, no Firestore Security Rules
     (still relies on Firestore test mode) — see CLAUDE.md Section 14 and
     Part C/D of this homework.
+
+  Module 2 Homework 3 (Week 8) — AI Assistant Level 1 (added here):
+  - Reject flow now opens an inline panel (instead of a plain prompt())
+    with a "🤖 ให้ AI ช่วยจัดประเภท" button. It sends the merchant-typed
+    rejectionReason text to google/gemini-2.5-flash-lite (via OpenRouter,
+    see public/ai-config.js — gitignored, never committed) and gets back
+    a suggested category (กรอกผิด / ต้องสงสัยว่าโกง / อื่น ๆ) + short
+    reason. The merchant must still click "ยืนยันปฏิเสธ" to save — the
+    AI never writes to Firestore on its own. See SCOPE.md for the
+    feature decision and CLAUDE.md Section 14 for the AI-key handling
+    rule (client-side call, key kept out of GitHub only — a deliberate,
+    course-sanctioned exception to the "no client business-logic" rule,
+    since this is a suggestion the merchant reviews, not SP Point calc).
+
+  Module 2 Homework 3 (Week 8) — AI Assistant Level 2 (agentic, added here):
+  - "🤖 ให้ AI ช่วยสรุปประวัติลูกค้า" button on each pending card (merchant
+    only). Runs as a pipeline: (1) READ — this transaction + every other
+    transactions/{customerId==this one} doc across all merchants; (2)
+    SUMMARIZE — turns that history into a short readable summary for the
+    merchant; (3) WRITE BACK — saves the AI's recommendation
+    (aiSuggestion/aiReason) onto the transaction doc — this is ADVISORY
+    ONLY, it never sets `status`; the merchant still has to click the
+    existing "อนุมัติ"/"ปฏิเสธ" buttons themselves, unchanged; (4) LOG —
+    appends one entry to the transactions/{id}/aiLogs subcollection
+    (viewable in the Firestore Console) recording what was read and
+    recommended. aiSuggestion/aiReason are shared with the Level 1 reject
+    classifier above — the transaction doc always reflects the AI's most
+    recent output; aiLogs keeps the full history if you need to compare.
 -->
 <!DOCTYPE html>
 <html lang="th">
@@ -142,6 +170,102 @@
   button.btn-delete { background: var(--sp-bg); color: var(--sp-muted); border: 1px solid var(--sp-border); flex: 0.6; }
   button.btn-delete:hover { background: #ebeeed; }
   button.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Module 2 Homework 3 — AI Assistant (Level 1: reject-reason classify) */
+  .tx-reject-panel {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid var(--sp-border);
+    border-radius: 10px;
+    background: var(--sp-bg);
+  }
+  .tx-reject-panel[hidden] { display: none; }
+  .reject-label { display: block; font-size: 12px; color: var(--sp-muted); margin-bottom: 4px; }
+  .reject-reason-input {
+    width: 100%;
+    border: 1px solid var(--sp-border);
+    border-radius: 8px;
+    padding: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    resize: vertical;
+    box-sizing: border-box;
+  }
+  button.btn-ai-classify {
+    margin-top: 8px;
+    width: 100%;
+    background: var(--sp-warning-bg);
+    color: var(--sp-green-dark);
+    border: 1px dashed var(--sp-green);
+  }
+  button.btn-ai-classify:hover { background: #d9e8ff; }
+  .ai-result {
+    margin-top: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--sp-approved-bg);
+    border: 1px solid var(--sp-green);
+    font-size: 12px;
+  }
+  .ai-result[hidden] { display: none; }
+  .ai-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--sp-green-dark);
+    background: white;
+    border-radius: 6px;
+    padding: 2px 6px;
+    margin-bottom: 4px;
+  }
+  .ai-category { font-weight: 700; margin-bottom: 2px; }
+  .ai-reason { color: var(--sp-muted); }
+  .ai-error {
+    margin-top: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--sp-danger-bg);
+    color: var(--sp-danger);
+    font-size: 12px;
+  }
+  .ai-error[hidden] { display: none; }
+  .tx-reject-actions { display: flex; gap: 8px; margin-top: 10px; }
+  button.btn-cancel-reject { background: var(--sp-bg); color: var(--sp-muted); border: 1px solid var(--sp-border); }
+  button.btn-confirm-reject { background: var(--sp-danger); color: white; }
+  button.btn-confirm-reject:hover { background: #a5311f; }
+
+  /* Module 2 Homework 3 — AI Assistant (Level 2: agentic customer insight) */
+  .tx-insight-trigger { margin-bottom: 8px; }
+  button.btn-ai-insight {
+    width: 100%;
+    background: var(--sp-warning-bg);
+    color: var(--sp-green-dark);
+    border: 1px dashed var(--sp-green);
+  }
+  button.btn-ai-insight:hover { background: #d9e8ff; }
+  .ai-insight-panel {
+    margin-bottom: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--sp-approved-bg);
+    border: 1px solid var(--sp-green);
+    font-size: 12px;
+  }
+  .ai-insight-panel[hidden] { display: none; }
+  .ai-insight-summary { color: var(--sp-muted); margin-bottom: 4px; }
+  .ai-insight-recommendation { font-weight: 700; margin-bottom: 2px; }
+  .ai-insight-reason { color: var(--sp-text); margin-bottom: 4px; }
+  .ai-insight-meta { color: var(--sp-muted); font-size: 11px; }
+  .ai-insight-error {
+    margin-bottom: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--sp-danger-bg);
+    color: var(--sp-danger);
+    font-size: 12px;
+  }
+  .ai-insight-error[hidden] { display: none; }
+
   footer.note {
     padding: 12px 16px 16px;
     font-size: 11px;
@@ -177,6 +301,9 @@
     </footer>
   </div>
 
+<!-- Module 2 HW3 — AI key config, gitignored (public/ai-config.js), never
+     committed. Deploys fine to Firebase Hosting (local file, git-independent). -->
+<script src="ai-config.js"></script>
 <script type="module">
   import { db } from "./firebase-init.js";
   import { requireLogin, logout } from "./auth-guard.js";
@@ -235,13 +362,54 @@
           ? '<button class="btn btn-delete" data-action="delete">ลบ</button>'
           : "");
 
+    // Reject panel (Module 2 HW3 — AI Assistant Level 1): merchant-only,
+    // hidden until "ปฏิเสธ" is clicked. Never auto-saves — see classifyReason()
+    // and confirmReject() below.
+    const rejectPanelHtml = isMerchant()
+      ? '<div class="tx-reject-panel" data-action-scope="reject-panel" hidden>' +
+          '<label class="reject-label">เหตุผลที่ปฏิเสธ (จำเป็น)</label>' +
+          '<textarea class="reject-reason-input" rows="2" placeholder="เช่น ลูกค้ากรอกยอดผิด, ต้องสงสัยว่าโกง ฯลฯ"></textarea>' +
+          '<button class="btn btn-ai-classify" data-action="ai-classify" type="button">🤖 ให้ AI ช่วยจัดประเภท</button>' +
+          '<div class="ai-result" hidden>' +
+            '<span class="ai-badge">🤖 คำแนะนำจาก AI</span>' +
+            '<div class="ai-category"></div>' +
+            '<div class="ai-reason"></div>' +
+          '</div>' +
+          '<div class="ai-error" hidden></div>' +
+          '<div class="tx-reject-actions">' +
+            '<button class="btn btn-cancel-reject" data-action="cancel-reject" type="button">ยกเลิก</button>' +
+            '<button class="btn btn-confirm-reject" data-action="confirm-reject" type="button">ยืนยันปฏิเสธ</button>' +
+          '</div>' +
+        '</div>'
+      : "";
+
+    // Module 2 HW3 — AI Assistant Level 2 (agentic customer insight):
+    // merchant-only, collapsed until "🤖 ให้ AI ช่วยสรุปประวัติลูกค้า" is
+    // clicked. See showCustomerInsight() below for the read→summarize→
+    // write-back→log pipeline.
+    const insightHtml = isMerchant()
+      ? '<div class="tx-insight-trigger">' +
+          '<button class="btn btn-ai-insight" data-action="ai-insight" type="button">🤖 ให้ AI ช่วยสรุปประวัติลูกค้า</button>' +
+        '</div>' +
+        '<div class="ai-insight-panel" hidden>' +
+          '<span class="ai-badge">🤖 คำแนะนำจาก AI (ไม่ใช่การตัดสินใจ — ร้านค้ากดอนุมัติ/ปฏิเสธเองเสมอ)</span>' +
+          '<div class="ai-insight-summary"></div>' +
+          '<div class="ai-insight-recommendation"></div>' +
+          '<div class="ai-insight-reason"></div>' +
+          '<div class="ai-insight-meta"></div>' +
+        '</div>' +
+        '<div class="ai-insight-error" hidden></div>'
+      : "";
+
     li.innerHTML =
       '<div class="tx-top">' +
         '<span class="tx-ref">' + customerLabel + " → " + merchantLabel + "</span>" +
         '<span class="tx-amount">฿ ' + amount + "</span>" +
       "</div>" +
       '<div class="tx-meta">ยอดซื้อขั้นต่ำร้าน: ฿ ' + minAmount + " · รหัส: " + id + "</div>" +
-      (actionsHtml ? '<div class="tx-actions">' + actionsHtml + "</div>" : "");
+      insightHtml +
+      (actionsHtml ? '<div class="tx-actions">' + actionsHtml + "</div>" : "") +
+      rejectPanelHtml;
 
     return li;
   }
@@ -312,25 +480,144 @@
     }
   }
 
-  async function rejectTx(id, card) {
+  // เปิด panel ปฏิเสธ (แทน prompt() เดิม) — ยังไม่เขียน Firestore ใด ๆ
+  function openRejectPanel(card) {
     if (!isMerchant()) {
       alert("บัญชีนี้ไม่มีสิทธิ์ปฏิเสธรายการ");
       return;
     }
-    const reason = prompt("กรุณาระบุเหตุผลที่ปฏิเสธรายการนี้ (จำเป็นต้องกรอก):", "");
-    if (reason === null) return; // ผู้ใช้กดยกเลิก
-    const trimmed = reason.trim();
+    const actionsRow = card.querySelector(".tx-actions");
+    const panel = card.querySelector(".tx-reject-panel");
+    if (!panel) return;
+    if (actionsRow) actionsRow.hidden = true;
+    panel.hidden = false;
+    panel.querySelector(".reject-reason-input").focus();
+  }
+
+  function closeRejectPanel(card) {
+    const actionsRow = card.querySelector(".tx-actions");
+    const panel = card.querySelector(".tx-reject-panel");
+    if (!panel) return;
+    panel.hidden = true;
+    panel.querySelector(".reject-reason-input").value = "";
+    panel.querySelector(".ai-result").hidden = true;
+    panel.querySelector(".ai-error").hidden = true;
+    delete panel.dataset.aiSuggestion;
+    delete panel.dataset.aiReason;
+    delete panel.dataset.aiForText;
+    if (actionsRow) actionsRow.hidden = false;
+  }
+
+  // Module 2 HW3 — AI Assistant Level 1: ส่งข้อความเหตุผลไปให้ AI จัดหมวด
+  // AI แค่ "แนะนำ" เขียนลง dataset ของ panel เท่านั้น ไม่แตะ Firestore เลย
+  // จนกว่าร้านค้าจะกด "ยืนยันปฏิเสธ" เอง (ดู confirmReject())
+  async function classifyRejectionReason(panel) {
+    const textarea = panel.querySelector(".reject-reason-input");
+    const aiBtn = panel.querySelector(".btn-ai-classify");
+    const resultBox = panel.querySelector(".ai-result");
+    const errorBox = panel.querySelector(".ai-error");
+    const reasonText = textarea.value.trim();
+
+    errorBox.hidden = true;
+    resultBox.hidden = true;
+
+    if (!reasonText) {
+      errorBox.textContent = "พิมพ์เหตุผลก่อน แล้วค่อยกดให้ AI ช่วยจัดประเภท";
+      errorBox.hidden = false;
+      return;
+    }
+
+    if (!window.AI_CONFIG || !window.AI_CONFIG.apiKey) {
+      errorBox.textContent = "ยังไม่ได้ตั้งค่าคีย์ AI (ขาดไฟล์ public/ai-config.js) — ยังปฏิเสธแบบไม่มี AI ได้ตามปกติ";
+      errorBox.hidden = false;
+      return;
+    }
+
+    // สัญญาณกำลังทำงาน
+    aiBtn.disabled = true;
+    const originalLabel = aiBtn.textContent;
+    aiBtn.textContent = "🤖 กำลังวิเคราะห์...";
+
+    try {
+      const prompt =
+        "คุณเป็นผู้ช่วยจัดหมวดเหตุผลการปฏิเสธธุรกรรมของร้านค้า ShopPlus Global " +
+        "อ่านข้อความต่อไปนี้แล้วจัดเข้า 1 ใน 3 หมวดเท่านั้น: " +
+        '"กรอกผิด", "ต้องสงสัยว่าโกง", "อื่น ๆ"\n\n' +
+        "ข้อความจากร้านค้า: " + reasonText + "\n\n" +
+        "ตอบกลับเป็น 2 บรรทัดเท่านั้น ห้ามมีข้อความอื่นนอกจากนี้:\n" +
+        "CATEGORY: <หมวดที่เลือก>\n" +
+        "REASON: <อธิบายสั้น ๆ ไม่เกิน 1 ประโยคว่าทำไมถึงจัดหมวดนี้>";
+
+      const res = await fetch(window.AI_CONFIG.endpoint, {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + window.AI_CONFIG.apiKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: window.AI_CONFIG.model,
+          messages: [{ role: "user", content: prompt }],
+        }),
+      });
+
+      if (!res.ok) throw new Error("AI API status " + res.status);
+
+      const data = await res.json();
+      const content = data?.choices?.[0]?.message?.content || "";
+
+      const categoryMatch = content.match(/CATEGORY:\s*(.+)/i);
+      const reasonMatch = content.match(/REASON:\s*(.+)/i);
+      const allowedCategories = ["กรอกผิด", "ต้องสงสัยว่าโกง", "อื่น ๆ"];
+      let category = categoryMatch ? categoryMatch[1].trim() : "อื่น ๆ";
+      if (!allowedCategories.includes(category)) category = "อื่น ๆ";
+      const aiReasonText = reasonMatch ? reasonMatch[1].trim() : content.trim().slice(0, 200);
+
+      panel.dataset.aiSuggestion = category;
+      panel.dataset.aiReason = aiReasonText;
+      panel.dataset.aiForText = reasonText; // ผูกกับข้อความ ณ ตอนที่เรียก AI
+
+      resultBox.querySelector(".ai-category").textContent = "หมวด: " + category;
+      resultBox.querySelector(".ai-reason").textContent = aiReasonText;
+      resultBox.hidden = false;
+    } catch (err) {
+      console.error("AI classify failed:", err);
+      errorBox.textContent = "🚫 เรียก AI ไม่สำเร็จ (" + err.message + ") — ยืนยันปฏิเสธแบบไม่มี AI ได้ตามปกติ";
+      errorBox.hidden = false;
+    } finally {
+      // เรียกไม่สำเร็จก็ต้องไม่ค้าง — คืนสถานะปุ่มเสมอ
+      aiBtn.disabled = false;
+      aiBtn.textContent = originalLabel;
+    }
+  }
+
+  async function confirmReject(id, card) {
+    if (!isMerchant()) {
+      alert("บัญชีนี้ไม่มีสิทธิ์ปฏิเสธรายการ");
+      return;
+    }
+    const panel = card.querySelector(".tx-reject-panel");
+    const textarea = panel.querySelector(".reject-reason-input");
+    const trimmed = textarea.value.trim();
     if (!trimmed) {
       alert("ต้องระบุเหตุผลก่อนปฏิเสธรายการ");
       return;
     }
 
+    // ใช้คำแนะนำ AI เฉพาะตอนที่ยังตรงกับข้อความปัจจุบัน (กันกรณีแก้ข้อความ
+    // หลังได้ผล AI มาแล้วแต่ยังไม่ได้กดจัดประเภทใหม่)
+    const useAiSuggestion = panel.dataset.aiForText === trimmed;
+    const payload = {
+      status: "REJECTED",
+      rejectionReason: trimmed,
+    };
+    if (useAiSuggestion && panel.dataset.aiSuggestion) {
+      payload.aiSuggestion = panel.dataset.aiSuggestion;
+      payload.aiReason = panel.dataset.aiReason;
+    }
+
     setCardBusy(card, true);
     try {
-      await updateDoc(doc(db, "transactions", id), {
-        status: "REJECTED",
-        rejectionReason: trimmed,
-      });
+      await updateDoc(doc(db, "transactions", id), payload);
       await addDoc(collection(db, "transactions", id, "events"), {
         eventType: "REJECTED",
         actorId: currentUser?.uid || null,
@@ -342,6 +629,139 @@
       console.error("Reject failed:", err);
       alert("ปฏิเสธไม่สำเร็จ: " + err.message);
       setCardBusy(card, false);
+    }
+  }
+
+  // Module 2 HW3 — AI Assistant Level 2 (agentic): อ่านหลายที่ → สรุปให้
+  // คนอ่าน → เขียนผลกลับ (advisory เท่านั้น ไม่แตะ status) → จดบันทึก
+  // ลง subcollection aiLogs ทุกครั้งที่รันสำเร็จ
+  async function showCustomerInsight(id, card) {
+    if (!isMerchant()) {
+      alert("บัญชีนี้ไม่มีสิทธิ์ใช้ฟีเจอร์นี้");
+      return;
+    }
+    const customerId = card.dataset.customerId;
+    const triggerBtn = card.querySelector(".btn-ai-insight");
+    const panel = card.querySelector(".ai-insight-panel");
+    const errorBox = card.querySelector(".ai-insight-error");
+
+    errorBox.hidden = true;
+    panel.hidden = true;
+
+    if (!window.AI_CONFIG || !window.AI_CONFIG.apiKey) {
+      errorBox.textContent = "ยังไม่ได้ตั้งค่าคีย์ AI (ขาดไฟล์ public/ai-config.js)";
+      errorBox.hidden = false;
+      return;
+    }
+    if (!customerId) {
+      errorBox.textContent = "ไม่พบ customerId ของรายการนี้ — สรุปประวัติไม่ได้";
+      errorBox.hidden = false;
+      return;
+    }
+
+    // สัญญาณกำลังทำงาน
+    triggerBtn.disabled = true;
+    const originalLabel = triggerBtn.textContent;
+    triggerBtn.textContent = "🤖 กำลังอ่านประวัติและสรุป...";
+
+    try {
+      // ---- 1) READ: อ่านหลายที่ — ทุก transaction ของลูกค้าคนนี้ (ทุกร้าน) ----
+      const historyQuery = query(collection(db, "transactions"), where("customerId", "==", customerId));
+      const historySnap = await getDocs(historyQuery);
+
+      let approvedCount = 0;
+      let rejectedCount = 0;
+      let otherPendingCount = 0;
+      const recentRejectionReasons = [];
+
+      historySnap.forEach((docSnap) => {
+        if (docSnap.id === id) return; // ไม่นับรายการปัจจุบันเป็น "ประวัติ"
+        const d = docSnap.data();
+        if (d.status === "APPROVED") approvedCount++;
+        else if (d.status === "REJECTED") {
+          rejectedCount++;
+          if (d.rejectionReason && recentRejectionReasons.length < 3) {
+            recentRejectionReasons.push(d.rejectionReason);
+          }
+        } else if (d.status === "PENDING_APPROVAL") otherPendingCount++;
+      });
+      const totalHistoryCount = historySnap.size - (historySnap.docs.some((d) => d.id === id) ? 1 : 0);
+
+      // ---- 2) SUMMARIZE: สรุปให้คนอ่าน + ให้ AI แนะนำ (ไม่ตัดสินแทน) ----
+      const summaryLine =
+        "ลูกค้ารายนี้มีประวัติ " + totalHistoryCount + " รายการ (ไม่รวมรายการนี้) — " +
+        "อนุมัติ " + approvedCount + " ครั้ง, ปฏิเสธ " + rejectedCount + " ครั้ง" +
+        (otherPendingCount ? ", รอดำเนินการอีก " + otherPendingCount + " รายการ" : "") +
+        (recentRejectionReasons.length ? " · เหตุผลปฏิเสธล่าสุด: " + recentRejectionReasons.join(" / ") : "");
+
+      const prompt =
+        "คุณเป็นผู้ช่วยของร้านค้า ShopPlus Global สรุปความน่าเชื่อถือของลูกค้าให้ร้านค้าอ่านสั้น ๆ " +
+        "แล้วแนะนำว่าน่าจะ APPROVE หรือ REJECT รายการล่าสุด (คุณแค่แนะนำ ร้านค้าเป็นคนตัดสินใจเองเสมอ)\n\n" +
+        "ข้อมูลประวัติ: " + summaryLine + "\n\n" +
+        "ตอบกลับเป็น 2 บรรทัดเท่านั้น ห้ามมีข้อความอื่นนอกจากนี้:\n" +
+        "RECOMMENDATION: <APPROVE หรือ REJECT>\n" +
+        "REASON: <อธิบายสั้น ๆ ไม่เกิน 1 ประโยค>";
+
+      const res = await fetch(window.AI_CONFIG.endpoint, {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + window.AI_CONFIG.apiKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: window.AI_CONFIG.model,
+          messages: [{ role: "user", content: prompt }],
+        }),
+      });
+
+      if (!res.ok) throw new Error("AI API status " + res.status);
+
+      const data = await res.json();
+      const content = data?.choices?.[0]?.message?.content || "";
+
+      const recMatch = content.match(/RECOMMENDATION:\s*(.+)/i);
+      const reasonMatch = content.match(/REASON:\s*(.+)/i);
+      let recommendation = recMatch ? recMatch[1].trim().toUpperCase() : "";
+      if (recommendation !== "APPROVE" && recommendation !== "REJECT") recommendation = "ควรตรวจสอบเพิ่มเติม";
+      const reasonText = reasonMatch ? reasonMatch[1].trim() : content.trim().slice(0, 200);
+
+      const recommendationLabel =
+        recommendation === "APPROVE" ? "แนะนำ: อนุมัติ" :
+        recommendation === "REJECT" ? "แนะนำ: ปฏิเสธ" :
+        "แนะนำ: " + recommendation;
+
+      // ---- 3) WRITE BACK: advisory เท่านั้น ไม่แตะ status ----
+      await updateDoc(doc(db, "transactions", id), {
+        aiSuggestion: recommendation,
+        aiReason: reasonText,
+      });
+
+      // ---- 4) LOG: บันทึกการทำงานลง subcollection ดูได้ใน Firestore Console ----
+      await addDoc(collection(db, "transactions", id, "aiLogs"), {
+        type: "CUSTOMER_HISTORY_SUMMARY",
+        actorId: currentUser?.uid || null,
+        actorRole: currentProfile?.role || "MERCHANT",
+        historyReadCount: totalHistoryCount,
+        approvedCount,
+        rejectedCount,
+        recommendation,
+        reason: reasonText,
+        timestamp: serverTimestamp(),
+      });
+
+      panel.querySelector(".ai-insight-summary").textContent = summaryLine;
+      panel.querySelector(".ai-insight-recommendation").textContent = recommendationLabel;
+      panel.querySelector(".ai-insight-reason").textContent = reasonText;
+      panel.querySelector(".ai-insight-meta").textContent = "บันทึกคำแนะนำและ log แล้ว — ร้านค้ายังต้องกดอนุมัติ/ปฏิเสธเองด้านล่าง";
+      panel.hidden = false;
+    } catch (err) {
+      console.error("AI customer insight failed:", err);
+      errorBox.textContent = "🚫 สรุปประวัติไม่สำเร็จ (" + err.message + ") — ยังอนุมัติ/ปฏิเสธแบบไม่มี AI ได้ตามปกติ";
+      errorBox.hidden = false;
+    } finally {
+      // เรียกไม่สำเร็จก็ต้องไม่ค้าง — คืนสถานะปุ่มเสมอ
+      triggerBtn.disabled = false;
+      triggerBtn.textContent = originalLabel;
     }
   }
 
@@ -374,8 +794,24 @@
     const id = card.dataset.id;
 
     if (btn.dataset.action === "approve") approveTx(id, card);
-    else if (btn.dataset.action === "reject") rejectTx(id, card);
+    else if (btn.dataset.action === "reject") openRejectPanel(card);
     else if (btn.dataset.action === "delete") deleteTx(id, card);
+    else if (btn.dataset.action === "ai-classify") classifyRejectionReason(card.querySelector(".tx-reject-panel"));
+    else if (btn.dataset.action === "cancel-reject") closeRejectPanel(card);
+    else if (btn.dataset.action === "confirm-reject") confirmReject(id, card);
+    else if (btn.dataset.action === "ai-insight") showCustomerInsight(id, card);
+  });
+
+  // แก้ข้อความเหตุผลหลังได้ผล AI มาแล้ว → ผลเก่าอาจไม่ตรงกับข้อความใหม่
+  // ซ่อนไว้ก่อน (ไม่ลบ dataset ทิ้ง เผื่อพิมพ์กลับมาเหมือนเดิม) เพื่อไม่ให้
+  // เห็นคำแนะนำ AI ที่อาจไม่ตรงกับข้อความล่าสุดอีกต่อไป
+  listEl.addEventListener("input", (e) => {
+    const textarea = e.target.closest(".reject-reason-input");
+    if (!textarea) return;
+    const panel = textarea.closest(".tx-reject-panel");
+    if (panel.dataset.aiForText && panel.dataset.aiForText !== textarea.value.trim()) {
+      panel.querySelector(".ai-result").hidden = true;
+    }
   });
 
   // กฎขั้นต่ำ: ต้องล็อกอินก่อนถึงจะเห็นข้อมูลได้ — ไม่ล็อกอินเด้งไป login.html
