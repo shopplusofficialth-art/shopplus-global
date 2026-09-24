@@ -106,6 +106,12 @@ describe("users", () => {
   test("เลื่อน role ตัวเองเป็น MERCHANT ไม่ได้", async () => {
     await assertFails(updateDoc(doc(as(CUST_A), "users", CUST_A), { role: "MERCHANT" }));
   });
+  test("แก้ displayName ของตัวเองได้", async () => {
+    await assertSucceeds(updateDoc(doc(as(CUST_A), "users", CUST_A), { displayName: "a2" }));
+  });
+  test("เพิ่มช่องนอก spec §4 ในโปรไฟล์ตัวเองไม่ได้", async () => {
+    await assertFails(updateDoc(doc(as(CUST_A), "users", CUST_A), { isAdmin: true }));
+  });
 });
 
 describe("Customer — สร้างรายการ", () => {
@@ -142,6 +148,23 @@ describe("Customer — สร้างรายการ", () => {
   });
   test("Merchant สร้างรายการแทนลูกค้าไม่ได้", async () => {
     await assertFails(addDoc(collection(as(MERCH), "transactions"), newTx(MERCH)));
+  });
+  test("ปลอม merchantName ไม่ตรงกับ shopName ของร้านไม่ได้", async () => {
+    await assertFails(addDoc(collection(as(CUST_A), "transactions"), newTx(CUST_A, { merchantName: "ร้านปลอม" })));
+  });
+  test("ปลอม minimumPurchaseAmount ไม่ตรงกับของร้านไม่ได้", async () => {
+    await assertFails(addDoc(collection(as(CUST_A), "transactions"), newTx(CUST_A, { minimumPurchaseAmount: 0 })));
+  });
+  test("ส่ง minimumPurchaseAmount = null ทั้งที่ร้านมีขั้นต่ำไม่ได้", async () => {
+    await assertFails(addDoc(collection(as(CUST_A), "transactions"), newTx(CUST_A, { minimumPurchaseAmount: null })));
+  });
+  test("ร้านที่ไม่มี minimumPurchaseAmount ส่ง null ได้ (merchant.minimumPurchaseAmount ?? null)", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "merchants", "merchant002"), { shopName: "ร้านไม่มีขั้นต่ำ" });
+    });
+    await assertSucceeds(addDoc(collection(as(CUST_A), "transactions"), newTx(CUST_A, {
+      merchantId: "merchant002", merchantName: "ร้านไม่มีขั้นต่ำ", minimumPurchaseAmount: null, purchaseAmount: 1,
+    })));
   });
 });
 
@@ -243,6 +266,45 @@ describe("events — audit log", () => {
   test("บันทึก event ในชื่อคนอื่นไม่ได้", async () => {
     await assertFails(addDoc(collection(as(MERCH), "transactions", "txA", "events"), {
       eventType: "APPROVED", actorId: CUST_A, actorRole: "MERCHANT", timestamp: serverTimestamp(),
+    }));
+  });
+  test("flow จริง new-transaction.html: สร้างรายการแล้วบันทึก CREATED ได้", async () => {
+    const db = as(CUST_A);
+    const txRef = await assertSucceeds(addDoc(collection(db, "transactions"), newTx(CUST_A)));
+    await assertSucceeds(addDoc(collection(db, "transactions", txRef.id, "events"), {
+      eventType: "CREATED", actorId: CUST_A, actorRole: "CUSTOMER", timestamp: serverTimestamp(),
+    }));
+  });
+  test("Customer บันทึก CREATED ให้รายการที่ APPROVED แล้วไม่ได้", async () => {
+    await assertFails(addDoc(collection(as(CUST_A), "transactions", "txDone", "events"), {
+      eventType: "CREATED", actorId: CUST_A, actorRole: "CUSTOMER", timestamp: serverTimestamp(),
+    }));
+  });
+  test("Merchant บันทึก APPROVED ทั้งที่รายการยัง PENDING ไม่ได้", async () => {
+    await assertFails(addDoc(collection(as(MERCH), "transactions", "txA", "events"), {
+      eventType: "APPROVED", actorId: MERCH, actorRole: "MERCHANT", timestamp: serverTimestamp(),
+    }));
+  });
+  test("Merchant บันทึก REJECTED ทั้งที่รายการยัง PENDING ไม่ได้", async () => {
+    await assertFails(addDoc(collection(as(MERCH), "transactions", "txA", "events"), {
+      eventType: "REJECTED", actorId: MERCH, actorRole: "MERCHANT", timestamp: serverTimestamp(),
+    }));
+  });
+  test("Merchant บันทึก REJECTED ให้รายการที่ APPROVED ไม่ได้", async () => {
+    await assertFails(addDoc(collection(as(MERCH), "transactions", "txDone", "events"), {
+      eventType: "REJECTED", actorId: MERCH, actorRole: "MERCHANT", timestamp: serverTimestamp(),
+    }));
+  });
+  test("Merchant บันทึก CREATED ไม่ได้", async () => {
+    await assertFails(addDoc(collection(as(MERCH), "transactions", "txA", "events"), {
+      eventType: "CREATED", actorId: MERCH, actorRole: "MERCHANT", timestamp: serverTimestamp(),
+    }));
+  });
+  test("flow จริง index.html: ปฏิเสธแล้วบันทึก REJECTED ได้", async () => {
+    const db = as(MERCH);
+    await assertSucceeds(updateDoc(doc(db, "transactions", "txA"), { status: "REJECTED", rejectionReason: "กรอกยอดผิด" }));
+    await assertSucceeds(addDoc(collection(db, "transactions", "txA", "events"), {
+      eventType: "REJECTED", actorId: MERCH, actorRole: "MERCHANT", timestamp: serverTimestamp(),
     }));
   });
   test("แก้/ลบ event ไม่ได้", async () => {

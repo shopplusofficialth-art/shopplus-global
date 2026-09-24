@@ -58,15 +58,15 @@ Role ของบัญชีเก็บที่ `users/{uid}.role` — บั
 
 | Collection | อ่าน | สร้าง | แก้ไข | ลบ |
 |---|---|---|---|---|
-| `users/{uid}` | เจ้าของเท่านั้น | เจ้าของ, `role` ต้องเป็น `CUSTOMER` | เจ้าของ, ห้ามแตะ `role` | ❌ |
+| `users/{uid}` | เจ้าของเท่านั้น | เจ้าของ, `role` ต้องเป็น `CUSTOMER` | เจ้าของ, ห้ามแตะ `role`, ช่องต้องอยู่ใน `displayName`/`email`/`role`/`createdAt` เท่านั้น (spec.md §4) | ❌ |
 | `merchants` | ล็อกอินแล้ว | ❌ (Console เท่านั้น) | ❌ | ❌ |
-| `transactions` | Merchant ทุกใบ · Customer เฉพาะ `customerId == uid` | Customer, `customerId == uid`, `status == PENDING_APPROVAL`, ช่องบังคับครบ, `purchaseAmount > 0`, ร้านต้องมีอยู่จริง, `purchaseAmount >= merchants.minimumPurchaseAmount` | Merchant เท่านั้น เฉพาะใบที่ `PENDING_APPROVAL`: → `APPROVED` (แก้ได้แค่ `status`) / → `REJECTED` (ต้องมี `rejectionReason` ไม่ว่าง) / เขียน `aiSuggestion`·`aiReason` | Customer เจ้าของ เฉพาะ `PENDING_APPROVAL` |
-| `transactions/{id}/events` | คนที่อ่าน transaction นั้นได้ | `actorId == uid` · `CREATED` = Customer · `APPROVED`/`REJECTED` = Merchant | ❌ (append-only) | ❌ |
+| `transactions` | Merchant ทุกใบ · Customer เฉพาะ `customerId == uid` | Customer, `customerId == uid`, `status == PENDING_APPROVAL`, ช่องบังคับครบ, `purchaseAmount > 0`, ร้านต้องมีอยู่จริง, `purchaseAmount >= merchants.minimumPurchaseAmount`, `merchantName == merchants.shopName` (ไม่มี shopName → `merchantId`), `minimumPurchaseAmount == merchants.minimumPurchaseAmount` (ไม่มี → `null`) | Merchant เท่านั้น เฉพาะใบที่ `PENDING_APPROVAL`: → `APPROVED` (แก้ได้แค่ `status`) / → `REJECTED` (ต้องมี `rejectionReason` ไม่ว่าง) / เขียน `aiSuggestion`·`aiReason` | Customer เจ้าของ เฉพาะ `PENDING_APPROVAL` |
+| `transactions/{id}/events` | คนที่อ่าน transaction นั้นได้ | `actorId == uid` · `CREATED` = Customer เจ้าของรายการ + tx ยัง `PENDING_APPROVAL` · `APPROVED` = Merchant + tx `status == APPROVED` แล้ว · `REJECTED` = Merchant + tx `status == REJECTED` แล้ว (หน้าเว็บเขียน status ก่อนแล้วค่อยเพิ่ม event) | ❌ (append-only) | ❌ |
 | `transactions/{id}/aiLogs` | Merchant | Merchant, `actorId == uid` | ❌ | ❌ |
 | อื่น ๆ ทั้งหมด | ❌ | ❌ | ❌ | ❌ |
 
 ตรวจด้วย Firestore Emulator ก่อน deploy ทุกครั้ง: `npm run test:rules`
-(`tests/firestore-rules.test.js` — 44 เคส)
+(`tests/firestore-rules.test.js` — 57 เคส)
 
 **ข้อจำกัดที่รู้อยู่แล้ว (Known Limitation):** Merchant ยังเห็น/อนุมัติ
 คิว `PENDING_APPROVAL` ของ**ทุกร้าน** ตามตารางสิทธิ์เดิม เพราะยังไม่มี field
@@ -91,3 +91,4 @@ Role ของบัญชีเก็บที่ `users/{uid}.role` — บั
 | 2026-09-06 | สร้างไฟล์ครั้งแรก — Module 2 Homework Part C |
 | 2026-09-23 | Homework 4: บังคับตารางสิทธิ์จริงใน `firestore.rules` (role/ownership) + ตารางกฎต่อ collection + ทดสอบด้วย emulator |
 | 2026-09-24 | HW A3 (data-guard): บังคับยอดซื้อขั้นต่ำของร้านใน `firestore.rules` ตาม spec.md §3 (+2 เคส รวม 44) · ปรับแถว Merchant ให้รวม `aiSuggestion`/`aiReason` ตาม spec.md §2 |
+| 2026-09-24 | HW A3 (data-guard) รอบ 2: ปิดช่องโหว่ 3 ข้อใน `firestore.rules` — (1) `users` update จำกัดช่องตาม spec.md §4 (2) `events` create ต้องตรงกับสถานะจริงของ transaction (3) `transactions` create ตรวจ `merchantName`/`minimumPurchaseAmount` ให้ตรงกับ `merchants/{id}` (+13 เคส รวม 57) |

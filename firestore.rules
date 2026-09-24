@@ -38,6 +38,10 @@ service cloud.firestore {
       return signedIn() && userRole() == "CUSTOMER";
     }
 
+    function merchantData(merchantId) {
+      return get(/databases/$(database)/documents/merchants/$(merchantId)).data;
+    }
+
     // ---- users: โปรไฟล์ + role ----
     match /users/{uid} {
       allow read: if signedIn() && request.auth.uid == uid;
@@ -48,9 +52,10 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(["displayName", "email", "role", "createdAt"])
         && request.resource.data.role == "CUSTOMER";
 
-      // แก้โปรไฟล์ตัวเองได้ แต่ห้ามแตะ role
+      // แก้โปรไฟล์ตัวเองได้ แต่ห้ามแตะ role และห้ามเพิ่มช่องนอก spec.md §4
       allow update: if signedIn()
         && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(["displayName", "email", "role", "createdAt"])
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny(["role"]);
 
       allow delete: if false;
@@ -82,8 +87,13 @@ service cloud.firestore {
         && request.resource.data.purchaseAmount > 0
         // spec.md §3: ยอดซื้อต่ำกว่า minimumPurchaseAmount ของร้าน → ห้ามบันทึก (ตรวจซ้ำฝั่ง server)
         && request.resource.data.purchaseAmount >=
-             get(/databases/$(database)/documents/merchants/$(request.resource.data.merchantId)).data
-               .get("minimumPurchaseAmount", 0)
+             merchantData(request.resource.data.merchantId).get("minimumPurchaseAmount", 0)
+        // spec.md §4: merchantName / minimumPurchaseAmount เป็นค่า denormalize จาก merchants/{id}
+        // ต้องตรงกับของจริง (หน้าเว็บส่ง shopName || merchantId และ minimumPurchaseAmount ?? null)
+        && request.resource.data.merchantName ==
+             merchantData(request.resource.data.merchantId).get("shopName", request.resource.data.merchantId)
+        && request.resource.data.get("minimumPurchaseAmount", null) ==
+             merchantData(request.resource.data.merchantId).get("minimumPurchaseAmount", null)
         && request.resource.data.createdAt == request.time;
 
       // Merchant เท่านั้น และเฉพาะรายการที่ยังรออนุมัติ
@@ -122,10 +132,24 @@ service cloud.firestore {
       // ---- events: audit log (append-only) ----
       match /events/{eventId} {
         allow read: if canSeeTx();
+        // eventType ต้องตรงกับสถานะจริงของ transaction
+        // (หน้าเว็บเขียน status ก่อน แล้วค่อยเพิ่ม event — ดู index.html / new-transaction.html)
         allow create: if canSeeTx()
           && request.resource.data.actorId == request.auth.uid
-          && request.resource.data.eventType in ["CREATED", "APPROVED", "REJECTED"]
-          && (request.resource.data.eventType == "CREATED" ? isCustomer() : isMerchant());
+          && (
+            (request.resource.data.eventType == "CREATED"
+              && isCustomer()
+              && txData().customerId == request.auth.uid
+              && txData().status == "PENDING_APPROVAL")
+            ||
+            (request.resource.data.eventType == "APPROVED"
+              && isMerchant()
+              && txData().status == "APPROVED")
+            ||
+            (request.resource.data.eventType == "REJECTED"
+              && isMerchant()
+              && txData().status == "REJECTED")
+          );
         allow update, delete: if false;
       }
 
