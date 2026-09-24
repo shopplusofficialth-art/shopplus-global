@@ -80,6 +80,10 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/merchants/$(request.resource.data.merchantId))
         && request.resource.data.purchaseAmount is number
         && request.resource.data.purchaseAmount > 0
+        // spec.md §3: ยอดซื้อต่ำกว่า minimumPurchaseAmount ของร้าน → ห้ามบันทึก (ตรวจซ้ำฝั่ง server)
+        && request.resource.data.purchaseAmount >=
+             get(/databases/$(database)/documents/merchants/$(request.resource.data.merchantId)).data
+               .get("minimumPurchaseAmount", 0)
         && request.resource.data.createdAt == request.time;
 
       // Merchant เท่านั้น และเฉพาะรายการที่ยังรออนุมัติ

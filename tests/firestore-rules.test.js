@@ -131,6 +131,12 @@ describe("Customer — สร้างรายการ", () => {
     delete data.merchantId;
     await assertFails(addDoc(collection(as(CUST_A), "transactions"), data));
   });
+  test("ยอดซื้อต่ำกว่าขั้นต่ำของร้าน บันทึกไม่ได้ (spec §3)", async () => {
+    await assertFails(addDoc(collection(as(CUST_A), "transactions"), newTx(CUST_A, { purchaseAmount: 99 })));
+  });
+  test("ยอดซื้อเท่ากับขั้นต่ำพอดี บันทึกได้", async () => {
+    await assertSucceeds(addDoc(collection(as(CUST_A), "transactions"), newTx(CUST_A, { purchaseAmount: 100 })));
+  });
   test("ร้านที่ไม่มีอยู่จริง บันทึกไม่ได้", async () => {
     await assertFails(addDoc(collection(as(CUST_A), "transactions"), newTx(CUST_A, { merchantId: "ghost" })));
   });
