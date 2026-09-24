@@ -4,9 +4,13 @@
   "type": "module",
   "description": "Utility scripts for ShopPlus Global Module 2 homework (Firestore seeding, etc.)",
   "scripts": {
-    "seed": "node scripts/seed-firestore.js"
+    "seed": "node scripts/seed-firestore.js",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-shopplus-rules \"node --test tests/firestore-rules.test.js\""
   },
   "dependencies": {
     "firebase": "^11.0.0"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.1"
   }
 }

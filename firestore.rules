@@ -1,29 +1,136 @@
-// ShopPlus Global — Firestore Security Rules (Module 2 Homework, Part C5)
+// ShopPlus Global — Firestore Security Rules (Module 2 Homework 4 — role/ownership)
 //
-// กฎขั้นต่ำข้อเดียวตามที่ใบงานกำหนด: "ต้องล็อกอินก่อนจึงจะอ่านหรือเขียนได้"
-// — ไม่มีข้อยกเว้น ครอบคลุมทุก collection ในฐานข้อมูล
+// แปลงตารางสิทธิ์ใน ACL.md ให้บังคับใช้จริงฝั่ง server (ก่อนหน้านี้เป็นแค่
+// "ต้องล็อกอินก่อน" แล้วกรองสิทธิ์ที่ฝั่ง client query เท่านั้น — ข้ามได้ด้วย
+// Firestore SDK/REST ตรง ๆ)
 //
-// ⚠️ ข้อจำกัดที่รู้อยู่แล้ว (ตรงกับที่ระบุไว้ใน ACL.md และใบงาน):
-// กฎนี้ตรวจแค่ "ล็อกอินหรือยัง" ไม่ได้ตรวจ role หรือ ownership เลย —
-// ผู้ใช้ที่ล็อกอินคนใดก็ตาม (ไม่ว่า role อะไร) ยังสามารถอ่าน/เขียนข้อมูล
-// ของคนอื่นได้ผ่าน Firestore SDK/REST โดยตรง (ข้าม UI ทั้งหมดที่กรองไว้
-// ใน public/index.html) การจำกัดสิทธิ์ตาม role/ownership แบบเข้มงวดจริง
-// (เช่น "Customer อ่านได้เฉพาะ transaction ของตัวเอง", "Merchant เท่านั้น
-// ที่แก้ status ได้") ยังไม่ทำในรอบนี้ — เป็นแผนของสัปดาห์ที่ 8
+// หลักการ:
+// - ปิดทุกอย่างเป็นค่าเริ่มต้น เปิดเฉพาะที่ ACL.md อนุญาต
+// - role อ่านจาก users/{uid}.role เสมอ (ไม่เชื่อค่าที่ client ส่งมา)
+// - ผู้ใช้เปลี่ยน role ตัวเองไม่ได้ — การเป็น MERCHANT ต้องแก้ผ่าน Console
+// - Customer อ่าน/ลบได้เฉพาะ transaction ที่ customerId == uid ของตัวเอง
+// - Merchant เท่านั้นที่เปลี่ยน status ได้ และเปลี่ยนได้เฉพาะจาก
+//   PENDING_APPROVAL → APPROVED/REJECTED (REJECTED ต้องมี rejectionReason)
+// - events / aiLogs เป็น audit log — เพิ่มได้ แก้/ลบไม่ได้
 //
-// เพราะฉะนั้น: ห้ามใส่ข้อมูลจริงของบุคคลอื่นลงระบบนี้จนกว่าจะมี Security
-// Rules ระดับ role-based ที่ผ่านสัปดาห์ 8 แล้ว (ตาม CLAUDE.md Section 14
-// และ ACL.md)
-//
-// ยังไม่ deploy — ไฟล์นี้รอการตรวจสอบจากผู้ใช้ก่อนเสมอ (ดู Part C5 ของ
-// การบ้านนี้: "เขียนไฟล์มาให้ผมอ่านก่อน อย่าเพิ่ง deploy")
+// ข้อจำกัดที่รู้อยู่แล้ว: ACL.md กำหนดให้ Merchant เห็นคิว PENDING_APPROVAL
+// ของทุกร้าน (ยังไม่มี field ผูกบัญชี merchant กับ merchants/{id}) — การจำกัด
+// ให้ร้านเห็นเฉพาะร้านตัวเองอยู่ใน BACKLOG.md
 
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isMerchant() {
+      return signedIn() && userRole() == "MERCHANT";
+    }
+
+    function isCustomer() {
+      return signedIn() && userRole() == "CUSTOMER";
+    }
+
+    // ---- users: โปรไฟล์ + role ----
+    match /users/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+
+      // สมัครใหม่ได้เฉพาะ doc ของตัวเอง และ role เริ่มต้นต้องเป็น CUSTOMER เสมอ
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(["displayName", "email", "role", "createdAt"])
+        && request.resource.data.role == "CUSTOMER";
+
+      // แก้โปรไฟล์ตัวเองได้ แต่ห้ามแตะ role
+      allow update: if signedIn()
+        && request.auth.uid == uid
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(["role"]);
+
+      allow delete: if false;
+    }
+
+    // ---- merchants: ลิสต์ร้านให้ลูกค้าเลือก (แก้ผ่าน Console/seed เท่านั้น) ----
+    match /merchants/{merchantId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // ---- transactions: เอกสารหลัก ----
+    match /transactions/{txId} {
+
+      allow read: if isMerchant()
+        || (isCustomer() && resource.data.customerId == request.auth.uid);
+
+      // Customer สร้างได้เฉพาะของตัวเอง สถานะเริ่มต้น PENDING_APPROVAL
+      // ช่องบังคับต้องครบ และยอดซื้อต้องเป็นตัวเลขมากกว่า 0
+      allow create: if isCustomer()
+        && request.resource.data.keys().hasAll(["customerId", "merchantId", "purchaseAmount", "status", "createdAt"])
+        && request.resource.data.keys().hasOnly(["customerId", "customerName", "merchantId", "merchantName",
+                                                 "minimumPurchaseAmount", "purchaseAmount", "status", "createdAt"])
+        && request.resource.data.customerId == request.auth.uid
+        && request.resource.data.status == "PENDING_APPROVAL"
+        && request.resource.data.merchantId is string
+        && exists(/databases/$(database)/documents/merchants/$(request.resource.data.merchantId))
+        && request.resource.data.purchaseAmount is number
+        && request.resource.data.purchaseAmount > 0
+        && request.resource.data.createdAt == request.time;
+
+      // Merchant เท่านั้น และเฉพาะรายการที่ยังรออนุมัติ
+      allow update: if isMerchant()
+        && resource.data.status == "PENDING_APPROVAL"
+        && (
+          // อนุมัติ: เปลี่ยนได้แค่ status
+          (request.resource.data.status == "APPROVED"
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status"]))
+          ||
+          // ปฏิเสธ: ต้องมีเหตุผล (+ คำแนะนำ AI ได้ถ้ามี)
+          (request.resource.data.status == "REJECTED"
+            && request.resource.data.rejectionReason is string
+            && request.resource.data.rejectionReason.trim().size() > 0
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(["status", "rejectionReason", "aiSuggestion", "aiReason"]))
+          ||
+          // AI เขียนคำแนะนำกลับ (advisory) — ห้ามแตะ status
+          (request.resource.data.status == "PENDING_APPROVAL"
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["aiSuggestion", "aiReason"]))
+        );
+
+      // Customer เจ้าของลบได้เฉพาะตอนยังเป็น PENDING_APPROVAL
+      allow delete: if isCustomer()
+        && resource.data.customerId == request.auth.uid
+        && resource.data.status == "PENDING_APPROVAL";
+
+      function txData() {
+        return get(/databases/$(database)/documents/transactions/$(txId)).data;
+      }
+
+      function canSeeTx() {
+        return isMerchant() || (isCustomer() && txData().customerId == request.auth.uid);
+      }
+
+      // ---- events: audit log (append-only) ----
+      match /events/{eventId} {
+        allow read: if canSeeTx();
+        allow create: if canSeeTx()
+          && request.resource.data.actorId == request.auth.uid
+          && request.resource.data.eventType in ["CREATED", "APPROVED", "REJECTED"]
+          && (request.resource.data.eventType == "CREATED" ? isCustomer() : isMerchant());
+        allow update, delete: if false;
+      }
+
+      // ---- aiLogs: log การทำงานของผู้ช่วย AI (append-only, Merchant เท่านั้น) ----
+      match /aiLogs/{logId} {
+        allow read: if isMerchant();
+        allow create: if isMerchant() && request.resource.data.actorId == request.auth.uid;
+        allow update, delete: if false;
+      }
     }
   }
 }

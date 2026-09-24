@@ -48,16 +48,29 @@ Role ของบัญชีเก็บที่ `users/{uid}.role` — บั
 1. **Client-side (UX):** `public/auth-guard.js` เด้งไปหน้า `login.html`
    ทันทีถ้ายังไม่ล็อกอิน
 2. **Server-side (ของจริง):** Firestore Security Rules — ดู
-   `firestore.rules` ที่ repo root (กฎเดียว: ต้องล็อกอินก่อน) — เป็นชั้นที่
-   บังคับจริง แม้ client จะข้าม auth-guard.js ไปตรง ๆ ก็เขียน/อ่านไม่ได้
+   `firestore.rules` ที่ repo root — เป็นชั้นที่บังคับจริง แม้ client จะข้าม
+   auth-guard.js หรือยิง Firestore SDK/REST ตรง ๆ ก็ทำเกินสิทธิ์ไม่ได้
 
-**ข้อจำกัดที่รู้อยู่แล้ว (Known Limitation):** กฎขั้นต่ำนี้*ยังไม่*แยกสิทธิ์
-ตาม role หรือ ownership ในระดับ Security Rules จริง (แค่ "ล็อกอินหรือยัง")
-— การกรองข้อมูลตาม role/ownership ในตารางด้านบน (เช่น "Customer เห็นแค่
-ของตัวเอง") ตอนนี้ทำที่**ฝั่ง client query เท่านั้น** ผู้ใช้ที่ล็อกอินและ
-มีความรู้ด้านเทคนิคยังสามารถ query ข้ามสิทธิ์ได้จริงถ้าตั้งใจ — เหตุนี้จึง
-**ห้ามใส่ข้อมูลจริงของคนอื่นลงระบบจนกว่าจะทำ Security Rules ระดับ
-role-based ในสัปดาห์ที่ 8** (ตามที่ระบุไว้ในใบงาน และ `CLAUDE.md` Section 14)
+## Security Rules ระดับ role/ownership (Module 2 Homework 4)
+
+ตารางสิทธิ์ด้านบนบังคับใช้จริงใน `firestore.rules` แล้ว (role อ่านจาก
+`users/{uid}.role` ฝั่ง server เสมอ):
+
+| Collection | อ่าน | สร้าง | แก้ไข | ลบ |
+|---|---|---|---|---|
+| `users/{uid}` | เจ้าของเท่านั้น | เจ้าของ, `role` ต้องเป็น `CUSTOMER` | เจ้าของ, ห้ามแตะ `role` | ❌ |
+| `merchants` | ล็อกอินแล้ว | ❌ (Console เท่านั้น) | ❌ | ❌ |
+| `transactions` | Merchant ทุกใบ · Customer เฉพาะ `customerId == uid` | Customer, `customerId == uid`, `status == PENDING_APPROVAL`, ช่องบังคับครบ, `purchaseAmount > 0`, ร้านต้องมีอยู่จริง | Merchant เท่านั้น เฉพาะใบที่ `PENDING_APPROVAL`: → `APPROVED` (แก้ได้แค่ `status`) / → `REJECTED` (ต้องมี `rejectionReason` ไม่ว่าง) / เขียน `aiSuggestion`·`aiReason` | Customer เจ้าของ เฉพาะ `PENDING_APPROVAL` |
+| `transactions/{id}/events` | คนที่อ่าน transaction นั้นได้ | `actorId == uid` · `CREATED` = Customer · `APPROVED`/`REJECTED` = Merchant | ❌ (append-only) | ❌ |
+| `transactions/{id}/aiLogs` | Merchant | Merchant, `actorId == uid` | ❌ | ❌ |
+| อื่น ๆ ทั้งหมด | ❌ | ❌ | ❌ | ❌ |
+
+ตรวจด้วย Firestore Emulator ก่อน deploy ทุกครั้ง: `npm run test:rules`
+(`tests/firestore-rules.test.js` — 42 เคส)
+
+**ข้อจำกัดที่รู้อยู่แล้ว (Known Limitation):** Merchant ยังเห็น/อนุมัติ
+คิว `PENDING_APPROVAL` ของ**ทุกร้าน** ตามตารางสิทธิ์เดิม เพราะยังไม่มี field
+ผูกบัญชี merchant (`users/{uid}`) กับ `merchants/{id}` — ย้ายไป `BACKLOG.md`
 
 ---
 
@@ -67,7 +80,7 @@ role-based ในสัปดาห์ที่ 8** (ตามที่ระบ
 |---|---|---|
 | ① | ช่อง "ทำไม่ได้" ครบทุกแถว ไม่มีว่าง | ✅ ครบทั้ง 3 แถว |
 | ② | คนสร้างรายการ (Customer) อนุมัติของตัวเองไม่ได้ | ✅ Customer ไม่มีสิทธิ์อนุมัติ/ปฏิเสธเลย (ไม่ว่าของใคร) |
-| ③ | คนสร้างรายการ (Customer) ดูของคนอื่นไม่ได้ | ✅ (ระดับ client query — ดู "ข้อจำกัดที่รู้อยู่แล้ว" ด้านบน สำหรับข้อจำกัดจริงจนกว่าจะถึงสัปดาห์ 8) |
+| ③ | คนสร้างรายการ (Customer) ดูของคนอื่นไม่ได้ | ✅ บังคับจริงที่ Security Rules (`customerId == uid`) |
 
 ---
 
@@ -76,3 +89,4 @@ role-based ในสัปดาห์ที่ 8** (ตามที่ระบ
 | วันที่ | การเปลี่ยนแปลง |
 |---|---|
 | 2026-09-06 | สร้างไฟล์ครั้งแรก — Module 2 Homework Part C |
+| 2026-09-23 | Homework 4: บังคับตารางสิทธิ์จริงใน `firestore.rules` (role/ownership) + ตารางกฎต่อ collection + ทดสอบด้วย emulator |
