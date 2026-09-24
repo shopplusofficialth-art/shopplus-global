@@ -24,3 +24,7 @@ firebase-debug.log
 # AI assistant key (Module 2 Homework 3, week 8) — ห้ามขึ้น GitHub เด็ดขาด
 # คีย์ของหลักสูตร (OpenRouter) ต้องอยู่ในไฟล์นี้เท่านั้น ไม่ commit
 public/ai-config.js
+# E2E test accounts (Module 2 Homework 4) — รหัสผ่านบัญชีทดสอบ ห้ามขึ้น GitHub
+.env.test
+test-results/
+playwright-report/

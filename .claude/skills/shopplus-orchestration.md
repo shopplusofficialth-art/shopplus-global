@@ -42,6 +42,10 @@ sub-agent — เมื่อ routing ไปยัง sub-agent ตัวใด 
 | สร้าง/แก้ Detailed Design, Sequence Flow, Sequence Diagram, interaction flow ระดับ conceptual ต่อ Feature/Scenario (ยังไม่ผูกกับ technical stack) | `detailed-design-writer` | `detailed-design-standard` | `02-design/07-detailed-design.md` | 02-design |
 | สร้าง/แก้ Tech Stack, เลือก/แนะนำ technology stack, framework, library, tool ที่เหมาะสมกับโครงการ | `tech-stack-selector` | `tech-stack-selection-standard` | `02-design/08-tech-stack.md` | 02-design |
 | รันทั้ง pipeline ต่อเนื่องตั้งแต่ Requirement→Backlog→Feature List→User Journey→(Test Plan+Acceptance Criteria→Test Case) ในคำขอเดียว, "เริ่มโปรเจกต์ใหม่ทั้งหมด", "ทำ feature ใหม่ให้ครบตั้งแต่ requirement ถึง test" | `pipeline-orchestrator` | `pipeline-orchestration` | ไฟล์ตาม stage ที่รันจริง (ดู skill `pipeline-orchestration`) | Cross-cutting |
+| (Module 2 MVP) แก้/ตรวจหน้าจอ `public/*.html` ให้ตรง `spec.md` §3 | `ui-builder` (model: haiku) | (inline ในไฟล์ agent) | `public/login.html`, `public/index.html` (ส่วนแสดงผล), `public/new-transaction.html` | 03-development |
+| (Module 2 MVP) แก้/ตรวจโครงสร้างข้อมูล + Firestore Security Rules ให้ตรง `spec.md` §2/§4/§5 + `ACL.md` | `data-guard` (model: opus) | (inline ในไฟล์ agent) | `firestore.rules`, `tests/firestore-rules.test.js`, `ACL.md` | 03-development |
+| (Module 2 MVP) แก้/ตรวจปุ่ม AI ใน `index.html` ให้ตรง `spec.md` §6 | `ai-assistant` (model: sonnet) | (inline ในไฟล์ agent) | `public/index.html` (ฟังก์ชัน AI) | 03-development |
+| (Module 2 MVP) วางแผน/เขียน/รันเทสต์ E2E บนเว็บจริงด้วย Playwright + สรุป `test-results.md` | `tester` (model: sonnet) | (inline ในไฟล์ agent) | `tests/e2e/*.spec.js`, `test-results.md` | 04-testing |
 | ตรวจสอบความสอดคล้อง/traceability ข้ามเอกสาร, "sync", "เช็คทั้งหมดให้หน่อย" | `traceability-consistency-auditor` | `traceability-consistency-check` | Consistency Check Report (+ แก้เอกสารที่กระทบ) | Cross-cutting |
 
 ถ้าคำขอไม่ตรงกับแถวใดใน Agent Directory นี้เลย (เช่น อยู่นอกขอบเขต

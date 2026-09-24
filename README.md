@@ -1,6 +1,10 @@
 # ShopPlus Global
 
-🌐 **Live App:** https://shopplus-global.web.app
+🌐 **ระบบออนไลน์ (Live App):** https://shopplus-global.web.app
+
+📊 **รายงานผลการทดสอบ:** [test-results.md](test-results.md) — E2E 11/11 ผ่าน · Security Rules 57/57 ผ่าน
+
+📄 [spec.md](spec.md) · 📝 [BACKLOG.md](BACKLOG.md) · 🔒 [ACL.md](ACL.md) · 🤖 ผู้ช่วย: [ui-builder](.claude/agents/ui-builder.md) (haiku) · [data-guard](.claude/agents/data-guard.md) (opus) · [ai-assistant](.claude/agents/ai-assistant.md) (sonnet) · [tester](.claude/agents/tester.md) (sonnet)
 
 AI Native Agile Project
 

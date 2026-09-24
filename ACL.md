@@ -34,7 +34,7 @@ Role ของบัญชีเก็บที่ `users/{uid}.role` — บั
 | บทบาท | ทำได้ | ทำไม่ได้ |
 |---|---|---|
 | **Customer** | • สร้างรายการทำธุรกรรมใหม่ (`transactions`, สถานะเริ่มต้น `PENDING_APPROVAL`, `customerId` = uid ของตัวเอง)<br>• ดูรายการทำธุรกรรม**ของตัวเองเท่านั้น** (กรองด้วย `customerId == uid`)<br>• ลบรายการของตัวเองที่**ยังเป็น `PENDING_APPROVAL`** เท่านั้น (ต้องยืนยันก่อนลบทุกครั้ง) | • ดูรายการทำธุรกรรมของ**ลูกค้าคนอื่น** (ไม่ว่าสถานะใด)<br>• อนุมัติ (`APPROVED`) หรือปฏิเสธ (`REJECTED`) รายการใด ๆ แม้แต่ของตัวเอง<br>• แก้ไขรายการที่ `APPROVED`/`REJECTED` แล้ว (ลบไม่ได้, แก้ไม่ได้)<br>• แก้ field อื่นของ transaction นอกจากตอนสร้าง (เช่น แก้ `purchaseAmount` ย้อนหลัง)<br>• เข้าถึงข้อมูลระบบโดยไม่ล็อกอิน |
-| **Merchant** | • ดูคิวรายการที่รอดำเนินการ (`status == PENDING_APPROVAL`) **ของทุกลูกค้า**<br>• อนุมัติรายการ → เปลี่ยนเฉพาะ field `status` เป็น `APPROVED`<br>• ปฏิเสธรายการ → เปลี่ยน `status` เป็น `REJECTED` **พร้อมระบุ `rejectionReason` เสมอ** (บังคับกรอก) | • สร้างรายการทำธุรกรรมใหม่แทนลูกค้า<br>• ลบรายการทำธุรกรรมใด ๆ (แม้จะเป็น `PENDING_APPROVAL`)<br>• อนุมัติ/ปฏิเสธรายการที่ตัวเองเป็นคนสร้าง (ไม่เกิดขึ้นในระบบนี้อยู่แล้ว เพราะ Merchant ไม่ใช่คนสร้างรายการ)<br>• แก้ field อื่นของ transaction นอกจาก `status`/`rejectionReason`<br>• เข้าถึงข้อมูลระบบโดยไม่ล็อกอิน |
+| **Merchant** | • ดูคิวรายการที่รอดำเนินการ (`status == PENDING_APPROVAL`) **ของทุกลูกค้า**<br>• อนุมัติรายการ → เปลี่ยนเฉพาะ field `status` เป็น `APPROVED`<br>• ปฏิเสธรายการ → เปลี่ยน `status` เป็น `REJECTED` **พร้อมระบุ `rejectionReason` เสมอ** (บังคับกรอก) | • สร้างรายการทำธุรกรรมใหม่แทนลูกค้า<br>• ลบรายการทำธุรกรรมใด ๆ (แม้จะเป็น `PENDING_APPROVAL`)<br>• อนุมัติ/ปฏิเสธรายการที่ตัวเองเป็นคนสร้าง (ไม่เกิดขึ้นในระบบนี้อยู่แล้ว เพราะ Merchant ไม่ใช่คนสร้างรายการ)<br>• แก้ field อื่นของ transaction นอกจาก `status`/`rejectionReason`/`aiSuggestion`/`aiReason`<br>• เข้าถึงข้อมูลระบบโดยไม่ล็อกอิน |
 | **Admin** *(ยังไม่ implement)* | *(ตามแผนระยะถัดไป)* ดู audit log ของทุก transaction, บริหารจัดการบัญชี/role ผู้ใช้, ดูสุขภาพระบบ | *(ยังไม่ implement)* ทุกอย่างที่ยังไม่มีหน้าจอรองรับในรอบนี้ — **ทำไม่ได้เลยในทางปฏิบัติ** เพราะไม่มี UI ให้ทำ |
 
 ---
@@ -48,16 +48,29 @@ Role ของบัญชีเก็บที่ `users/{uid}.role` — บั
 1. **Client-side (UX):** `public/auth-guard.js` เด้งไปหน้า `login.html`
    ทันทีถ้ายังไม่ล็อกอิน
 2. **Server-side (ของจริง):** Firestore Security Rules — ดู
-   `firestore.rules` ที่ repo root (กฎเดียว: ต้องล็อกอินก่อน) — เป็นชั้นที่
-   บังคับจริง แม้ client จะข้าม auth-guard.js ไปตรง ๆ ก็เขียน/อ่านไม่ได้
+   `firestore.rules` ที่ repo root — เป็นชั้นที่บังคับจริง แม้ client จะข้าม
+   auth-guard.js หรือยิง Firestore SDK/REST ตรง ๆ ก็ทำเกินสิทธิ์ไม่ได้
 
-**ข้อจำกัดที่รู้อยู่แล้ว (Known Limitation):** กฎขั้นต่ำนี้*ยังไม่*แยกสิทธิ์
-ตาม role หรือ ownership ในระดับ Security Rules จริง (แค่ "ล็อกอินหรือยัง")
-— การกรองข้อมูลตาม role/ownership ในตารางด้านบน (เช่น "Customer เห็นแค่
-ของตัวเอง") ตอนนี้ทำที่**ฝั่ง client query เท่านั้น** ผู้ใช้ที่ล็อกอินและ
-มีความรู้ด้านเทคนิคยังสามารถ query ข้ามสิทธิ์ได้จริงถ้าตั้งใจ — เหตุนี้จึง
-**ห้ามใส่ข้อมูลจริงของคนอื่นลงระบบจนกว่าจะทำ Security Rules ระดับ
-role-based ในสัปดาห์ที่ 8** (ตามที่ระบุไว้ในใบงาน และ `CLAUDE.md` Section 14)
+## Security Rules ระดับ role/ownership (Module 2 Homework 4)
+
+ตารางสิทธิ์ด้านบนบังคับใช้จริงใน `firestore.rules` แล้ว (role อ่านจาก
+`users/{uid}.role` ฝั่ง server เสมอ):
+
+| Collection | อ่าน | สร้าง | แก้ไข | ลบ |
+|---|---|---|---|---|
+| `users/{uid}` | เจ้าของเท่านั้น | เจ้าของ, `role` ต้องเป็น `CUSTOMER` | เจ้าของ, ห้ามแตะ `role`, ช่องต้องอยู่ใน `displayName`/`email`/`role`/`createdAt` เท่านั้น (spec.md §4) | ❌ |
+| `merchants` | ล็อกอินแล้ว | ❌ (Console เท่านั้น) | ❌ | ❌ |
+| `transactions` | Merchant ทุกใบ · Customer เฉพาะ `customerId == uid` | Customer, `customerId == uid`, `status == PENDING_APPROVAL`, ช่องบังคับครบ, `purchaseAmount > 0`, ร้านต้องมีอยู่จริง, `purchaseAmount >= merchants.minimumPurchaseAmount`, `merchantName == merchants.shopName` (ไม่มี shopName → `merchantId`), `minimumPurchaseAmount == merchants.minimumPurchaseAmount` (ไม่มี → `null`) | Merchant เท่านั้น เฉพาะใบที่ `PENDING_APPROVAL`: → `APPROVED` (แก้ได้แค่ `status`) / → `REJECTED` (ต้องมี `rejectionReason` ไม่ว่าง) / เขียน `aiSuggestion`·`aiReason` | Customer เจ้าของ เฉพาะ `PENDING_APPROVAL` |
+| `transactions/{id}/events` | คนที่อ่าน transaction นั้นได้ | `actorId == uid` · `CREATED` = Customer เจ้าของรายการ + tx ยัง `PENDING_APPROVAL` · `APPROVED` = Merchant + tx `status == APPROVED` แล้ว · `REJECTED` = Merchant + tx `status == REJECTED` แล้ว (หน้าเว็บเขียน status ก่อนแล้วค่อยเพิ่ม event) | ❌ (append-only) | ❌ |
+| `transactions/{id}/aiLogs` | Merchant | Merchant, `actorId == uid` | ❌ | ❌ |
+| อื่น ๆ ทั้งหมด | ❌ | ❌ | ❌ | ❌ |
+
+ตรวจด้วย Firestore Emulator ก่อน deploy ทุกครั้ง: `npm run test:rules`
+(`tests/firestore-rules.test.js` — 57 เคส)
+
+**ข้อจำกัดที่รู้อยู่แล้ว (Known Limitation):** Merchant ยังเห็น/อนุมัติ
+คิว `PENDING_APPROVAL` ของ**ทุกร้าน** ตามตารางสิทธิ์เดิม เพราะยังไม่มี field
+ผูกบัญชี merchant (`users/{uid}`) กับ `merchants/{id}` — ย้ายไป `BACKLOG.md`
 
 ---
 
@@ -67,7 +80,7 @@ role-based ในสัปดาห์ที่ 8** (ตามที่ระบ
 |---|---|---|
 | ① | ช่อง "ทำไม่ได้" ครบทุกแถว ไม่มีว่าง | ✅ ครบทั้ง 3 แถว |
 | ② | คนสร้างรายการ (Customer) อนุมัติของตัวเองไม่ได้ | ✅ Customer ไม่มีสิทธิ์อนุมัติ/ปฏิเสธเลย (ไม่ว่าของใคร) |
-| ③ | คนสร้างรายการ (Customer) ดูของคนอื่นไม่ได้ | ✅ (ระดับ client query — ดู "ข้อจำกัดที่รู้อยู่แล้ว" ด้านบน สำหรับข้อจำกัดจริงจนกว่าจะถึงสัปดาห์ 8) |
+| ③ | คนสร้างรายการ (Customer) ดูของคนอื่นไม่ได้ | ✅ บังคับจริงที่ Security Rules (`customerId == uid`) |
 
 ---
 
@@ -76,3 +89,6 @@ role-based ในสัปดาห์ที่ 8** (ตามที่ระบ
 | วันที่ | การเปลี่ยนแปลง |
 |---|---|
 | 2026-09-06 | สร้างไฟล์ครั้งแรก — Module 2 Homework Part C |
+| 2026-09-23 | Homework 4: บังคับตารางสิทธิ์จริงใน `firestore.rules` (role/ownership) + ตารางกฎต่อ collection + ทดสอบด้วย emulator |
+| 2026-09-24 | HW A3 (data-guard): บังคับยอดซื้อขั้นต่ำของร้านใน `firestore.rules` ตาม spec.md §3 (+2 เคส รวม 44) · ปรับแถว Merchant ให้รวม `aiSuggestion`/`aiReason` ตาม spec.md §2 |
+| 2026-09-24 | HW A3 (data-guard) รอบ 2: ปิดช่องโหว่ 3 ข้อใน `firestore.rules` — (1) `users` update จำกัดช่องตาม spec.md §4 (2) `events` create ต้องตรงกับสถานะจริงของ transaction (3) `transactions` create ตรวจ `merchantName`/`minimumPurchaseAmount` ให้ตรงกับ `merchants/{id}` (+13 เคส รวม 57) |
